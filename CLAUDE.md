@@ -1,0 +1,53 @@
+# Flowtdoor — contexto para o agente
+
+Reescrita completa do sistema anterior (JS puro + Supabase). Nada foi migrado:
+base nova, schema novo.
+
+## Infra
+
+- **Supabase**: projeto `ipcjrlgrxvqdwpofuzuz` (`flowtdoor-prod`, sa-east-1),
+  org `crgrzdwceluktrpijkvi`. Migrations em `supabase/migrations`.
+- **Vercel**: time `team_ynhMKT1vhNxivPTtcArWMWBc`.
+- **Stack**: Next.js 16 (App Router) + TypeScript + Tailwind v4 + `@supabase/ssr`.
+
+## Decisões que não devem ser desfeitas
+
+1. **`site` → `face` → `booking`.** O ponto tem licença, contrato de terreno e
+   proprietário. A face tem lado e medida. A reserva é o que se vende. Sem esse
+   terceiro nível não existe calendário nem DOOH.
+2. **Organizações se relacionam.** `organizations.kind` é exibidora, agência ou
+   representação; `org_relationships` liga provider (dono do inventário) a
+   consumer. Papel de plataforma vive em `platform_admins`, fora das orgs.
+3. **`field_events` é genérico.** Tipo: aplicação, vistoria, retirada, troca,
+   manutenção, registro. Mesmo QR, mesmo GPS, mesma câmera.
+4. **Imagens em Storage.** Buckets `artworks`, `field-photos`, `avatars`.
+   Caminho sempre `<org_id>/...` — a primeira pasta é a fronteira do tenant.
+   Nunca base64 em coluna.
+5. **RLS é a fronteira, não o filtro do cliente.** As policies usam
+   `readable_org_ids()`, `has_org_role()`, `is_org_member()` — SECURITY DEFINER,
+   estáveis, com `search_path` fixo. Filtro por `org_id` no front é conveniência.
+6. **Operação sensível passa por RPC.** `create_order_with_items`, `field_start`,
+   `field_finish`, `publish_proof`, `create_invitation`, `accept_invitation`,
+   `bootstrap_platform_admin`, `create_organization`.
+7. **Comprovante público** é lido só por `get_public_proof(token)`, a única
+   função exposta a `anon`. Devolve snapshot congelado na publicação.
+8. **Campo funciona offline.** `src/lib/field/queue.ts` grava em IndexedDB antes
+   de qualquer rede; `sync.ts` drena com chave de idempotência. Reenviar não
+   duplica — o banco checa `field_sync_log.idempotency_key`.
+
+## Convenções
+
+- UI e mensagens de erro em português, voz ativa, sem jargão de sistema.
+- Sem `any`. Tipos do domínio em `src/lib/domain/types.ts`.
+- Server Components por padrão; `"use client"` só onde há estado ou API do
+  navegador.
+- Nada de `alert()`. Erro vira estado e aparece na tela com `role="alert"`.
+
+## Ainda não existe
+
+- Formulário de novo pedido (a RPC `create_order_with_items` já está pronta).
+- Cadastro de anunciante pela interface.
+- Botão de publicar comprovante.
+- Importação de faces por CSV/XLSX.
+- Envio de e-mail de convite.
+- Financeiro, bonificação e exclusividade de categoria (tabela existe, regra não).
