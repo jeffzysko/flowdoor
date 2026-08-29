@@ -66,5 +66,6 @@ VM** — a verificação de build passa a ser no Terminal do Jeff.
 - Cadastro de anunciante pela interface.
 - Botão de publicar comprovante.
 - Importação de faces por CSV/XLSX.
-- Envio de e-mail de convite.
+- Envio de e-mail de convite (a rota /auth/callback e a tela /definir-senha
+  ja existem; falta SMTP configurado no Supabase para o e-mail sair).
 - Financeiro, bonificação e exclusividade de categoria (tabela existe, regra não).

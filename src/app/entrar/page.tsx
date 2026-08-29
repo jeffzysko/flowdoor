@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -53,7 +53,30 @@ function Formulario() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState<string | null>(null);
+  const [aviso, setAviso] = useState<string | null>(params.get("aviso"));
   const [carregando, setCarregando] = useState(false);
+
+  // Links de e-mail que falham voltam com o motivo no fragmento (#error=...),
+  // que nunca chega ao servidor. Sem ler aqui, o usuário via a tela de login
+  // limpa e não entendia por que o link não funcionou.
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (!hash.includes("error")) return;
+
+    const h = new URLSearchParams(hash.slice(1));
+    const desc = h.get("error_description") ?? h.get("error") ?? "";
+    const t = desc.toLowerCase();
+
+    setAviso(
+      t.includes("expired")
+        ? "Esse link de e-mail expirou. Peça um novo para o administrador."
+        : t.includes("invalid")
+          ? "Esse link de e-mail não é mais válido. Peça um novo."
+          : "Não foi possível usar esse link de e-mail."
+    );
+
+    history.replaceState(null, "", window.location.pathname + window.location.search);
+  }, []);
 
   async function entrar(e: React.FormEvent) {
     e.preventDefault();
@@ -88,6 +111,14 @@ function Formulario() {
 
   return (
     <form onSubmit={entrar} className="mt-8 space-y-4">
+      {aviso && (
+        <p
+          role="status"
+          className="border border-warn/30 bg-warn/5 px-3 py-2 text-sm text-warn"
+        >
+          {aviso}
+        </p>
+      )}
       <Field
         label="E-mail"
         type="email"
