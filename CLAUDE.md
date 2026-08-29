@@ -43,6 +43,23 @@ base nova, schema novo.
   navegador.
 - Nada de `alert()`. Erro vira estado e aparece na tela com `role="alert"`.
 
+## Armadilha: instalar dependências
+
+O shell que o agente opera é uma **VM Linux**, não o macOS do Jeff. Rodar
+`npm install` de lá baixa binários nativos de Linux e o Mac quebra com
+`Cannot find module '../lightningcss.darwin-arm64.node'` — vale para
+`lightningcss`, `@tailwindcss/oxide` e `@next/swc`.
+
+Quando precisar instalar a partir da VM:
+
+```bash
+npm install --os=darwin --cpu=arm64
+```
+
+E limpe `.next` depois, porque o cache guarda artefatos da plataforma errada.
+Consequência: com `node_modules` de macOS, `npx next build` **não roda mais na
+VM** — a verificação de build passa a ser no Terminal do Jeff.
+
 ## Ainda não existe
 
 - Formulário de novo pedido (a RPC `create_order_with_items` já está pronta).
