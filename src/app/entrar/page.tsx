@@ -79,8 +79,11 @@ function Formulario() {
     // só aceita caminho interno: evita open redirect via ?proximo=
     const destino = params.get("proximo");
     const seguro = destino && destino.startsWith("/") && !destino.startsWith("//");
-    router.replace((seguro ? destino : "/") as never);
-    router.refresh();
+
+    // Navegação dura, não router.replace. O cliente acabou de gravar o cookie
+    // de sessão; uma navegação do App Router pode partir antes do cookie estar
+    // visível para o servidor, e o middleware devolve para cá — laço infinito.
+    window.location.assign(seguro ? destino : "/");
   }
 
   return (
