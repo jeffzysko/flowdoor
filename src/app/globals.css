@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #14211f;
+  --color-ink-2: #4a5754;
+  --color-ink-3: #7b8783;
+  --color-paper: #f6f7f5;
+  --color-surface: #ffffff;
+  --color-line: #e3e7e2;
+  --color-accent: #0a7a75;
+  --color-accent-soft: #e2f0ef;
+  --color-danger: #a8372a;
+  --color-warn: #8d6410;
+  --color-good: #2c6a48;
+
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+:root { color-scheme: light; }
+
+html, body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* o app de campo é usado no sol, de pé, com uma mão */
+.field-shell { min-height: 100dvh; }
+
+button, [role="button"] { touch-action: manipulation; }
+
+*:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}

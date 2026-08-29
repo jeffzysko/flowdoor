@@ -1,0 +1,148 @@
+"use client";
+
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+
+export default function EntrarPage() {
+  return (
+    <main className="grid min-h-dvh lg:grid-cols-2">
+      <section className="flex items-center justify-center px-6 py-16">
+        <div className="w-full max-w-sm">
+          <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent">
+            Flowtdoor
+          </p>
+          <h1 className="mt-3 text-3xl font-bold tracking-tight">
+            Entrar na operação
+          </h1>
+          <p className="mt-2 text-ink-2">
+            Do pedido ao comprovante, num lugar só.
+          </p>
+
+          <Suspense
+            fallback={<div className="mt-8 h-56 animate-pulse bg-line/60" />}
+          >
+            <Formulario />
+          </Suspense>
+
+          <p className="mt-6 text-sm text-ink-3">
+            Recebeu um convite? Use o link do e-mail para criar sua senha.
+          </p>
+        </div>
+      </section>
+
+      <aside className="hidden items-center justify-center bg-ink px-10 lg:flex">
+        <blockquote className="max-w-md text-white">
+          <p className="text-2xl font-bold leading-snug tracking-tight">
+            A peça está no ar. Com hora, coordenada e foto.
+          </p>
+          <p className="mt-4 text-white/70">
+            Cada aplicação abre pela leitura do QR fixado no ponto e registra a
+            posição do aparelho na chegada. O comprovante que o anunciante
+            recebe não é uma foto solta no WhatsApp.
+          </p>
+        </blockquote>
+      </aside>
+    </main>
+  );
+}
+
+function Formulario() {
+  const router = useRouter();
+  const params = useSearchParams();
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [erro, setErro] = useState<string | null>(null);
+  const [carregando, setCarregando] = useState(false);
+
+  async function entrar(e: React.FormEvent) {
+    e.preventDefault();
+    setErro(null);
+    setCarregando(true);
+
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email.trim().toLowerCase(),
+      password: senha,
+    });
+
+    if (error) {
+      setErro(
+        error.message.includes("Invalid login")
+          ? "E-mail ou senha não conferem."
+          : "Não foi possível entrar agora. Tente de novo em instantes."
+      );
+      setCarregando(false);
+      return;
+    }
+
+    // só aceita caminho interno: evita open redirect via ?proximo=
+    const destino = params.get("proximo");
+    const seguro = destino && destino.startsWith("/") && !destino.startsWith("//");
+    router.replace((seguro ? destino : "/") as never);
+    router.refresh();
+  }
+
+  return (
+    <form onSubmit={entrar} className="mt-8 space-y-4">
+      <Field
+        label="E-mail"
+        type="email"
+        value={email}
+        onChange={setEmail}
+        autoComplete="username"
+        required
+      />
+      <Field
+        label="Senha"
+        type="password"
+        value={senha}
+        onChange={setSenha}
+        autoComplete="current-password"
+        required
+      />
+
+      {erro && (
+        <p
+          role="alert"
+          className="border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger"
+        >
+          {erro}
+        </p>
+      )}
+
+      <button
+        type="submit"
+        disabled={carregando}
+        className="w-full bg-accent px-4 py-3 font-medium text-white transition hover:opacity-90 disabled:opacity-50"
+      >
+        {carregando ? "Entrando…" : "Entrar"}
+      </button>
+    </form>
+  );
+}
+
+function Field({
+  label,
+  value,
+  onChange,
+  ...rest
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange" | "value">) {
+  return (
+    <label className="block">
+      <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">
+        {label}
+      </span>
+      <input
+        {...rest}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="mt-1 w-full border border-line bg-surface px-3 py-2.5 outline-none focus:border-accent"
+      />
+    </label>
+  );
+}
