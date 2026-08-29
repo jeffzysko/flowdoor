@@ -12,7 +12,7 @@ export default async function AppLayout({
   if (!ctx) redirect("/entrar");
 
   if (!ctx.current) {
-    if (ctx.isPlatformAdmin) redirect("/plataforma");
+    redirect("/plataforma");
     return (
       <main className="mx-auto max-w-lg px-6 py-24 text-center">
         <h1 className="text-2xl font-bold">Sua conta ainda não tem empresa</h1>

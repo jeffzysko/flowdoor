@@ -5,7 +5,11 @@ import { isField } from "@/lib/domain/permissions";
 export default async function Home() {
   const ctx = await getSessionContext();
   if (!ctx) redirect("/entrar");
-  if (ctx.isPlatformAdmin && ctx.memberships.length === 0) redirect("/plataforma");
-  if (ctx.current && isField(ctx.current.role)) redirect("/campo");
+
+  // Sem vínculo com empresa, o destino é sempre a plataforma: é lá que mora
+  // o bootstrap do primeiro responsável e a mensagem de "aguarde o convite".
+  if (!ctx.current) redirect("/plataforma");
+
+  if (isField(ctx.current.role)) redirect("/campo");
   redirect("/painel");
 }

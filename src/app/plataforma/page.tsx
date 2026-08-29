@@ -26,7 +26,25 @@ export default async function PlataformaPage() {
     // A RPC fecha a corrida com advisory lock — dois cliques simultâneos
     // não geram dois donos.
     if ((count ?? 0) === 0) return <Bootstrap />;
-    redirect("/");
+
+    // Já existe responsável e este usuário não é membro de nenhuma empresa:
+    // redirecionar para "/" criaria laço, então a conversa acaba aqui.
+    return (
+      <main className="mx-auto max-w-lg px-6 py-24 text-center">
+        <h1 className="text-2xl font-bold tracking-tight">
+          Sua conta ainda não está em nenhuma empresa
+        </h1>
+        <p className="mt-2 text-ink-2">
+          Peça ao administrador da sua empresa para enviar um convite para este
+          e-mail.
+        </p>
+        <form action="/auth/sair" method="post" className="mt-6">
+          <button className="font-mono text-xs text-ink-3 underline underline-offset-4">
+            Sair
+          </button>
+        </form>
+      </main>
+    );
   }
 
   const supabase = await createClient();
