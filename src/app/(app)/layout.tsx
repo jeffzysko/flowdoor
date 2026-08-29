@@ -37,7 +37,7 @@ export default async function AppLayout({
       <header className="sticky top-0 z-30 border-b border-line bg-paper/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center gap-4 px-5 py-3">
           <Link href="/painel" className="font-bold tracking-tight">
-            Flowtdoor
+            Flowdoor
           </Link>
 
           <nav className="flex flex-1 flex-wrap gap-1">

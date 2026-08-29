@@ -12,7 +12,7 @@
  * Cada item carrega uma chave de idempotência, então reenviar não duplica.
  */
 
-const DB_NAME = "flowtdoor-field";
+const DB_NAME = "flowdoor-field";
 const DB_VERSION = 1;
 const STORE = "queue";
 

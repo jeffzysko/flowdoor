@@ -10,7 +10,7 @@ export default function EntrarPage() {
       <section className="flex items-center justify-center px-6 py-16">
         <div className="w-full max-w-sm">
           <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent">
-            Flowtdoor
+            Flowdoor
           </p>
           <h1 className="mt-3 text-3xl font-bold tracking-tight">
             Entrar na operação

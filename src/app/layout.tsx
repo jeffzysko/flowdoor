@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "Flowtdoor", template: "%s · Flowtdoor" },
+  title: { default: "Flowdoor", template: "%s · Flowdoor" },
   description:
     "Do pedido ao comprovante: operação de mídia exterior com prova de execução.",
   manifest: "/manifest.webmanifest",

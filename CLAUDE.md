@@ -1,11 +1,19 @@
-# Flowtdoor — contexto para o agente
+# Flowdoor — contexto para o agente
+
+**A marca é Flowdoor**, com domínio `flowdoor.com.br`. O nome anterior era
+"Flowtdoor" (com T) e sobrevive só em dois lugares que não dá para mexer sem
+custo: a pasta local `.../Projects/FLOWTDOOR` e o sistema legado em
+`flowtdoor.deau.com.br`. Em código, texto e produto: **Flowdoor**.
+
+Código de pedido: `FLW-<ano>-<sequencial>`.
 
 Reescrita completa do sistema anterior (JS puro + Supabase). Nada foi migrado:
 base nova, schema novo.
 
 ## Infra
 
-- **Supabase**: projeto `ipcjrlgrxvqdwpofuzuz` (`flowtdoor-prod`, sa-east-1),
+- **Supabase**: projeto `ipcjrlgrxvqdwpofuzuz` (sa-east-1); no painel ainda
+  aparece com o nome antigo `flowtdoor-prod` — renomear quando der,
   org `crgrzdwceluktrpijkvi`. Migrations em `supabase/migrations`.
 - **Vercel**: time `team_ynhMKT1vhNxivPTtcArWMWBc`.
 - **Stack**: Next.js 16 (App Router) + TypeScript + Tailwind v4 + `@supabase/ssr`.

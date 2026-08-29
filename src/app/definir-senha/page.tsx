@@ -44,7 +44,7 @@ export default function DefinirSenhaPage() {
   return (
     <main className="mx-auto max-w-sm px-6 py-24">
       <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent">
-        Flowtdoor
+        Flowdoor
       </p>
       <h1 className="mt-3 text-3xl font-bold tracking-tight">Defina sua senha</h1>
       <p className="mt-2 text-ink-2">

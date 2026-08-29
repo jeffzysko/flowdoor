@@ -59,7 +59,7 @@ export default async function PlataformaPage() {
   return (
     <main className="mx-auto max-w-6xl px-5 py-10">
       <PageHead
-        eyebrow="Flowtdoor"
+        eyebrow="Flowdoor"
         title="Organizações"
         lead="Exibidoras, agências e representações da plataforma."
         action={

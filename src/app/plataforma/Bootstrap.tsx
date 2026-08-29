@@ -36,7 +36,7 @@ export function Bootstrap() {
         Assumir a plataforma
       </h1>
       <p className="mt-3 text-ink-2">
-        Ainda não há responsável pelo Flowtdoor nesta instalação. Quem confirmar
+        Ainda não há responsável pelo Flowdoor nesta instalação. Quem confirmar
         agora passa a criar as exibidoras e convidar os administradores delas.
       </p>
 

@@ -195,7 +195,7 @@ export default async function ProofPage({
       <footer className="mt-12 border-t-2 border-ink pt-5 font-mono text-[11px] text-ink-3">
         <p>
           Publicado em {dt(snap.published_at)} · Registro imutável emitido por{" "}
-          {snap.org?.name ?? "Flowtdoor"} via Flowtdoor.
+          {snap.org?.name ?? "Flowdoor"} via Flowdoor.
         </p>
         <p className="mt-1">
           Cada aplicação foi aberta por leitura do QR fixado no ponto, com

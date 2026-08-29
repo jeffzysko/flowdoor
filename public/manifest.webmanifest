@@ -1,6 +1,6 @@
 {
-  "name": "Flowtdoor",
-  "short_name": "Flowtdoor",
+  "name": "Flowdoor",
+  "short_name": "Flowdoor",
   "description": "Operação de mídia exterior com prova de execução.",
   "start_url": "/campo",
   "scope": "/",
