@@ -4,6 +4,8 @@ import { getSessionContext } from "@/lib/domain/session";
 import { PageHead, Empty, Table, Chip } from "@/components/ui";
 import { ROLE_LABEL } from "@/lib/domain/permissions";
 import type { MemberRole } from "@/lib/domain/types";
+import { canManageTeam } from "@/lib/domain/permissions";
+import { ConvidarMembro } from "./ConvidarMembro";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Equipe" };
@@ -32,6 +34,10 @@ export default async function EquipePage() {
   return (
     <>
       <PageHead eyebrow="Pessoas" title="Equipe" lead="Quem vende, quem opera e quem vai à rua." />
+
+      {canManageTeam(ctx.current.role) && (
+        <ConvidarMembro orgId={ctx.current.org_id} />
+      )}
 
       {equipe.length === 0 ? (
         <div className="mt-6"><Empty>Nenhum membro além de você.</Empty></div>

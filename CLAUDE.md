@@ -58,7 +58,19 @@ npm install --os=darwin --cpu=arm64
 
 E limpe `.next` depois, porque o cache guarda artefatos da plataforma errada.
 Consequência: com `node_modules` de macOS, `npx next build` **não roda mais na
-VM** — a verificação de build passa a ser no Terminal do Jeff.
+VM**. Mas `npx tsc --noEmit` roda — TypeScript é JS puro, sem binário nativo.
+Use-o como verificação a cada mudança; o build completo fica com o Jeff.
+
+## Sem SMTP
+
+O projeto não tem servidor de e-mail. Por isso convite, recuperação de senha e
+magic link **não saem por e-mail**. O caminho que funciona:
+
+- `create_invitation` devolve o token em claro **uma vez**; a tela de equipe
+  monta o link `/convite/<token>` para copiar e mandar à mão.
+- O link é o segredo. Trate como senha.
+- Em *Authentication → Providers → Email*, "Confirm email" precisa estar
+  **desligado**, senão quem aceita o convite cria conta e não consegue entrar.
 
 ## Ainda não existe
 

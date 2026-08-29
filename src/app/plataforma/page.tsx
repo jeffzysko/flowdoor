@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionContext } from "@/lib/domain/session";
 import { PageHead, Empty, Table, Chip } from "@/components/ui";
+import Link from "next/link";
 import { Bootstrap } from "./Bootstrap";
 
 export const dynamic = "force-dynamic";
@@ -62,11 +63,19 @@ export default async function PlataformaPage() {
         title="Organizações"
         lead="Exibidoras, agências e representações da plataforma."
         action={
-          <form action="/auth/sair" method="post">
-            <button className="font-mono text-xs text-ink-3 underline underline-offset-4">
-              Sair
-            </button>
-          </form>
+          <div className="flex items-center gap-4">
+            <Link
+              href="/plataforma/nova"
+              className="bg-accent px-4 py-2.5 font-medium text-white"
+            >
+              + Nova empresa
+            </Link>
+            <form action="/auth/sair" method="post">
+              <button className="font-mono text-xs text-ink-3 underline underline-offset-4">
+                Sair
+              </button>
+            </form>
+          </div>
         }
       />
 
