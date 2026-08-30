@@ -43,10 +43,10 @@ export default function DefinirSenhaPage() {
 
   return (
     <main className="mx-auto max-w-sm px-6 py-24">
-      <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent-ink">
+      <p className="fd-overline">
         Flowdoor
       </p>
-      <h1 className="mt-3 text-3xl font-bold tracking-tight">Defina sua senha</h1>
+      <h1 className="fd-h2 mt-3">Defina sua senha</h1>
       <p className="mt-2 text-ink-2">
         É com ela que você entra daqui em diante. Mínimo de {MINIMO} caracteres.
       </p>
@@ -68,7 +68,7 @@ export default function DefinirSenhaPage() {
         {erro && (
           <p
             role="alert"
-            className="border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger"
+            className="fd-alert fd-alert-error"
           >
             {erro}
           </p>
@@ -77,7 +77,7 @@ export default function DefinirSenhaPage() {
         <button
           type="submit"
           disabled={ocupado}
-          className="w-full bg-accent px-4 py-3 font-medium text-on-accent transition hover:bg-accent-hover disabled:opacity-50"
+          className="fd-btn w-full"
         >
           {ocupado ? "Salvando…" : "Salvar e entrar"}
         </button>
@@ -98,7 +98,7 @@ function Campo({
 } & Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange" | "value">) {
   return (
     <label className="block">
-      <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">
+      <span className="fd-label">
         {label}
       </span>
       <input
@@ -107,7 +107,7 @@ function Campo({
         required
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1 w-full border border-line bg-surface px-3 py-2.5 outline-none focus:border-accent"
+        className="fd-input"
       />
     </label>
   );

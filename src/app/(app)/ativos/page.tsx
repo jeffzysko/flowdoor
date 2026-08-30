@@ -44,28 +44,28 @@ export default async function AtivosPage() {
         lead="O aluguel do terreno é o maior custo fixo. A licença é a maior fonte de multa."
       />
 
-      <p className="mt-5 border border-line bg-surface px-5 py-4">
-        <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-3">
+      <p className="mt-5 fd-card">
+        <span className="fd-label">
           Custo mensal de locação somado
         </span>
-        <span className="mt-1 block font-mono text-3xl font-bold">{brl(custoMes)}</span>
+        <span className="fd-h2 mt-1 block font-mono">{brl(custoMes)}</span>
       </p>
 
       {rows.length === 0 ? (
-        <div className="mt-6"><Empty>Nenhum ponto cadastrado.</Empty></div>
+        <div className="mt-6"><Empty titulo="Nenhum ponto cadastrado.">Aluguel de terreno e licença de veiculação vivem no cadastro do ponto — é de lá que sai o custo mensal.</Empty></div>
       ) : (
         <Table head={["Ponto", "Endereço", "Proprietário", "Aluguel", "Contrato até", "Licença", "Licença até"]}>
           {rows.map((s) => (
-            <tr key={s.id} className="border-b border-line last:border-0">
-              <td className="px-4 py-2.5 font-mono text-xs">{s.code}</td>
-              <td className="px-4 py-2.5">{s.address} · {s.city}/{s.state}</td>
-              <td className="px-4 py-2.5">{s.owner_name ?? "—"}</td>
-              <td className="px-4 py-2.5 font-mono text-xs">{brl(s.lease_monthly_cost)}</td>
-              <td className="px-4 py-2.5">
+            <tr key={s.id}>
+              <td className="font-mono text-xs">{s.code}</td>
+              <td>{s.address} · {s.city}/{s.state}</td>
+              <td>{s.owner_name ?? "—"}</td>
+              <td className="font-mono text-xs">{brl(s.lease_monthly_cost)}</td>
+              <td>
                 <Chip tone={tone(s.lease_ends_on)}>{d(s.lease_ends_on)}</Chip>
               </td>
-              <td className="px-4 py-2.5 font-mono text-xs">{s.license_number ?? "—"}</td>
-              <td className="px-4 py-2.5">
+              <td className="font-mono text-xs">{s.license_number ?? "—"}</td>
+              <td>
                 <Chip tone={tone(s.license_expires_on)}>{d(s.license_expires_on)}</Chip>
               </td>
             </tr>

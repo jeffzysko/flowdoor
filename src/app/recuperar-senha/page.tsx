@@ -41,13 +41,13 @@ export default function RecuperarSenhaPage() {
 
   return (
     <main className="mx-auto max-w-sm px-6 py-24">
-      <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent-ink">
+      <p className="fd-overline">
         Flowdoor
       </p>
 
       {enviado ? (
         <>
-          <h1 className="mt-3 text-3xl font-bold tracking-tight">
+          <h1 className="fd-h2 mt-3">
             Confira seu e-mail
           </h1>
           <p className="mt-3 text-ink-2">
@@ -61,14 +61,14 @@ export default function RecuperarSenhaPage() {
           </p>
           <Link
             href="/entrar"
-            className="mt-8 inline-block bg-accent px-5 py-3 font-medium text-on-accent transition hover:bg-accent-hover"
+            className="fd-btn mt-8"
           >
             Voltar para entrar
           </Link>
         </>
       ) : (
         <>
-          <h1 className="mt-3 text-3xl font-bold tracking-tight">
+          <h1 className="fd-h2 mt-3">
             Esqueceu a senha?
           </h1>
           <p className="mt-2 text-ink-2">
@@ -78,7 +78,7 @@ export default function RecuperarSenhaPage() {
 
           <form onSubmit={pedir} className="mt-8 space-y-4">
             <label className="block">
-              <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">
+              <span className="fd-label">
                 E-mail
               </span>
               <input
@@ -87,14 +87,14 @@ export default function RecuperarSenhaPage() {
                 autoComplete="username"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 w-full border border-line bg-surface px-3 py-2.5 outline-none focus:border-accent"
+                className="fd-input"
               />
             </label>
 
             {erro && (
               <p
                 role="alert"
-                className="border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger"
+                className="fd-alert fd-alert-error"
               >
                 {erro}
               </p>
@@ -103,7 +103,7 @@ export default function RecuperarSenhaPage() {
             <button
               type="submit"
               disabled={ocupado}
-              className="w-full bg-accent px-4 py-3 font-medium text-on-accent transition hover:bg-accent-hover disabled:opacity-50"
+              className="fd-btn w-full"
             >
               {ocupado ? "Enviando…" : "Enviar link"}
             </button>
@@ -111,7 +111,7 @@ export default function RecuperarSenhaPage() {
 
           <Link
             href="/entrar"
-            className="mt-6 inline-block font-mono text-xs text-ink-3 underline underline-offset-4"
+            className="fd-link fd-link-sm mt-6"
           >
             ← Voltar para entrar
           </Link>

@@ -44,7 +44,7 @@ export function RevisarFoto({
 
   if (state.ok) {
     return (
-      <p className="mt-4 border border-good/40 bg-good/5 px-3 py-2 text-sm text-good">
+      <p className="fd-alert fd-alert-ok mt-4">
         {state.message}
       </p>
     );
@@ -53,14 +53,14 @@ export function RevisarFoto({
   return (
     <>
       {precisaConferencia && (
-        <div className="mt-4 border border-line bg-paper px-3 py-3">
+        <div className="mt-4 fd-card">
           <p className="text-sm text-ink-2">
             A conferência automática não chegou a rodar nesta foto.
           </p>
           <button
             onClick={conferirAgora}
             disabled={rodando}
-            className="mt-2 border border-line bg-surface px-3 py-2 text-sm font-medium disabled:opacity-50"
+            className="fd-btn fd-btn-ghost fd-btn-sm mt-2"
           >
             {rodando ? "Conferindo…" : "Conferir agora"}
           </button>
@@ -72,21 +72,21 @@ export function RevisarFoto({
         <input type="hidden" name="photoId" value={photoId} />
 
         <label className="block">
-          <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">
+          <span className="fd-label">
             Observação — obrigatória para pedir nova foto
           </span>
           <textarea
             name="notas"
             rows={2}
             placeholder="ex.: a face aparece cortada, refaça de frente"
-            className="mt-1 w-full border border-line bg-surface px-3 py-2 text-sm outline-none focus:border-accent"
+            className="fd-input text-sm"
           />
         </label>
 
         {state.message && !state.ok && (
           <p
             role="alert"
-            className="mt-2 border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger"
+            className="fd-alert fd-alert-error mt-2"
           >
             {state.message}
           </p>
@@ -107,7 +107,7 @@ export function RevisarFoto({
             name="acao"
             value="aprovar"
             disabled={pendente}
-            className="flex-1 bg-accent px-3 py-2.5 text-sm font-medium text-on-accent transition hover:bg-accent-hover disabled:opacity-50"
+            className="fd-btn fd-btn-sm flex-1"
           >
             {pendente ? "Salvando…" : "Aprovar"}
           </button>

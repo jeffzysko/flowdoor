@@ -5,16 +5,15 @@ import Link from "next/link";
 import type { Route } from "next";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { Logo } from "@/components/Logo";
 
 export default function EntrarPage() {
   return (
     <main className="grid min-h-dvh lg:grid-cols-2">
       <section className="flex items-center justify-center px-6 py-16">
         <div className="w-full max-w-sm">
-          <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent-ink">
-            Flowdoor
-          </p>
-          <h1 className="mt-3 text-3xl font-bold tracking-tight">
+          <Logo className="w-[148px]" />
+          <h1 className="fd-h2 mt-6">
             Entrar na operação
           </h1>
           <p className="mt-2 text-ink-2">
@@ -36,7 +35,7 @@ export default function EntrarPage() {
 
       <aside className="hidden items-center justify-center bg-ink px-10 lg:flex">
         <blockquote className="max-w-md text-white">
-          <p className="text-2xl font-bold leading-snug tracking-tight">
+          <p className="fd-h3 leading-snug">
             A peça está no ar. Com hora, coordenada e foto.
           </p>
           <p className="mt-4 text-white/70">
@@ -117,7 +116,7 @@ function Formulario() {
       {aviso && (
         <p
           role="status"
-          className="border border-warn/30 bg-warn/5 px-3 py-2 text-sm text-warn"
+          className="fd-alert fd-alert-warn"
         >
           {aviso}
         </p>
@@ -142,7 +141,7 @@ function Formulario() {
       {erro && (
         <p
           role="alert"
-          className="border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger"
+          className="fd-alert fd-alert-error"
         >
           {erro}
         </p>
@@ -151,7 +150,7 @@ function Formulario() {
       <button
         type="submit"
         disabled={carregando}
-        className="w-full bg-accent px-4 py-3 font-medium text-on-accent transition hover:bg-accent-hover transition hover:opacity-90 disabled:opacity-50"
+        className="fd-btn w-full hover:opacity-90"
       >
         {carregando ? "Entrando…" : "Entrar"}
       </button>
@@ -159,7 +158,7 @@ function Formulario() {
       <p className="text-center">
         <Link
           href={"/recuperar-senha" as Route}
-          className="font-mono text-xs text-ink-3 underline underline-offset-4"
+          className="fd-link fd-link-sm"
         >
           Esqueci minha senha
         </Link>
@@ -180,14 +179,14 @@ function Field({
 } & Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange" | "value">) {
   return (
     <label className="block">
-      <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">
+      <span className="fd-label">
         {label}
       </span>
       <input
         {...rest}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1 w-full border border-line bg-surface px-3 py-2.5 outline-none focus:border-accent"
+        className="fd-input"
       />
     </label>
   );

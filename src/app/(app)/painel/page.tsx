@@ -1,7 +1,11 @@
 import { redirect } from "next/navigation";
+import type { Route } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionContext } from "@/lib/domain/session";
-import { PageHead, Stat, Empty, Table, Chip } from "@/components/ui";
+import {
+  PageHead, Stat, Empty, Table, Chip, LinhaTitulo, ProximaAcao,
+} from "@/components/ui";
+import Link from "next/link";
 import { canSell, canReview } from "@/lib/domain/permissions";
 import { Avisos, type Aviso } from "./Avisos";
 import { rotulo } from "@/lib/domain/rotulos";
@@ -52,6 +56,41 @@ export default async function PainelPage() {
   const urgentes = lista_avisos.filter((a) => a.level === "urgente").length;
   const podeDispensar = canSell(ctx.current.role) || canReview(ctx.current.role);
 
+  // A visão geral sempre termina dizendo o que fazer em seguida. O texto muda
+  // com o estado: sem base, "cadastre"; com base e sem pedido, "venda"; com
+  // pedido na rua, "confira". É o traço de UX mais forte do produto.
+  const proxima =
+    (sites.count ?? 0) === 0
+      ? {
+          titulo: "Prepare a base da operação.",
+          texto:
+            "Cadastre os pontos e as faces para liberar a criação de pedidos.",
+          href: "/inventario" as Route,
+          botao: "Cadastrar pontos",
+        }
+      : (advertisers.count ?? 0) === 0
+        ? {
+            titulo: "Cadastre o primeiro anunciante.",
+            texto: "Sem cliente final não há pedido — é ele que paga a campanha.",
+            href: "/clientes" as Route,
+            botao: "Cadastrar anunciante",
+          }
+        : lista.length === 0
+          ? {
+              titulo: "Venda a primeira bi-semana.",
+              texto:
+                "O pedido reserva a face, calcula o valor e gera a agenda do aplicador.",
+              href: "/operacao/novo" as Route,
+              botao: "Criar pedido",
+            }
+          : {
+              titulo: "Acompanhe o que está na rua.",
+              texto:
+                "Fotos aguardando conferência viram comprovante para o cliente final.",
+              href: "/revisao" as Route,
+              botao: "Abrir conferência",
+            };
+
   return (
     <>
       <PageHead
@@ -60,23 +99,25 @@ export default async function PainelPage() {
         lead="A operação de hoje, e o que vence antes de você lembrar."
       />
 
-      <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat label="Pontos" value={sites.count ?? 0} hint="Estruturas ativas" />
-        <Stat label="Faces" value={faces.count ?? 0} hint="Inventário disponível" />
-        <Stat label="Anunciantes" value={advertisers.count ?? 0} />
+      <section className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <Stat label="Pontos" value={sites.count ?? 0} hint="Estruturas ativas" href="/inventario" />
+        <Stat label="Faces" value={faces.count ?? 0} hint="Inventário disponível" href="/disponibilidade" />
+        <Stat label="Anunciantes" value={advertisers.count ?? 0} hint="Clientes finais" href="/clientes" />
         <Stat
           label="Avisos"
           value={lista_avisos.length}
           hint={urgentes ? `${urgentes} urgente${urgentes > 1 ? "s" : ""}` : "nada urgente"}
         />
-      </section>
-
-      <section className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat label="Aplicações abertas" value={abertos.count ?? 0} hint="Na rua ou agendadas" />
+        <Stat
+          label="Aplicações abertas"
+          value={abertos.count ?? 0}
+          hint="Na rua ou agendadas"
+          href="/revisao"
+        />
       </section>
 
       <section className="mt-10">
-        <h2 className="text-xl font-bold tracking-tight">Avisos</h2>
+        <h2 className="fd-h4">Avisos</h2>
         <p className="mt-1 max-w-2xl text-ink-2">
           Gerados todo dia às 8h por uma tarefa que roda sozinha no banco.
           Licença vencida vira multa e ponto lacrado; contrato de terreno
@@ -85,9 +126,9 @@ export default async function PainelPage() {
         </p>
         {lista_avisos.length === 0 ? (
           <div className="mt-5">
-            <Empty>
-              Nenhum aviso aberto. Quando algo vencer, atrasar ou travar, aparece
-              aqui sem ninguém precisar procurar.
+            <Empty titulo="Nenhum aviso aberto.">
+              Quando uma licença vencer, um contrato atrasar ou uma foto travar
+              em conferência, o aviso aparece aqui sem ninguém precisar procurar.
             </Empty>
           </div>
         ) : (
@@ -96,21 +137,34 @@ export default async function PainelPage() {
       </section>
 
       <section className="mt-10">
-        <h2 className="text-xl font-bold tracking-tight">Pedidos recentes</h2>
+        <h2 className="fd-h4">Pedidos recentes</h2>
         {lista.length === 0 ? (
           <div className="mt-5">
-            <Empty>Nenhum pedido ainda.</Empty>
+            <Empty
+              titulo="Nenhum pedido ainda."
+              acao={
+                <Link href="/operacao/novo" className="fd-btn">
+                  Criar pedido
+                </Link>
+              }
+            >
+              O pedido é o que reserva a face e gera a agenda do aplicador.
+            </Empty>
           </div>
         ) : (
           <Table head={["Código", "Anunciante", "Período", "Status"]}>
             {lista.map((o) => (
-              <tr key={o.id} className="border-b border-line last:border-0">
-                <td className="px-4 py-2.5 font-mono text-xs">{o.code}</td>
-                <td className="px-4 py-2.5">{o.advertisers?.name ?? "—"}</td>
-                <td className="px-4 py-2.5 font-mono text-xs">
+              <tr key={o.id}>
+                <td>
+                  <LinhaTitulo href={`/operacao/${o.id}` as Route}>
+                    {o.code}
+                  </LinhaTitulo>
+                </td>
+                <td>{o.advertisers?.name ?? "—"}</td>
+                <td className="font-mono text-xs">
                   {d(o.starts_on)} – {d(o.ends_on)}
                 </td>
-                <td className="px-4 py-2.5">
+                <td>
                   <Chip tone={o.status === "concluido" ? "bom" : "neutro"}>
                     {rotulo("order_status", o.status)}
                   </Chip>
@@ -120,6 +174,17 @@ export default async function PainelPage() {
           </Table>
         )}
       </section>
+
+      <ProximaAcao
+        titulo={proxima.titulo}
+        acao={
+          <Link href={proxima.href} className="fd-btn">
+            {proxima.botao}
+          </Link>
+        }
+      >
+        {proxima.texto}
+      </ProximaAcao>
     </>
   );
 }

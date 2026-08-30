@@ -132,15 +132,15 @@ export default async function PedidoPage({
 
   return (
     <>
-      <Link href="/operacao" className="font-mono text-xs text-ink-3 underline underline-offset-4">
+      <Link href="/operacao" className="fd-link fd-link-sm">
         ← Pedidos
       </Link>
 
       <header className="mt-4 border-b border-line pb-5">
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent-ink">
+        <p className="fd-overline">
           {o.code}
         </p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight">
+        <h1 className="fd-h2 mt-2">
           {o.advertisers?.name ?? "Anunciante"}
         </h1>
         <p className="mt-1 text-ink-2">
@@ -157,7 +157,7 @@ export default async function PedidoPage({
             ["Arte", o.artwork_path ? "enviada" : "pendente"],
           ].map(([k, v]) => (
             <div key={k} className="bg-surface px-4 py-3">
-              <dt className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-3">{k}</dt>
+              <dt className="fd-label">{k}</dt>
               <dd className="mt-1 font-mono text-lg">{v}</dd>
             </div>
           ))}
@@ -166,7 +166,7 @@ export default async function PedidoPage({
 
       {o.instructions && (
         <section className="mt-6 border-l-3 border-accent bg-surface px-4 py-3">
-          <h2 className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">
+          <h2 className="fd-label">
             Instruções técnicas
           </h2>
           <p className="mt-1 whitespace-pre-wrap text-sm">{o.instructions}</p>
@@ -174,14 +174,14 @@ export default async function PedidoPage({
       )}
 
       <section className="mt-8">
-        <h2 className="text-xl font-bold tracking-tight">Aplicações</h2>
+        <h2 className="fd-h4">Aplicações</h2>
 
         {/* Lista vazia por falha de consulta e lista vazia de verdade parecem
             a mesma coisa na tela. Se a busca falhou, isso precisa aparecer. */}
         {erroEventos && (
           <p
             role="alert"
-            className="mt-3 border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger"
+            className="fd-alert fd-alert-error mt-3"
           >
             Não consegui carregar as aplicações deste pedido. As faces continuam
             reservadas; é a leitura da tela que falhou. ({erroEventos.code})
@@ -189,17 +189,17 @@ export default async function PedidoPage({
         )}
         <Table head={["Face", "Endereço", "Aplicador", "Agendada", "Chegada", "Conclusão", "Status"]}>
           {lista.map((e) => (
-            <tr key={e.id} className="border-b border-line last:border-0">
-              <td className="px-4 py-2.5 font-mono text-xs">{e.faces?.code}</td>
-              <td className="px-4 py-2.5">
+            <tr key={e.id}>
+              <td className="font-mono text-xs">{e.faces?.code}</td>
+              <td>
                 {e.faces?.sites?.address}
                 <span className="block text-xs text-ink-3">{e.faces?.sites?.city}</span>
               </td>
-              <td className="px-4 py-2.5">{e.profiles?.full_name ?? "—"}</td>
-              <td className="px-4 py-2.5 font-mono text-xs">{dt(e.scheduled_for)}</td>
-              <td className="px-4 py-2.5 font-mono text-xs">{dt(e.started_at)}</td>
-              <td className="px-4 py-2.5 font-mono text-xs">{dt(e.finished_at)}</td>
-              <td className="px-4 py-2.5">
+              <td>{e.profiles?.full_name ?? "—"}</td>
+              <td className="font-mono text-xs">{dt(e.scheduled_for)}</td>
+              <td className="font-mono text-xs">{dt(e.started_at)}</td>
+              <td className="font-mono text-xs">{dt(e.finished_at)}</td>
+              <td>
                 <Chip
                   tone={
                     e.status === "concluido" ? "bom" : e.status === "em_andamento" ? "aviso" : "neutro"

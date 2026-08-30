@@ -16,7 +16,7 @@ export function NovoPonto({ orgId }: { orgId: string }) {
       <div className="mt-6 flex items-center gap-4">
         <button
           onClick={() => setAberto(true)}
-          className="bg-accent px-4 py-2.5 font-medium text-on-accent transition hover:bg-accent-hover"
+          className="fd-btn"
         >
           + Novo ponto
         </button>
@@ -30,11 +30,11 @@ export function NovoPonto({ orgId }: { orgId: string }) {
   return (
     <form
       action={action}
-      className="mt-6 border border-line bg-surface px-5 py-5"
+      className="mt-6 fd-card"
     >
       <input type="hidden" name="orgId" value={orgId} />
 
-      <h2 className="text-lg font-bold">Novo ponto</h2>
+      <h2 className="fd-h4">Novo ponto</h2>
       <p className="mt-1 text-sm text-ink-2">
         A licença e o contrato entram aqui porque é o que vence sem avisar.
       </p>
@@ -55,7 +55,7 @@ export function NovoPonto({ orgId }: { orgId: string }) {
             name="medium"
             value={medium}
             onChange={(e) => setMedium(e.target.value)}
-            className="mt-1 w-full border border-line bg-surface px-3 py-2.5 outline-none focus:border-accent"
+            className="fd-input"
           >
             <option value="estatico">Estático</option>
             <option value="digital">Digital (LED)</option>
@@ -67,7 +67,7 @@ export function NovoPonto({ orgId }: { orgId: string }) {
           <select
             name="faceKind"
             defaultValue="outdoor"
-            className="mt-1 w-full border border-line bg-surface px-3 py-2.5 outline-none focus:border-accent"
+            className="fd-input"
           >
             {FACE_KIND.map((k) => (
               <option key={k} value={k}>
@@ -86,7 +86,7 @@ export function NovoPonto({ orgId }: { orgId: string }) {
       {state.message && !state.ok && (
         <p
           role="alert"
-          className="mt-4 border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger"
+          className="fd-alert fd-alert-error mt-4"
         >
           {state.message}
         </p>
@@ -96,14 +96,14 @@ export function NovoPonto({ orgId }: { orgId: string }) {
         <button
           type="submit"
           disabled={pendente}
-          className="bg-accent px-5 py-2.5 font-medium text-on-accent transition hover:bg-accent-hover disabled:opacity-50"
+          className="fd-btn"
         >
           {pendente ? "Salvando…" : "Criar ponto e primeira face"}
         </button>
         <button
           type="button"
           onClick={() => setAberto(false)}
-          className="border border-line px-5 py-2.5"
+          className="fd-link"
         >
           Cancelar
         </button>
@@ -114,7 +114,7 @@ export function NovoPonto({ orgId }: { orgId: string }) {
 
 function Legend({ children }: { children: React.ReactNode }) {
   return (
-    <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">
+    <span className="fd-label">
       {children}
     </span>
   );
@@ -132,7 +132,7 @@ function F({
       <input
         {...rest}
         name={name}
-        className="mt-1 w-full border border-line bg-surface px-3 py-2.5 outline-none focus:border-accent"
+        className="fd-input"
       />
     </label>
   );

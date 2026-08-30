@@ -39,7 +39,7 @@ function destino(a: Aviso): Route | null {
 
 export function Avisos({ avisos, podeDispensar }: { avisos: Aviso[]; podeDispensar: boolean }) {
   return (
-    <ul className="mt-5 divide-y divide-line border border-line bg-surface">
+    <ul className="mt-5 divide-y divide-line bg-surface rounded-xl shadow-md">
       {avisos.map((a) => (
         <Linha key={a.id} a={a} podeDispensar={podeDispensar} />
       ))}
@@ -57,7 +57,7 @@ function Linha({ a, podeDispensar }: { a: Aviso; podeDispensar: boolean }) {
         <div className="flex flex-wrap items-center gap-2">
           <Chip tone={TOM[a.level]}>{ROTULO[a.kind] ?? a.kind}</Chip>
           {url ? (
-            <Link href={url} className="font-medium underline decoration-line underline-offset-4 hover:decoration-accent">
+            <Link href={url} className="fd-link fd-link-sm font-medium decoration-line hover:decoration-accent">
               {a.title}
             </Link>
           ) : (
@@ -73,7 +73,7 @@ function Linha({ a, podeDispensar }: { a: Aviso; podeDispensar: boolean }) {
           <button
             type="submit"
             disabled={pendente}
-            className="font-mono text-xs text-ink-3 underline underline-offset-4 disabled:opacity-50"
+            className="fd-link fd-link-sm disabled:opacity-50"
           >
             {pendente ? "…" : "dispensar"}
           </button>

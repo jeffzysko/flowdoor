@@ -42,7 +42,7 @@ export function EditarPonto({ ponto, podeExcluir }: { ponto: Ponto; podeExcluir:
       <div className="mt-6 flex flex-wrap items-center gap-4">
         <button
           onClick={() => setAberto(true)}
-          className="bg-accent px-4 py-2.5 font-medium text-on-accent transition hover:bg-accent-hover"
+          className="fd-btn"
         >
           Editar dados do ponto
         </button>
@@ -55,10 +55,10 @@ export function EditarPonto({ ponto, podeExcluir }: { ponto: Ponto; podeExcluir:
 
   return (
     <>
-    <form action={action} className="mt-6 border border-line bg-surface px-5 py-5">
+    <form action={action} className="mt-6 fd-card">
       <input type="hidden" name="siteId" value={ponto.id} />
 
-      <h2 className="text-lg font-bold">Dados do ponto</h2>
+      <h2 className="fd-h4">Dados do ponto</h2>
       <p className="mt-1 text-sm text-ink-2">
         A coordenada é o que libera a chegada de quem está na rua. Errada, a
         pessoa fica travada no ponto certo.
@@ -99,11 +99,11 @@ export function EditarPonto({ ponto, podeExcluir }: { ponto: Ponto; podeExcluir:
         rows={3}
         defaultValue={ponto.notes ?? ""}
         placeholder="ex.: acesso pela lateral do posto, falar com o gerente antes de subir"
-        className="w-full border border-line bg-surface px-3 py-2 outline-none focus:border-accent"
+        className="fd-input"
       />
 
       {state.message && !state.ok && (
-        <p role="alert" className="mt-4 border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger">
+        <p role="alert" className="fd-alert fd-alert-error mt-4">
           {state.message}
         </p>
       )}
@@ -112,11 +112,11 @@ export function EditarPonto({ ponto, podeExcluir }: { ponto: Ponto; podeExcluir:
         <button
           type="submit"
           disabled={pendente}
-          className="bg-accent px-5 py-2.5 font-medium text-on-accent transition hover:bg-accent-hover disabled:opacity-50"
+          className="fd-btn"
         >
           {pendente ? "Salvando…" : "Salvar"}
         </button>
-        <button type="button" onClick={() => setAberto(false)} className="border border-line px-5 py-2.5">
+        <button type="button" onClick={() => setAberto(false)} className="fd-link">
           Cancelar
         </button>
       </div>
@@ -140,7 +140,7 @@ function ExcluirPonto({ siteId, code }: { siteId: string; code: string }) {
   return (
     <form action={action} className="mt-6 border border-danger/30 bg-surface px-5 py-5">
       <input type="hidden" name="siteId" value={siteId} />
-      <h3 className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">
+      <h3 className="fd-label">
         Excluir ponto
       </h3>
       <p className="mt-1 text-sm text-ink-2">
@@ -149,7 +149,7 @@ function ExcluirPonto({ siteId, code }: { siteId: string; code: string }) {
       </p>
 
       {state.message && !state.ok && (
-        <p role="alert" className="mt-3 border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger">
+        <p role="alert" className="fd-alert fd-alert-error mt-3">
           {state.message}
         </p>
       )}
@@ -165,13 +165,13 @@ function ExcluirPonto({ siteId, code }: { siteId: string; code: string }) {
       ) : (
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <span className="text-sm">Apagar {code} e suas faces?</span>
-          <button type="button" onClick={() => setConfirmando(false)} className="border border-line px-4 py-2 text-sm">
+          <button type="button" onClick={() => setConfirmando(false)} className="fd-link fd-link-sm">
             Não
           </button>
           <button
             type="submit"
             disabled={pendente}
-            className="bg-danger px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+            className="fd-btn fd-btn-danger fd-btn-sm"
           >
             {pendente ? "Excluindo…" : "Sim, excluir"}
           </button>
@@ -183,7 +183,7 @@ function ExcluirPonto({ siteId, code }: { siteId: string; code: string }) {
 
 function Grupo({ titulo }: { titulo: string }) {
   return (
-    <h3 className="mt-6 mb-3 border-b border-line pb-1 font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">
+    <h3 className="fd-overline mt-6 mb-3 border-b border-line pb-1">
       {titulo}
     </h3>
   );
@@ -194,11 +194,11 @@ function F({
 }: { name: string; label: string; className?: string } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <label className={`block ${className}`}>
-      <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">{label}</span>
+      <span className="fd-label">{label}</span>
       <input
         {...rest}
         name={name}
-        className="mt-1 w-full border border-line bg-surface px-3 py-2.5 outline-none focus:border-accent"
+        className="fd-input"
       />
     </label>
   );
@@ -209,11 +209,11 @@ function S({
 }: { name: string; label: string; opcoes: [string, string][]; defaultValue?: string }) {
   return (
     <label className="block">
-      <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">{label}</span>
+      <span className="fd-label">{label}</span>
       <select
         name={name}
         defaultValue={defaultValue}
-        className="mt-1 w-full border border-line bg-surface px-3 py-2.5 outline-none focus:border-accent"
+        className="fd-input"
       >
         {opcoes.map(([v, r]) => (
           <option key={v} value={v}>{r}</option>

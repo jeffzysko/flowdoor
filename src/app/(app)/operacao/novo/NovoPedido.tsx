@@ -173,10 +173,10 @@ export function NovoPedido({
   if (state.ok && state.code) {
     return (
       <section className="mt-6 border border-accent bg-accent-soft px-6 py-10 text-center">
-        <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-accent-ink">
+        <p className="fd-overline">
           Pedido criado
         </p>
-        <h1 className="mt-2 font-mono text-3xl font-bold">{state.code}</h1>
+        <h1 className="fd-h2 mt-2 font-mono">{state.code}</h1>
         <p className="mt-2 text-ink-2">
           As faces foram reservadas e cada uma entrou na fila do aplicador, uma
           parada por vez.
@@ -184,11 +184,11 @@ export function NovoPedido({
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link
             href={`/operacao/${state.orderId}` as never}
-            className="bg-accent px-5 py-2.5 font-medium text-on-accent transition hover:bg-accent-hover"
+            className="fd-btn"
           >
             Ver o pedido
           </Link>
-          <Link href="/operacao" className="border border-line bg-surface px-5 py-2.5">
+          <Link href="/operacao" className="fd-card">
             Todos os pedidos
           </Link>
         </div>
@@ -198,7 +198,7 @@ export function NovoPedido({
 
   return (
     <form onSubmit={enviar} className="mt-5 pb-16">
-      <h1 className="text-3xl font-bold tracking-tight">Novo pedido</h1>
+      <h1 className="fd-h2">Novo pedido</h1>
       <p className="mt-1 text-ink-2">
         Cada face escolhida vira uma reserva e uma aplicação em campo. Se alguma
         estiver ocupada no período, o pedido inteiro é recusado — nada nasce pela
@@ -206,8 +206,8 @@ export function NovoPedido({
       </p>
 
       {/* ---------------------------------------------------- campanha */}
-      <fieldset className="mt-7 border border-line bg-surface p-5">
-        <legend className="px-2 font-mono text-[10px] uppercase tracking-[0.12em] text-accent-ink">
+      <fieldset className="mt-7 fd-card">
+        <legend className="fd-overline">
           Campanha
         </legend>
 
@@ -215,9 +215,9 @@ export function NovoPedido({
           <label className="block sm:col-span-2">
             <Rotulo>Anunciante</Rotulo>
             {advertisers.length === 0 ? (
-              <p className="mt-1 border border-warn/30 bg-warn/5 px-3 py-2 text-sm text-warn">
+              <p className="fd-alert fd-alert-warn mt-1">
                 Nenhum anunciante cadastrado.{" "}
-                <Link href="/clientes" className="underline underline-offset-4">
+                <Link href="/clientes" className="fd-link fd-link-sm">
                   Cadastre o primeiro
                 </Link>
                 .
@@ -227,7 +227,7 @@ export function NovoPedido({
                 required
                 value={advertiserId}
                 onChange={(e) => setAdvertiserId(e.target.value)}
-                className="mt-1 w-full border border-line bg-surface px-3 py-2.5 outline-none focus:border-accent"
+                className="fd-input"
               >
                 <option value="">Selecione…</option>
                 {advertisers.map((a) => (
@@ -246,7 +246,7 @@ export function NovoPedido({
               value={titulo}
               onChange={(e) => setTitulo(e.target.value)}
               placeholder="Verão 2027"
-              className="mt-1 w-full border border-line px-3 py-2.5 outline-none focus:border-accent"
+              className="fd-input"
             />
           </label>
 
@@ -257,7 +257,7 @@ export function NovoPedido({
               required
               value={inicio}
               onChange={(e) => setInicio(e.target.value)}
-              className="mt-1 w-full border border-line px-3 py-2.5 outline-none focus:border-accent"
+              className="fd-input"
             />
           </label>
 
@@ -268,7 +268,7 @@ export function NovoPedido({
               required
               value={fim}
               onChange={(e) => setFim(e.target.value)}
-              className="mt-1 w-full border border-line px-3 py-2.5 outline-none focus:border-accent"
+              className="fd-input"
             />
           </label>
 
@@ -278,7 +278,7 @@ export function NovoPedido({
               type="file"
               accept="image/jpeg,image/png,image/webp,application/pdf"
               onChange={(e) => setArte(e.target.files?.[0] ?? null)}
-              className="mt-1 w-full border border-line bg-surface px-3 py-2 text-sm outline-none focus:border-accent"
+              className="fd-input text-sm"
             />
             <span className="mt-1 block text-xs text-ink-3">
               Até 25 MB. Vai para o Storage, não para o banco.
@@ -292,15 +292,15 @@ export function NovoPedido({
               value={instrucoes}
               onChange={(e) => setInstrucoes(e.target.value)}
               placeholder="ex.: colar a partir da borda esquerda; conferir se a lona veio com sangria"
-              className="mt-1 w-full border border-line px-3 py-2.5 outline-none focus:border-accent"
+              className="fd-input"
             />
           </label>
         </div>
       </fieldset>
 
       {/* ------------------------------------------------------- faces */}
-      <fieldset className="mt-6 border border-line bg-surface p-5">
-        <legend className="px-2 font-mono text-[10px] uppercase tracking-[0.12em] text-accent-ink">
+      <fieldset className="mt-6 fd-card">
+        <legend className="fd-overline">
           Faces e aplicações
         </legend>
 
@@ -308,7 +308,7 @@ export function NovoPedido({
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
           placeholder="Filtrar faces por código, rua, bairro, cidade ou sentido"
-          className="w-full border border-line px-3 py-2.5 outline-none focus:border-accent"
+          className="fd-input"
         />
 
         <ul className="mt-5 space-y-4">
@@ -317,9 +317,9 @@ export function NovoPedido({
               (f) => !escolhidas.has(f.id) || f.id === l.face_id
             );
             return (
-              <li key={l.key} className="border border-line bg-paper p-4">
+              <li key={l.key} className="fd-card">
                 <div className="mb-3 flex items-center justify-between">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-3">
+                  <span className="fd-label">
                     Face {i + 1}
                   </span>
                   {linhas.length > 1 && (
@@ -328,7 +328,7 @@ export function NovoPedido({
                       onClick={() =>
                         setLinhas((a) => a.filter((x) => x.key !== l.key))
                       }
-                      className="font-mono text-xs text-danger underline underline-offset-4"
+                      className="fd-link fd-link-sm fd-link-danger"
                     >
                       Remover
                     </button>
@@ -341,7 +341,7 @@ export function NovoPedido({
                     <select
                       value={l.face_id}
                       onChange={(e) => atualizar(l.key, "face_id", e.target.value)}
-                      className="mt-1 w-full border border-line bg-surface px-3 py-2.5 outline-none focus:border-accent"
+                      className="fd-input"
                     >
                       <option value="">Selecione…</option>
                       {disponiveis.map((f) => (
@@ -359,7 +359,7 @@ export function NovoPedido({
                     <select
                       value={l.assignee_id}
                       onChange={(e) => atualizar(l.key, "assignee_id", e.target.value)}
-                      className="mt-1 w-full border border-line bg-surface px-3 py-2.5 outline-none focus:border-accent"
+                      className="fd-input"
                     >
                       <option value="">Selecione…</option>
                       {aplicadores.map((a) => (
@@ -376,7 +376,7 @@ export function NovoPedido({
                       type="date"
                       value={l.data}
                       onChange={(e) => atualizar(l.key, "data", e.target.value)}
-                      className="mt-1 w-full border border-line px-3 py-2.5 outline-none focus:border-accent"
+                      className="fd-input"
                     />
                   </label>
 
@@ -386,7 +386,7 @@ export function NovoPedido({
                       type="time"
                       value={l.hora}
                       onChange={(e) => atualizar(l.key, "hora", e.target.value)}
-                      className="mt-1 w-full border border-line px-3 py-2.5 outline-none focus:border-accent"
+                      className="fd-input"
                     />
                   </label>
 
@@ -397,7 +397,7 @@ export function NovoPedido({
                       onChange={(e) =>
                         atualizar(l.key, "minutos", Number(e.target.value))
                       }
-                      className="mt-1 w-full border border-line bg-surface px-3 py-2.5 outline-none focus:border-accent"
+                      className="fd-input"
                     >
                       <option value={30}>30 min</option>
                       <option value={60}>1 hora</option>
@@ -420,7 +420,7 @@ export function NovoPedido({
                           // Em branco vale a tabela: o vendedor só digita quando
                           // negocia. Zero digitado é zero de verdade.
                           placeholder={tabela !== null ? reais(tabela) : "sem tabela"}
-                          className="mt-1 w-full border border-line px-3 py-2.5 text-right outline-none focus:border-accent"
+                          className="fd-input text-right"
                         />
                         <span className="mt-1 block text-right font-mono text-[10px] uppercase tracking-[0.1em] text-ink-3">
                           {!l.face_id
@@ -448,18 +448,18 @@ export function NovoPedido({
           <button
             type="button"
             onClick={() => setLinhas((a) => [...a, novaLinha()])}
-            className="border border-line bg-surface px-4 py-2.5 font-medium"
+            className="fd-btn fd-btn-ghost"
           >
             + Adicionar outra face
           </button>
 
           <div className="text-right">
-            <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">
+            <p className="fd-label">
               {periodos > 0
                 ? `${escolhidas.size} face(s) · ${periodos} bi-semana(s)`
                 : "informe o período da campanha"}
             </p>
-            <p className="text-2xl font-bold tabular-nums">{reais(total)}</p>
+            <p className="fd-h3 tabular-nums">{reais(total)}</p>
             {semPreco && (
               <p className="mt-1 text-xs text-warn">
                 Há face sem preço de tabela. Digite o valor dela, ou o pedido
@@ -473,7 +473,7 @@ export function NovoPedido({
       {state.message && !state.ok && (
         <p
           role="alert"
-          className="mt-5 border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
+          className="fd-alert fd-alert-error mt-5"
         >
           {state.message}
         </p>
@@ -483,7 +483,7 @@ export function NovoPedido({
         <button
           type="submit"
           disabled={enviando || subindoArte || advertisers.length === 0}
-          className="bg-accent px-6 py-3 text-lg font-medium text-on-accent transition hover:bg-accent-hover disabled:opacity-50"
+          className="fd-btn"
         >
           {subindoArte
             ? "Enviando a arte…"
@@ -491,7 +491,7 @@ export function NovoPedido({
               ? "Criando pedido…"
               : "Criar pedido e reservar"}
         </button>
-        <Link href="/operacao" className="text-ink-2 underline underline-offset-4">
+        <Link href="/operacao" className="fd-link fd-link-sm">
           Cancelar
         </Link>
       </div>
@@ -501,7 +501,7 @@ export function NovoPedido({
 
 function Rotulo({ children }: { children: React.ReactNode }) {
   return (
-    <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">
+    <span className="fd-label">
       {children}
     </span>
   );

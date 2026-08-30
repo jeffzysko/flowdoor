@@ -23,18 +23,18 @@ export function NovaOrganizacao() {
   if (state.ok) {
     return (
       <section className="mt-6 border border-accent bg-accent-soft px-6 py-10 text-center">
-        <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-accent-ink">
+        <p className="fd-overline">
           Criada
         </p>
-        <h1 className="mt-2 text-2xl font-bold">{state.message}</h1>
+        <h1 className="fd-h3 mt-2">{state.message}</h1>
         <p className="mt-2 text-ink-2">
           Agora convide a equipe dela e cadastre os primeiros pontos.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <Link href="/painel" className="bg-accent px-5 py-2.5 font-medium text-on-accent transition hover:bg-accent-hover">
+          <Link href="/painel" className="fd-btn">
             Ir para a operação
           </Link>
-          <Link href="/plataforma" className="border border-line bg-surface px-5 py-2.5">
+          <Link href="/plataforma" className="fd-card">
             Ver organizações
           </Link>
         </div>
@@ -44,13 +44,13 @@ export function NovaOrganizacao() {
 
   return (
     <form action={action} className="mt-5">
-      <h1 className="text-3xl font-bold tracking-tight">Nova empresa</h1>
+      <h1 className="fd-h2">Nova empresa</h1>
       <p className="mt-1 text-ink-2">
         Exibidora tem inventário e equipe de campo. Agência e representação
         consomem inventário de terceiros.
       </p>
 
-      <div className="mt-7 grid gap-4 border border-line bg-surface p-5 sm:grid-cols-2">
+      <div className="mt-7 grid gap-4 sm:grid-cols-2 fd-card">
         <label className="block sm:col-span-2">
           <Legend>Nome</Legend>
           <input
@@ -62,7 +62,7 @@ export function NovaOrganizacao() {
               if (!slugTocado) setSlug(slugify(e.target.value));
             }}
             placeholder="Outdoor Sul Mídia Exterior"
-            className="mt-1 w-full border border-line px-3 py-2.5 outline-none focus:border-accent"
+            className="fd-input"
           />
         </label>
 
@@ -76,7 +76,7 @@ export function NovaOrganizacao() {
               setSlugTocado(true);
               setSlug(slugify(e.target.value));
             }}
-            className="mt-1 w-full border border-line px-3 py-2.5 font-mono outline-none focus:border-accent"
+            className="fd-input font-mono"
           />
           <span className="mt-1 block text-xs text-ink-3">
             Único na plataforma. Só minúsculas, números e hífen.
@@ -88,7 +88,7 @@ export function NovaOrganizacao() {
           <select
             name="kind"
             defaultValue="exibidora"
-            className="mt-1 w-full border border-line bg-surface px-3 py-2.5 outline-none focus:border-accent"
+            className="fd-input"
           >
             <option value="exibidora">Exibidora</option>
             <option value="agencia">Agência</option>
@@ -106,7 +106,7 @@ export function NovaOrganizacao() {
           <select
             name="plan"
             defaultValue="essencial"
-            className="mt-1 w-full border border-line bg-surface px-3 py-2.5 outline-none focus:border-accent"
+            className="fd-input"
           >
             <option value="essencial">Essencial</option>
             <option value="profissional">Profissional</option>
@@ -133,7 +133,7 @@ export function NovaOrganizacao() {
       {state.message && !state.ok && (
         <p
           role="alert"
-          className="mt-4 border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger"
+          className="fd-alert fd-alert-error mt-4"
         >
           {state.message}
         </p>
@@ -142,7 +142,7 @@ export function NovaOrganizacao() {
       <button
         type="submit"
         disabled={pendente}
-        className="mt-5 bg-accent px-6 py-3 font-medium text-on-accent transition hover:bg-accent-hover disabled:opacity-50"
+        className="fd-btn mt-5"
       >
         {pendente ? "Criando…" : "Criar empresa"}
       </button>
@@ -152,7 +152,7 @@ export function NovaOrganizacao() {
 
 function Legend({ children }: { children: React.ReactNode }) {
   return (
-    <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">
+    <span className="fd-label">
       {children}
     </span>
   );
@@ -169,7 +169,7 @@ function Campo({
       <input
         {...rest}
         name={name}
-        className="mt-1 w-full border border-line px-3 py-2.5 outline-none focus:border-accent"
+        className="fd-input"
       />
     </label>
   );

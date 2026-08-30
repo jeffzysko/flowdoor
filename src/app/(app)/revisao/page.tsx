@@ -171,7 +171,7 @@ export default async function RevisaoPage() {
 
       {itens.length === 0 ? (
         <div className="mt-8">
-          <Empty>Nada para revisar. Tudo que chegou passou sozinho.</Empty>
+          <Empty titulo="Nada para revisar.">Toda foto que chegou passou na checagem automática. O que travar aparece aqui.</Empty>
         </div>
       ) : (
         <ol className="mt-8 space-y-8">
@@ -181,14 +181,14 @@ export default async function RevisaoPage() {
             const gemea = i.duplicate_of_path ? urls.get(i.duplicate_of_path) : undefined;
 
             return (
-              <li key={i.photo_id} className="border border-line bg-surface">
+              <li key={i.photo_id} className="fd-card">
                 <div className="flex flex-wrap items-start justify-between gap-3 border-b border-line px-5 py-4">
                   <div>
-                    <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-accent-ink">
+                    <p className="fd-overline">
                       {i.order_code ?? "Sem pedido"} · {i.face_code} ·{" "}
                       {rotulo("field_event_kind", i.kind)}
                     </p>
-                    <h2 className="mt-1 text-lg font-bold">
+                    <h2 className="fd-h4 mt-1">
                       {i.address}
                       {i.district ? ` · ${i.district}` : ""}
                     </h2>
@@ -216,10 +216,10 @@ export default async function RevisaoPage() {
                       <img
                         src={foto}
                         alt={`Foto enviada em ${i.address}`}
-                        className="w-full border border-line bg-paper"
+                        className="w-full rounded-lg"
                       />
                     ) : (
-                      <p className="border border-line bg-paper px-4 py-10 text-center text-sm text-ink-3">
+                      <p className="text-center text-sm text-ink-3 fd-card">
                         A imagem não pôde ser carregada.
                       </p>
                     )}
@@ -233,7 +233,7 @@ export default async function RevisaoPage() {
                         <img
                           src={arte}
                           alt="Arte aprovada"
-                          className="mt-2 w-full border border-line bg-paper"
+                          className="mt-2 w-full rounded-lg"
                         />
                       </details>
                     )}
@@ -331,7 +331,7 @@ export default async function RevisaoPage() {
 
       {pontos.length > 0 && (
         <section className="mt-14">
-          <h2 className="text-xl font-bold tracking-tight">
+          <h2 className="fd-h4">
             Pontos com coordenada suspeita
           </h2>
           <p className="mt-1 max-w-2xl text-ink-2">
@@ -345,7 +345,7 @@ export default async function RevisaoPage() {
             {pontos.map((p) => (
               <li
                 key={p.site_id}
-                className="flex flex-wrap items-start justify-between gap-4 border border-line bg-surface px-5 py-4"
+                className="flex flex-wrap items-start justify-between gap-4 fd-card"
               >
                 <div>
                   <h3 className="font-bold">
@@ -364,7 +364,7 @@ export default async function RevisaoPage() {
                     {Number(p.lng_sugerido).toFixed(5)}
                   </p>
                   <a
-                    className="mt-2 inline-block font-mono text-xs text-accent-ink underline underline-offset-4"
+                    className="fd-link fd-link-sm mt-2"
                     href={`https://www.google.com/maps/search/?api=1&query=${p.lat_sugerido},${p.lng_sugerido}`}
                     target="_blank"
                     rel="noreferrer noopener"
@@ -385,7 +385,7 @@ export default async function RevisaoPage() {
 function Linha({ k, v }: { k: string; v: string }) {
   return (
     <div>
-      <dt className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-3">
+      <dt className="fd-label">
         {k}
       </dt>
       <dd className="mt-0.5">{v}</dd>

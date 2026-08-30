@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { Logo } from "./Logo";
 import { NAV } from "@/lib/domain/permissions";
+import { NavPrincipal } from "./NavPrincipal";
 import { TrocarEmpresa } from "./TrocarEmpresa";
 import type { SessionContext } from "@/lib/domain/types";
 
@@ -20,34 +22,26 @@ export function AppHeader({
 
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-paper/90 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3">
+      <div className="mx-auto flex max-w-[1540px] flex-wrap items-center gap-x-4 gap-y-2 px-6 py-3 lg:px-12">
         <Link
           href={ctx.current ? "/painel" : "/plataforma"}
-          className="font-bold tracking-tight"
+          aria-label="Flowdoor — visão geral"
         >
-          Flowdoor
+          <Logo className="w-[124px]" />
         </Link>
 
         <nav className="flex flex-1 flex-wrap items-center gap-1">
-          {naEmpresa &&
-            nav.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href as never}
-                className="px-3 py-1.5 text-sm text-ink-2 transition hover:bg-accent-soft hover:text-accent-ink"
-              >
-                {item.label}
-              </Link>
-            ))}
+          {naEmpresa && <NavPrincipal itens={nav} />}
 
           {ctx.isPlatformAdmin && (
             <Link
               href="/plataforma"
-              className={`px-3 py-1.5 text-sm transition ${
-                naEmpresa
+              className={
+                "rounded-full px-4 py-2 text-sm font-bold transition " +
+                (naEmpresa
                   ? "text-ink-3 hover:bg-accent-soft hover:text-accent-ink"
-                  : "bg-accent-soft font-medium text-accent-ink"
-              }`}
+                  : "bg-accent-soft text-accent-ink shadow-xs")
+              }
             >
               Plataforma
             </Link>
@@ -56,7 +50,7 @@ export function AppHeader({
           {!naEmpresa && ctx.current && (
             <Link
               href="/painel"
-              className="px-3 py-1.5 text-sm text-ink-2 transition hover:bg-accent-soft hover:text-accent-ink"
+              className="rounded-full px-4 py-2 text-sm font-bold text-ink-2 transition hover:bg-accent-soft hover:text-accent-ink"
             >
               ← Voltar para {ctx.current.organizations.name}
             </Link>
@@ -68,18 +62,16 @@ export function AppHeader({
             <TrocarEmpresa atual={ctx.current} empresas={ctx.memberships} />
           ) : (
             <div className="text-right">
-              <p className="text-sm font-medium leading-tight">Plataforma Flowdoor</p>
-              <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-3">
-                {ctx.fullName.split(" ")[0]}
-              </p>
+              <p className="text-sm font-bold leading-tight">Plataforma Flowdoor</p>
+              <p className="fd-label">{ctx.fullName.split(" ")[0]}</p>
             </div>
           )}
         </div>
 
+        {/* Sair fica sempre visível: no design system, nada essencial mora no
+            hover — em celular hover não existe. */}
         <form action="/auth/sair" method="post">
-          <button className="font-mono text-xs text-ink-3 underline underline-offset-4">
-            Sair
-          </button>
+          <button className="fd-link fd-link-sm">Sair</button>
         </form>
       </div>
     </header>

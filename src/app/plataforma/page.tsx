@@ -34,7 +34,7 @@ export default async function PlataformaPage() {
     // redirecionar para "/" criaria laço, então a conversa acaba aqui.
     return (
       <main className="mx-auto max-w-lg px-6 py-24 text-center">
-        <h1 className="text-2xl font-bold tracking-tight">
+        <h1 className="fd-h3">
           Sua conta ainda não está em nenhuma empresa
         </h1>
         <p className="mt-2 text-ink-2">
@@ -42,7 +42,7 @@ export default async function PlataformaPage() {
           e-mail.
         </p>
         <form action="/auth/sair" method="post" className="mt-6">
-          <button className="font-mono text-xs text-ink-3 underline underline-offset-4">
+          <button className="fd-link fd-link-sm">
             Sair
           </button>
         </form>
@@ -61,7 +61,7 @@ export default async function PlataformaPage() {
   return (
     <div className="min-h-dvh">
       <AppHeader ctx={ctx} contexto="plataforma" />
-      <main className="mx-auto max-w-6xl px-5 py-8">
+      <main className="mx-auto max-w-[1540px] px-6 py-10 lg:px-12">
       <PageHead
         eyebrow="Flowdoor"
         title="Organizações"
@@ -69,7 +69,7 @@ export default async function PlataformaPage() {
         action={
           <Link
             href="/plataforma/nova"
-            className="bg-accent px-4 py-2.5 font-medium text-on-accent transition hover:bg-accent-hover"
+            className="fd-btn"
           >
             + Nova empresa
           </Link>
@@ -77,19 +77,19 @@ export default async function PlataformaPage() {
       />
 
       {orgs.length === 0 ? (
-        <div className="mt-6"><Empty>Nenhuma organização criada ainda.</Empty></div>
+        <div className="mt-6"><Empty titulo="Nenhuma organização criada ainda.">Cada exibidora é uma organização, com inventário, equipe e pedidos próprios.</Empty></div>
       ) : (
         <Table head={["Nome", "Tipo", "Praça", "Plano", "Status", "Criada em"]}>
           {orgs.map((o) => (
-            <tr key={o.id} className="border-b border-line last:border-0">
-              <td className="px-4 py-2.5 font-medium">{o.name}</td>
-              <td className="px-4 py-2.5"><Chip>{rotulo("org_kind", o.kind)}</Chip></td>
-              <td className="px-4 py-2.5">{o.city ? `${o.city}/${o.state}` : "—"}</td>
-              <td className="px-4 py-2.5 font-mono text-xs">{o.plan}</td>
-              <td className="px-4 py-2.5">
+            <tr key={o.id}>
+              <td className="font-medium">{o.name}</td>
+              <td><Chip>{rotulo("org_kind", o.kind)}</Chip></td>
+              <td>{o.city ? `${o.city}/${o.state}` : "—"}</td>
+              <td className="font-mono text-xs">{o.plan}</td>
+              <td>
                 <Chip tone={o.status === "ativa" ? "bom" : "aviso"}>{rotulo("org_status", o.status)}</Chip>
               </td>
-              <td className="px-4 py-2.5 font-mono text-xs">
+              <td className="font-mono text-xs">
                 {new Date(o.created_at).toLocaleDateString("pt-BR")}
               </td>
             </tr>

@@ -63,6 +63,9 @@
   --fd-cam-ready: #8df0bd;    /* moldura com o outdoor enquadrado */
   --fd-cam-hint:  #f2ede8;
   --fd-cam-ok:    #6ee7a8;
+  /* Veu que escurece tudo fora da moldura. Preto puro fecha demais no sol; o
+     mesmo neutro quente da noite mantem o contexto visivel. */
+  --fd-cam-scrim: rgba(8, 7, 5, .62);
 
   /* ---- tipografia ------------------------------------------------------- */
   --fd-font-display: "Manrope", "DM Sans", ui-sans-serif, system-ui, sans-serif;
@@ -148,10 +151,37 @@
   --color-night: var(--fd-night-900);
   --color-cam-frame: var(--fd-cam-frame);
   --color-cam-ready: var(--fd-cam-ready);
+  --color-cam-hint:  var(--fd-cam-hint);
+  --color-cam-ok:    var(--fd-cam-ok);
 
   --font-sans:    var(--fd-font-body);
   --font-display: var(--fd-font-display);
   --font-mono:    var(--fd-font-mono);
+
+  /* A escala do design system passa a governar as classes que o codigo ja
+     escreve: text-sm vira 13px, text-3xl vira 32px. Sem isso o Tailwind usaria
+     a escala dele (14/30/36) e a tela ficaria fora da regua do documento. */
+  --text-xs:   var(--fd-text-caption);
+  --text-sm:   var(--fd-text-sm);
+  --text-base: var(--fd-text-body);
+  --text-lg:   var(--fd-text-lead);
+  --text-xl:   var(--fd-text-h4);
+  --text-2xl:  var(--fd-text-h3);
+  --text-3xl:  var(--fd-text-h2);
+  --text-4xl:  var(--fd-text-h1);
+
+  --radius-sm:  var(--fd-radius-sm);
+  --radius-md:  var(--fd-radius-md);
+  --radius-lg:  var(--fd-radius-lg);
+  --radius-xl:  var(--fd-radius-xl);
+  --radius-2xl: var(--fd-radius-2xl);
+
+  --shadow-xs:    var(--fd-shadow-xs);
+  --shadow-sm:    var(--fd-shadow-sm);
+  --shadow-md:    var(--fd-shadow-md);
+  --shadow-lg:    var(--fd-shadow-lg);
+  --shadow-xl:    var(--fd-shadow-xl);
+  --shadow-brand: var(--fd-shadow-brand);
 }
 
 :root { color-scheme: light; }
@@ -160,6 +190,8 @@ html, body {
   background: var(--color-paper);
   color: var(--color-ink);
   font-family: var(--font-sans);
+  font-size: var(--fd-text-body);
+  line-height: var(--fd-leading-normal);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -180,5 +212,251 @@ button, [role="button"] { touch-action: manipulation; }
   *, *::before, *::after {
     animation-duration: .01ms !important;
     transition-duration: .01ms !important;
+  }
+}
+
+/* ==========================================================================
+   CAMADA DE COMPONENTES
+   --------------------------------------------------------------------------
+   Portada de design-system/flowdoor-design-system.html — as amostras .ft-*
+   daquela página, reescritas sobre os tokens --fd-*. Nenhum hex aqui.
+
+   Por que CSS e não utilitários soltos: a mesma peça aparece em 30 telas. Com
+   classe única, "o botão mudou" é uma linha; com utilitários, é um sed em 30
+   arquivos que erra em dois.
+
+   Onde a referência usa um valor fora da régua (34px no número do card, 27px
+   na métrica, 14px no campo), aqui ele foi encostado no degrau mais próximo
+   da escala. A régua é o documento; o protótipo é a ilustração dela.
+   ========================================================================== */
+@layer components {
+
+  /* ---- tipografia ------------------------------------------------------- */
+  .fd-display {
+    font-family: var(--fd-font-display); font-size: var(--fd-text-display);
+    font-weight: var(--fd-weight-medium); letter-spacing: var(--fd-tracking-display);
+    line-height: var(--fd-leading-tight);
+  }
+  .fd-h1 {
+    font-family: var(--fd-font-display); font-size: var(--fd-text-h1);
+    font-weight: var(--fd-weight-medium); letter-spacing: var(--fd-tracking-display);
+    line-height: var(--fd-leading-tight);
+  }
+  .fd-h2 {
+    font-family: var(--fd-font-display); font-size: var(--fd-text-h2);
+    font-weight: var(--fd-weight-medium); letter-spacing: var(--fd-tracking-tight);
+    line-height: var(--fd-leading-snug);
+  }
+  .fd-h3 {
+    font-family: var(--fd-font-display); font-size: var(--fd-text-h3);
+    font-weight: var(--fd-weight-semibold); letter-spacing: var(--fd-tracking-tight);
+    line-height: var(--fd-leading-snug);
+  }
+  .fd-h4 {
+    font-family: var(--fd-font-display); font-size: var(--fd-text-h4);
+    font-weight: var(--fd-weight-semibold); line-height: var(--fd-leading-snug);
+  }
+  .fd-lead { font-size: var(--fd-text-lead); color: var(--fd-ink-500); }
+  .fd-overline {
+    font-family: var(--fd-font-display); font-size: var(--fd-text-overline);
+    font-weight: var(--fd-weight-bold); letter-spacing: var(--fd-tracking-wide);
+    text-transform: uppercase; color: var(--fd-orange-700);
+  }
+  /* Número de indicador. tabular-nums para a coluna não dançar a cada carga. */
+  .fd-num {
+    display: block; font-family: var(--fd-font-display); font-size: var(--fd-text-h2);
+    font-weight: var(--fd-weight-medium); letter-spacing: var(--fd-tracking-tight);
+    font-variant-numeric: tabular-nums; color: var(--fd-ink-900);
+  }
+
+  /* ---- botões ----------------------------------------------------------- */
+  /* 44px de alvo mínimo: o aplicador usa isto de pé, com luva e sol na tela. */
+  .fd-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: var(--fd-space-2); min-height: 44px;
+    padding: var(--fd-space-3) var(--fd-space-5);
+    border: 0; border-radius: var(--fd-radius-pill);
+    background: var(--fd-orange-500); color: var(--fd-ink-800);
+    font-family: var(--fd-font-body); font-size: var(--fd-text-body);
+    font-weight: var(--fd-weight-bold); line-height: var(--fd-leading-snug);
+    text-align: center; text-decoration: none; cursor: pointer;
+    transition: background var(--fd-duration-fast) ease,
+                transform  var(--fd-duration-fast) var(--fd-ease),
+                box-shadow var(--fd-duration-fast) ease;
+  }
+  /* O hover CLAREIA. Como o rótulo é escuro, escurecer derrubaria o contraste:
+     4,88:1 sobe para 5,75:1 no orange-400. Feedback e acessibilidade juntos. */
+  .fd-btn:hover:not(:disabled) {
+    background: var(--fd-orange-400); transform: translateY(-1px);
+    box-shadow: var(--fd-shadow-brand);
+  }
+  .fd-btn:active:not(:disabled) { transform: scale(.98); }
+  .fd-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .fd-btn-ghost { background: var(--fd-orange-100); color: var(--fd-orange-700); }
+  .fd-btn-ghost:hover:not(:disabled) { background: var(--fd-orange-200); box-shadow: none; }
+
+  .fd-btn-danger { background: var(--fd-danger-solid); color: var(--fd-surface-000); }
+  .fd-btn-danger:hover:not(:disabled) {
+    background: var(--fd-danger-solid); box-shadow: var(--fd-shadow-sm);
+  }
+
+  .fd-btn-sm {
+    min-height: 38px; padding: var(--fd-space-2) var(--fd-space-4);
+    font-size: var(--fd-text-sm);
+  }
+  .fd-btn-block { width: 100%; }
+
+  /* ---- link de ação ----------------------------------------------------- */
+  /* Sublinhado laranja: é o laranja marcando o que abre, sem virar botão. */
+  .fd-link {
+    border: 0; background: none; padding: 0; color: var(--fd-ink-900);
+    font-weight: var(--fd-weight-bold); font-size: var(--fd-text-body);
+    cursor: pointer; text-decoration: underline;
+    text-decoration-color: var(--fd-orange-500);
+    text-decoration-thickness: 2px; text-underline-offset: 3px;
+  }
+  .fd-link:hover { text-decoration-thickness: 3px; }
+  .fd-link-danger { color: var(--fd-danger-solid); text-decoration-color: currentColor; }
+  .fd-link-sm { font-size: var(--fd-text-sm); }
+
+  /* ---- superfícies ------------------------------------------------------ */
+  .fd-card {
+    background: var(--fd-surface-000); border-radius: var(--fd-radius-xl);
+    padding: var(--fd-space-6); box-shadow: var(--fd-shadow-md);
+  }
+  /* Só levanta o que é clicável. Movimento sem destino ensina a ignorar
+     movimento — é o achado C-4 da auditoria. */
+  .fd-card.is-interactive {
+    display: block; cursor: pointer;
+    transition: transform var(--fd-duration-base) var(--fd-ease),
+                box-shadow var(--fd-duration-base) ease;
+  }
+  .fd-card.is-interactive:hover {
+    transform: translateY(-2px); box-shadow: var(--fd-shadow-lg);
+  }
+  /* Superfície menor: linha de lista, bloco de formulário, painel lateral. */
+  .fd-panel {
+    background: var(--fd-surface-000); border-radius: var(--fd-radius-lg);
+    padding: var(--fd-space-5); box-shadow: var(--fd-shadow-sm);
+  }
+  /* Bloco dentro de um card — sem sombra, para não empilhar elevação. */
+  .fd-inset {
+    background: var(--fd-surface-100); border-radius: var(--fd-radius-lg);
+    padding: var(--fd-space-4);
+  }
+
+  /* ---- tag e status ----------------------------------------------------- */
+  /* Padrão é VERDE: marca estado positivo. Laranja aqui competiria com o
+     botão primário na mesma tela — laranja é marca, não estado. */
+  .fd-tag {
+    display: inline-block; padding: var(--fd-space-1) var(--fd-space-2);
+    border-radius: var(--fd-radius-sm);
+    background: var(--fd-success-bg); color: var(--fd-success-text);
+    font-size: var(--fd-text-overline); font-weight: var(--fd-weight-bold);
+    line-height: var(--fd-leading-snug); white-space: nowrap;
+  }
+  .fd-tag-brand   { background: var(--fd-orange-100);  color: var(--fd-orange-700); }
+  .fd-tag-neutral { background: var(--fd-info-bg);     color: var(--fd-info-text); }
+  .fd-tag-warn    { background: var(--fd-warning-bg);  color: var(--fd-warning-text); }
+  .fd-tag-danger  { background: var(--fd-danger-bg);   color: var(--fd-danger-text); }
+
+  .fd-status {
+    display: inline-flex; align-items: center; gap: var(--fd-space-2);
+    padding: var(--fd-space-2) var(--fd-space-3); border-radius: var(--fd-radius-pill);
+    background: var(--fd-success-bg); color: var(--fd-success-text);
+    font-size: var(--fd-text-caption); font-weight: var(--fd-weight-bold);
+  }
+  .fd-status::before {
+    content: ""; width: 7px; height: 7px;
+    border-radius: var(--fd-radius-circle); background: currentColor;
+  }
+
+  /* ---- alerta ----------------------------------------------------------- */
+  /* Erro nunca só por cor: o texto sempre diz o que houve. */
+  .fd-alert {
+    padding: var(--fd-space-3) var(--fd-space-4); border-radius: var(--fd-radius-md);
+    font-size: var(--fd-text-sm);
+  }
+  .fd-alert-ok    { background: var(--fd-success-bg); color: var(--fd-success-text); }
+  .fd-alert-warn  { background: var(--fd-warning-bg); color: var(--fd-warning-text); }
+  .fd-alert-error { background: var(--fd-danger-bg);  color: var(--fd-danger-text); }
+  .fd-alert-info  { background: var(--fd-info-bg);    color: var(--fd-info-text); }
+
+  /* ---- formulário ------------------------------------------------------- */
+  .fd-label {
+    display: block; margin-bottom: var(--fd-space-2);
+    font-size: var(--fd-text-caption); font-weight: var(--fd-weight-bold);
+    color: var(--fd-ink-800);
+  }
+  .fd-input {
+    display: block; width: 100%;
+    padding: var(--fd-space-3) var(--fd-space-4);
+    border: 1px solid var(--fd-line-300); border-radius: var(--fd-radius-md);
+    background: var(--fd-surface-000); color: var(--fd-ink-900);
+    font-family: inherit; font-size: var(--fd-text-body);
+    transition: border-color var(--fd-duration-base) ease,
+                box-shadow  var(--fd-duration-base) ease;
+  }
+  .fd-input:focus {
+    outline: 0; border-color: var(--fd-orange-300); box-shadow: var(--fd-ring-focus);
+  }
+  .fd-input:disabled { background: var(--fd-surface-100); color: var(--fd-ink-500); }
+  .fd-input::placeholder { color: var(--fd-ink-400); }
+  .fd-hint { margin-top: var(--fd-space-2); font-size: var(--fd-text-caption); color: var(--fd-ink-500); }
+
+  /* ---- tabela ----------------------------------------------------------- */
+  /* Sem zebra e sem moldura: só a linha de topo separando. O sublinhado
+     laranja no título da linha marca o que abre detalhe. */
+  .fd-table { width: 100%; border-collapse: collapse; }
+  .fd-table th {
+    padding: var(--fd-space-3) var(--fd-space-4) var(--fd-space-3) 0; text-align: left;
+    font-size: var(--fd-text-overline); font-weight: var(--fd-weight-bold);
+    letter-spacing: .06em; text-transform: uppercase; color: var(--fd-ink-400);
+    white-space: nowrap;
+  }
+  .fd-table td {
+    padding: var(--fd-space-4) var(--fd-space-4) var(--fd-space-4) 0;
+    border-top: 1px solid var(--fd-line-200);
+    font-size: var(--fd-text-sm); color: var(--fd-ink-900); vertical-align: top;
+  }
+  .fd-table th:last-child, .fd-table td:last-child { padding-right: 0; }
+  .fd-table td small { display: block; margin-top: var(--fd-space-1); color: var(--fd-ink-500); }
+  .fd-table-link {
+    display: inline-block; color: inherit; font-weight: var(--fd-weight-bold);
+    text-decoration: underline; text-decoration-color: var(--fd-orange-500);
+    text-decoration-thickness: 2px; text-underline-offset: 3px;
+  }
+
+  /* ---- estado vazio ----------------------------------------------------- */
+  /* Três partes, sempre: o que falta, por quê, e o botão que resolve. */
+  .fd-empty {
+    background: var(--fd-surface-000); border-radius: var(--fd-radius-xl);
+    box-shadow: var(--fd-shadow-md);
+    padding: var(--fd-space-12) var(--fd-space-5); text-align: center;
+  }
+
+  /* ---- modal ------------------------------------------------------------ */
+  .fd-modal {
+    position: relative; width: min(780px, 100%);
+    max-height: calc(100dvh - var(--fd-space-12));
+    overflow-y: auto; background: var(--fd-surface-000);
+    border-radius: var(--fd-radius-2xl); padding: var(--fd-space-8);
+    box-shadow: var(--fd-shadow-xl);
+  }
+  .fd-modal-x {
+    position: absolute; top: var(--fd-space-5); right: var(--fd-space-5);
+    display: grid; place-items: center; width: 36px; height: 36px;
+    border: 0; border-radius: var(--fd-radius-circle);
+    background: var(--fd-surface-100); color: var(--fd-ink-600);
+    font-size: var(--fd-text-h4); line-height: 1; cursor: pointer;
+  }
+  .fd-metrics {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: var(--fd-space-3);
+  }
+  .fd-metrics > * {
+    padding: var(--fd-space-4); border-radius: var(--fd-radius-lg);
+    background: var(--fd-surface-100);
   }
 }

@@ -16,7 +16,7 @@ export default async function AppLayout({
   return (
     <div className="min-h-dvh">
       <AppHeader ctx={ctx} contexto="empresa" />
-      <main className="mx-auto max-w-6xl px-5 py-8">{children}</main>
+      <main className="mx-auto max-w-[1540px] px-6 py-10 lg:px-12">{children}</main>
     </div>
   );
 }

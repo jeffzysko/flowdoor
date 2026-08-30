@@ -18,7 +18,7 @@ export function CorrigirPonto({ siteId }: { siteId: string }) {
       <button
         type="submit"
         disabled={pendente}
-        className="border border-line bg-surface px-3 py-2 text-sm font-medium disabled:opacity-50"
+        className="fd-btn fd-btn-ghost fd-btn-sm"
       >
         {pendente ? "Corrigindo…" : "Usar a média das chegadas"}
       </button>

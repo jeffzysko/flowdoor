@@ -24,7 +24,7 @@ export function TrocarEmpresa({
     return (
       <div className="text-right">
         <p className="text-sm font-medium leading-tight">{atual.organizations.name}</p>
-        <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-3">
+        <p className="fd-label">
           {ROLE_LABEL[atual.role]}
         </p>
       </div>
@@ -44,7 +44,7 @@ export function TrocarEmpresa({
           {atual.organizations.name}
           <span aria-hidden className="ml-1.5 text-ink-3">▾</span>
         </p>
-        <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-3">
+        <p className="fd-label">
           {trocando
             ? "trocando…"
             : atual.viaPlataforma
@@ -64,7 +64,7 @@ export function TrocarEmpresa({
           />
           <ul
             role="listbox"
-            className="absolute right-0 z-50 mt-2 min-w-64 border border-line bg-surface py-1 text-left shadow-lg"
+            className="absolute right-0 z-50 mt-2 min-w-64 rounded-lg bg-surface py-2 text-left shadow-lg"
           >
             {empresas.map((e) => {
               const ehAtual = e.org_id === atual.org_id;

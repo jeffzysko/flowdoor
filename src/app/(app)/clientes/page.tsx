@@ -35,7 +35,7 @@ export default async function ClientesPage() {
       ) : (
         <ul className="mt-5 space-y-3">
           {rows.map((a) => (
-            <li key={a.id} className="border border-line bg-surface px-4 py-3">
+            <li key={a.id} className="fd-card">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <p className="font-medium">{a.name}</p>

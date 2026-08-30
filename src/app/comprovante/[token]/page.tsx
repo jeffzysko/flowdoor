@@ -97,7 +97,7 @@ export default async function ProofPage({
         <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-3">
           Comprovante de veiculação
         </p>
-        <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">
+        <h1 className="fd-h1 mt-3 sm:text-5xl">
           {snap.advertiser?.name ?? "Campanha"}
         </h1>
         <p className="mt-2 text-lg text-ink-2">
@@ -113,7 +113,7 @@ export default async function ProofPage({
             ["Exibidora", snap.org?.name ?? "—"],
           ].map(([k, v]) => (
             <div key={k} className="bg-paper px-4 py-3">
-              <dt className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-3">
+              <dt className="fd-label">
                 {k}
               </dt>
               <dd className="mt-1 font-mono text-lg font-medium">{v}</dd>
@@ -132,11 +132,11 @@ export default async function ProofPage({
           return (
             <li
               key={`${item.face_code}-${idx}`}
-              className="overflow-hidden border border-line bg-surface"
+              className="overflow-hidden fd-card"
             >
               <div className="flex flex-wrap items-start justify-between gap-3 border-b border-line px-5 py-4">
                 <div>
-                  <h2 className="text-lg font-bold">
+                  <h2 className="fd-h4">
                     {item.address}
                     {item.district ? ` · ${item.district}` : ""}
                   </h2>
@@ -184,7 +184,7 @@ export default async function ProofPage({
               {ev?.started_lat && ev?.started_lng && (
                 <div className="border-t border-line px-5 py-3">
                   <a
-                    className="font-mono text-xs text-accent-ink underline underline-offset-4"
+                    className="fd-link fd-link-sm"
                     href={`https://www.google.com/maps/search/?api=1&query=${ev.started_lat},${ev.started_lng}`}
                     target="_blank"
                     rel="noreferrer noopener"
@@ -196,7 +196,7 @@ export default async function ProofPage({
 
               {photo?.sha256 && (
                 <div className="border-t border-line px-5 py-3">
-                  <dt className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-3">
+                  <dt className="fd-label">
                     Impressão digital da imagem · SHA-256
                   </dt>
                   <dd className="mt-1 break-all font-mono text-[11px] leading-relaxed text-ink-2">
@@ -232,7 +232,7 @@ export default async function ProofPage({
 function Row({ k, v }: { k: string; v: string }) {
   return (
     <div>
-      <dt className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-3">
+      <dt className="fd-label">
         {k}
       </dt>
       <dd className="mt-0.5 font-mono">{v}</dd>

@@ -111,7 +111,7 @@ export function EditarPedido({
 
   if (cancelado) {
     return (
-      <p className="mt-8 border border-line bg-surface px-4 py-3 text-sm text-ink-2">
+      <p className="mt-8 text-sm text-ink-2 fd-card">
         Este pedido está cancelado. As reservas foram liberadas e as aplicações
         que já tinham sido feitas continuam registradas.
       </p>
@@ -121,7 +121,7 @@ export function EditarPedido({
   if (!aberto) {
     return (
       <div className="mt-8 flex flex-wrap items-center gap-4">
-        <button onClick={() => setAberto(true)} className="bg-accent px-4 py-2.5 font-medium text-on-accent transition hover:bg-accent-hover">
+        <button onClick={() => setAberto(true)} className="fd-btn">
           Editar pedido
         </button>
         <CancelarPedido orderId={orderId} codigo={codigo} />
@@ -131,8 +131,8 @@ export function EditarPedido({
   }
 
   return (
-    <section className="mt-8 border border-line bg-surface px-5 py-5">
-      <h2 className="text-lg font-bold">Editar {codigo}</h2>
+    <section className="mt-8 fd-card">
+      <h2 className="fd-h4">Editar {codigo}</h2>
       <p className="mt-1 max-w-2xl text-sm text-ink-2">
         Mudar o período move as reservas de todas as faces de uma vez. Se
         qualquer uma estiver vendida na data nova, a alteração inteira é
@@ -160,26 +160,26 @@ export function EditarPedido({
         />
       </L>
 
-      <h3 className="mt-7 border-b border-line pb-2 font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">
+      <h3 className="fd-overline mt-7 border-b border-line pb-2">
         Faces e agendamento
       </h3>
 
       <ul className="mt-3 space-y-3">
         {linhas.map((l, i) => (
-          <li key={l.face_id} className="border border-line px-4 py-3">
+          <li key={l.face_id} className="fd-btn fd-btn-ghost">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <span className="font-mono text-sm font-medium">{l.face_code}</span>
                 <span className="ml-3 text-sm text-ink-2">{l.endereco}</span>
               </div>
               {l.travada ? (
-                <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-3">
+                <span className="fd-label">
                   já aplicada — não sai do pedido
                 </span>
               ) : (
                 <button
                   onClick={() => setLinhas(linhas.filter((_, j) => j !== i))}
-                  className="text-sm text-danger underline underline-offset-4"
+                  className="fd-link fd-link-sm fd-link-danger"
                 >
                   Tirar do pedido
                 </button>
@@ -265,7 +265,7 @@ export function EditarPedido({
       )}
 
       {erro && (
-        <p role="alert" className="mt-5 border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger">
+        <p role="alert" className="fd-alert fd-alert-error mt-5">
           {erro}
         </p>
       )}
@@ -274,11 +274,11 @@ export function EditarPedido({
         <button
           onClick={salvar}
           disabled={salvando || linhas.length === 0}
-          className="bg-accent px-5 py-2.5 font-medium text-on-accent transition hover:bg-accent-hover disabled:opacity-50"
+          className="fd-btn"
         >
           {salvando ? "Salvando…" : "Salvar pedido"}
         </button>
-        <button onClick={() => setAberto(false)} className="border border-line px-5 py-2.5">
+        <button onClick={() => setAberto(false)} className="fd-link">
           Cancelar edição
         </button>
       </div>
@@ -320,13 +320,13 @@ function CancelarPedido({ orderId, codigo }: { orderId: string; codigo: string }
         value={motivo}
         onChange={(e) => setMotivo(e.target.value)}
         placeholder="Motivo (fica no registro)"
-        className="mt-3 w-full max-w-md border border-line bg-surface px-3 py-2 outline-none focus:border-accent"
+        className="fd-input mt-3 max-w-md"
       />
 
       {erro && <p className="mt-3 text-sm text-danger">{erro}</p>}
 
       <div className="mt-4 flex flex-wrap gap-3">
-        <button onClick={() => setConfirmando(false)} className="border border-line px-4 py-2">
+        <button onClick={() => setConfirmando(false)} className="fd-btn fd-btn-ghost">
           Voltar
         </button>
         <button
@@ -342,7 +342,7 @@ function CancelarPedido({ orderId, codigo }: { orderId: string; codigo: string }
               router.refresh();
             })
           }
-          className="bg-danger px-4 py-2 font-medium text-white disabled:opacity-50"
+          className="fd-btn fd-btn-danger fd-btn-sm"
         >
           {indo ? "Cancelando…" : "Sim, cancelar"}
         </button>
@@ -365,7 +365,7 @@ function L({
 }) {
   return (
     <label className={className}>
-      <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">
+      <span className="fd-label">
         {rotulo}
       </span>
       {children}

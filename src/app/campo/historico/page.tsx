@@ -29,19 +29,19 @@ export default async function HistoricoPage() {
 
   return (
     <main className="field-shell mx-auto max-w-2xl px-4 pb-24 pt-6">
-      <Link href="/campo" className="font-mono text-xs text-ink-3 underline underline-offset-4">
+      <Link href="/campo" className="fd-link fd-link-sm">
         ← Minhas paradas
       </Link>
 
-      <h1 className="mt-4 text-3xl font-bold tracking-tight">Histórico</h1>
+      <h1 className="fd-h2 mt-4">Histórico</h1>
       <p className="mt-1 text-ink-2">O que você já concluiu.</p>
 
       {rows.length === 0 ? (
-        <p className="mt-8 border border-line bg-surface px-5 py-10 text-center text-ink-2">
+        <p className="mt-8 text-center text-ink-2 fd-card">
           Nada concluído ainda.
         </p>
       ) : (
-        <ul className="mt-6 divide-y divide-line border border-line bg-surface">
+        <ul className="mt-6 divide-y divide-line bg-surface rounded-xl shadow-md">
           {rows.map((r) => (
             <li key={r.id} className="px-5 py-3">
               <p className="font-medium">{r.faces?.sites?.address ?? "—"}</p>

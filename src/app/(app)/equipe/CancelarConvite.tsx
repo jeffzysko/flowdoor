@@ -17,7 +17,7 @@ export function CancelarConvite({ id, email }: { id: string; email: string }) {
         // O convite some da lista assim que cancela, então não há confirmação:
         // o custo de errar é gerar outro, e gerar outro é um clique.
         aria-label={`Cancelar o convite de ${email}`}
-        className="text-xs text-ink-3 underline underline-offset-4 hover:text-danger disabled:opacity-50"
+        className="fd-link fd-link-sm hover:text-danger disabled:opacity-50"
       >
         {pendente ? "Cancelando…" : "Cancelar"}
       </button>

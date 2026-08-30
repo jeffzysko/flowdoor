@@ -72,24 +72,24 @@ export default async function NovoPedidoPage() {
     <>
       <Link
         href="/operacao"
-        className="font-mono text-xs text-ink-3 underline underline-offset-4"
+        className="fd-link fd-link-sm"
       >
         ← Pedidos
       </Link>
 
       {faltando.length > 0 ? (
         <div className="mt-6">
-          <h1 className="text-3xl font-bold tracking-tight">Novo pedido</h1>
+          <h1 className="fd-h2">Novo pedido</h1>
           <div className="mt-5">
             <Empty>
               Antes de vender, a empresa precisa de inventário e equipe. Falta:{" "}
               <strong>{faltando.join(" e ")}</strong>.
               <span className="mt-3 block">
-                <Link href="/inventario" className="text-accent-ink underline underline-offset-4">
+                <Link href="/inventario" className="fd-link fd-link-sm">
                   Cadastrar ponto
                 </Link>
                 {" · "}
-                <Link href="/equipe" className="text-accent-ink underline underline-offset-4">
+                <Link href="/equipe" className="fd-link fd-link-sm">
                   Convidar aplicador
                 </Link>
               </span>

@@ -14,7 +14,7 @@ export function NovoAnunciante({ orgId }: { orgId: string }) {
       <div className="mt-6 flex flex-wrap items-center gap-4">
         <button
           onClick={() => setAberto(true)}
-          className="bg-accent px-4 py-2.5 font-medium text-on-accent transition hover:bg-accent-hover"
+          className="fd-btn"
         >
           + Novo anunciante
         </button>
@@ -26,9 +26,9 @@ export function NovoAnunciante({ orgId }: { orgId: string }) {
   }
 
   return (
-    <form action={action} className="mt-6 border border-line bg-surface p-5">
+    <form action={action} className="mt-6 fd-card">
       <input type="hidden" name="orgId" value={orgId} />
-      <h2 className="text-lg font-bold">Novo anunciante</h2>
+      <h2 className="fd-h4">Novo anunciante</h2>
       <p className="mt-1 text-sm text-ink-2">
         Quem paga pela campanha. O CPF/CNPJ é único por empresa.
       </p>
@@ -55,7 +55,7 @@ export function NovoAnunciante({ orgId }: { orgId: string }) {
       {state.message && !state.ok && (
         <p
           role="alert"
-          className="mt-4 border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger"
+          className="fd-alert fd-alert-error mt-4"
         >
           {state.message}
         </p>
@@ -65,14 +65,14 @@ export function NovoAnunciante({ orgId }: { orgId: string }) {
         <button
           type="submit"
           disabled={pendente}
-          className="bg-accent px-5 py-2.5 font-medium text-on-accent transition hover:bg-accent-hover disabled:opacity-50"
+          className="fd-btn"
         >
           {pendente ? "Salvando…" : "Cadastrar"}
         </button>
         <button
           type="button"
           onClick={() => setAberto(false)}
-          className="border border-line px-5 py-2.5"
+          className="fd-link"
         >
           Cancelar
         </button>
@@ -89,13 +89,13 @@ function Campo({
 }: { name: string; label: string; className?: string } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <label className={`block ${className}`}>
-      <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">
+      <span className="fd-label">
         {label}
       </span>
       <input
         {...rest}
         name={name}
-        className="mt-1 w-full border border-line px-3 py-2.5 outline-none focus:border-accent"
+        className="fd-input"
       />
     </label>
   );

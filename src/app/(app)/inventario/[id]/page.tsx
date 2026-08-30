@@ -111,7 +111,7 @@ export default async function PontoPage({
     <>
       <Link
         href="/inventario"
-        className="font-mono text-xs text-ink-3 underline underline-offset-4"
+        className="fd-link fd-link-sm"
       >
         ← Inventário
       </Link>
@@ -141,7 +141,7 @@ export default async function PontoPage({
         )}
         {ponto.latitude && ponto.longitude && (
           <a
-            className="font-mono text-xs text-accent-ink underline underline-offset-4"
+            className="fd-link fd-link-sm"
             href={`https://www.google.com/maps/search/?api=1&query=${ponto.latitude},${ponto.longitude}`}
             target="_blank"
             rel="noreferrer noopener"
@@ -159,18 +159,18 @@ export default async function PontoPage({
         return (
           <section
             className={
-              "mt-5 border px-5 py-4 " +
+              "fd-alert mt-5 " +
               (sit === "confere"
-                ? "border-accent/30 bg-accent-soft"
+                ? "fd-alert-ok"
                 : sit === "parcial"
-                  ? "border-warn/30 bg-warn/5"
-                  : "border-danger/30 bg-danger/5")
+                  ? "fd-alert-warn"
+                  : "fd-alert-error")
             }
           >
             <div className="flex flex-wrap items-center gap-2">
               <Chip tone={LOCAL_TOM[sit]}>{LOCAL_ROTULO[sit]}</Chip>
               {ponto.geo_arrivals > 0 && (
-                <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-3">
+                <span className="fd-label">
                   {ponto.geo_arrivals} chegada(s) confirmaram
                 </span>
               )}
@@ -191,7 +191,7 @@ export default async function PontoPage({
       })()}
 
       {!ponto.latitude && (
-        <p className="mt-4 border border-warn/40 bg-warn/5 px-4 py-3 text-sm text-warn">
+        <p className="fd-alert fd-alert-warn mt-4">
           Sem coordenada cadastrada, a chegada neste ponto não pode ser
           conferida — quem for aplicar vai passar direto pela trava de GPS ou
           ficar preso nela. Preencha latitude e longitude antes de vender.
@@ -199,8 +199,8 @@ export default async function PontoPage({
       )}
 
       {ponto.notes && (
-        <section className="mt-5 border-l-3 border-line bg-surface px-4 py-3">
-          <h2 className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">
+        <section className="fd-inset mt-5">
+          <h2 className="fd-label">
             Observações
           </h2>
           <p className="mt-1 whitespace-pre-wrap text-sm">{ponto.notes}</p>
@@ -218,10 +218,10 @@ export default async function PontoPage({
         />
       ) : (
         <section className="mt-10">
-          <h2 className="text-xl font-bold tracking-tight">Faces</h2>
+          <h2 className="fd-h4">Faces</h2>
           <ul className="mt-4 space-y-2">
             {faces.map((f) => (
-              <li key={f.id} className="flex flex-wrap items-center gap-3 border border-line bg-surface px-4 py-3">
+              <li key={f.id} className="flex flex-wrap items-center gap-3 fd-card">
                 <span className="font-mono text-sm">{f.code}</span>
                 <Chip tone={f.medium === "digital" ? "bom" : "neutro"}>{rotuloDoFormato(f.kind)}</Chip>
                 <Chip tone={f.status === "ativa" ? "bom" : "aviso"}>{rotulo("face_status", f.status)}</Chip>
@@ -232,17 +232,17 @@ export default async function PontoPage({
       )}
 
       <section className="mt-12">
-        <h2 className="text-xl font-bold tracking-tight">Últimas passagens</h2>
+        <h2 className="fd-h4">Últimas passagens</h2>
         <p className="mt-1 text-sm text-ink-2">
           Tudo que já foi agendado ou executado nas faces deste ponto.
         </p>
 
         {eventos.length === 0 ? (
           <div className="mt-4">
-            <Empty>Nenhuma aplicação neste ponto até agora.</Empty>
+            <Empty titulo="Nenhuma aplicação neste ponto.">Quando um pedido reservar uma face daqui, a agenda do aplicador aparece nesta lista.</Empty>
           </div>
         ) : (
-          <ul className="mt-4 divide-y divide-line border border-line bg-surface">
+          <ul className="mt-4 divide-y divide-line bg-surface rounded-xl shadow-md">
             {eventos.map((e) => (
               <li key={e.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
                 <div>

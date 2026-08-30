@@ -57,17 +57,17 @@ export default async function DisponibilidadePage() {
       />
 
       {listaFaces.length === 0 || visiveis.length === 0 ? (
-        <div className="mt-6"><Empty>Cadastre faces para ver o calendário.</Empty></div>
+        <div className="mt-6"><Empty titulo="Nada para mostrar no calendário.">O calendário é montado a partir das faces: cadastre o inventário e as bi-semanas aparecem aqui.</Empty></div>
       ) : (
-        <div className="mt-6 overflow-x-auto border border-line bg-surface">
+        <div className="mt-6 overflow-x-auto fd-card">
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr>
-                <th className="sticky left-0 z-10 border-b border-line bg-paper px-4 py-2.5 text-left font-mono text-[10px] uppercase tracking-[0.1em] text-ink-3">
+                <th className="sticky left-0 z-10 bg-surface text-left">
                   Face
                 </th>
                 {visiveis.map((p) => (
-                  <th key={p.id} className="border-b border-line bg-paper px-2 py-2.5 text-center font-mono text-[10px] text-ink-3">
+                  <th key={p.id} className="text-center">
                     {p.seq}
                     <span className="block font-normal normal-case">{d(p.starts_on)}</span>
                   </th>
@@ -76,7 +76,7 @@ export default async function DisponibilidadePage() {
             </thead>
             <tbody>
               {listaFaces.map((f) => (
-                <tr key={f.id} className="border-b border-line last:border-0">
+                <tr key={f.id}>
                   <td className="sticky left-0 z-10 whitespace-nowrap bg-surface px-4 py-2">
                     <span className="font-mono text-xs">{f.code}</span>
                     <span className="block text-[11px] text-ink-3">{f.sites?.city}</span>

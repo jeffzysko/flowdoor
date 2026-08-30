@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { Logo } from "@/components/Logo";
 
 const MINIMO = 10;
 
@@ -196,11 +197,11 @@ export function AceitarConvite({ token }: { token: string }) {
   if (fase === "erro") {
     return (
       <Moldura>
-        <h1 className="text-2xl font-bold tracking-tight">Convite não aceito</h1>
+        <h1 className="fd-h3">Convite não aceito</h1>
         <p className="mt-2 text-ink-2">{erro}</p>
         <a
           href="/entrar"
-          className="mt-6 inline-block border border-line bg-surface px-5 py-2.5"
+          className="fd-btn fd-btn-ghost mt-6"
         >
           Ir para o login
         </a>
@@ -211,7 +212,7 @@ export function AceitarConvite({ token }: { token: string }) {
   if (fase === "confirmar_email") {
     return (
       <Moldura>
-        <h1 className="text-2xl font-bold tracking-tight">Confirme seu e-mail</h1>
+        <h1 className="fd-h3">Confirme seu e-mail</h1>
         <p className="mt-2 text-ink-2">
           Sua conta foi criada. Mandamos um e-mail para{" "}
           <strong>{convite?.email}</strong> — confirme por lá e volte a abrir
@@ -227,7 +228,7 @@ export function AceitarConvite({ token }: { token: string }) {
   if (fase === "outra_conta") {
     return (
       <Moldura>
-        <h1 className="text-2xl font-bold tracking-tight">Conta diferente</h1>
+        <h1 className="fd-h3">Conta diferente</h1>
         <p className="mt-2 text-ink-2">
           Este convite é do endereço <strong>{convite?.email}</strong>, mas você
           está no Flowdoor como <strong>{emailAtual}</strong>.
@@ -238,7 +239,7 @@ export function AceitarConvite({ token }: { token: string }) {
         </p>
         <button
           onClick={sairETrocar}
-          className="mt-6 bg-accent px-5 py-2.5 font-medium text-on-accent transition hover:bg-accent-hover"
+          className="fd-btn mt-6"
         >
           Sair e continuar
         </button>
@@ -248,7 +249,7 @@ export function AceitarConvite({ token }: { token: string }) {
 
   return (
     <Moldura>
-      <h1 className="text-3xl font-bold tracking-tight">Você foi convidado</h1>
+      <h1 className="fd-h2">Você foi convidado</h1>
       <p className="mt-2 text-ink-2">
         {convite?.org_name ? (
           <>
@@ -263,10 +264,10 @@ export function AceitarConvite({ token }: { token: string }) {
 
       <form onSubmit={criarConta} className="mt-8 space-y-4">
         <div>
-          <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">
+          <span className="fd-label">
             E-mail
           </span>
-          <p className="mt-1 border border-line bg-line/20 px-3 py-2.5 text-ink-2">
+          <p className="fd-input mt-1 bg-surface-2 text-ink-2">
             {convite?.email}
           </p>
           <p className="mt-1 text-xs text-ink-3">
@@ -287,7 +288,7 @@ export function AceitarConvite({ token }: { token: string }) {
         {erro && (
           <p
             role="alert"
-            className="border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger"
+            className="fd-alert fd-alert-error"
           >
             {erro}
           </p>
@@ -295,7 +296,7 @@ export function AceitarConvite({ token }: { token: string }) {
 
         <button
           type="submit"
-          className="w-full bg-accent px-4 py-3 font-medium text-on-accent transition hover:bg-accent-hover"
+          className="fd-btn w-full"
         >
           Criar conta e entrar
         </button>
@@ -316,10 +317,8 @@ function traduzir(m: string) {
 function Moldura({ children }: { children: React.ReactNode }) {
   return (
     <main className="mx-auto max-w-sm px-6 py-24">
-      <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent-ink">
-        Flowdoor
-      </p>
-      <div className="mt-3">{children}</div>
+      <Logo className="w-[132px]" />
+      <div className="mt-6">{children}</div>
     </main>
   );
 }
@@ -336,14 +335,14 @@ function Campo({
 } & Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange" | "value">) {
   return (
     <label className="block">
-      <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">
+      <span className="fd-label">
         {label}
       </span>
       <input
         {...rest}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1 w-full border border-line bg-surface px-3 py-2.5 outline-none focus:border-accent"
+        className="fd-input"
       />
     </label>
   );

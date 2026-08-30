@@ -29,8 +29,8 @@ export function Coordenadas({
   const faltam = parciais + semLocal;
 
   return (
-    <section className="mt-6 border border-line bg-surface p-5">
-      <h2 className="text-lg font-bold">Localização dos pontos</h2>
+    <section className="mt-6 fd-card">
+      <h2 className="fd-h4">Localização dos pontos</h2>
 
       <div className="mt-3 flex flex-wrap gap-4">
         {(
@@ -41,7 +41,7 @@ export function Coordenadas({
           ] as const
         ).map(([sit, n]) => (
           <div key={sit} className="flex items-center gap-2" title={LOCAL_EXPLICACAO[sit]}>
-            <span className="text-2xl font-bold tabular-nums">{n}</span>
+            <span className="fd-h3 tabular-nums">{n}</span>
             <Chip tone={LOCAL_TOM[sit]}>{LOCAL_ROTULO[sit]}</Chip>
           </div>
         ))}
@@ -60,7 +60,7 @@ export function Coordenadas({
           <button
             type="submit"
             disabled={pendente}
-            className="bg-accent px-5 py-2.5 font-medium text-on-accent transition hover:bg-accent-hover disabled:opacity-50"
+            className="fd-btn"
           >
             {pendente ? "Buscando…" : "Buscar coordenadas"}
           </button>
@@ -71,10 +71,7 @@ export function Coordenadas({
         <p
           role={state.ok ? "status" : "alert"}
           className={
-            "mt-4 border px-3 py-2 text-sm " +
-            (state.ok
-              ? "border-accent/30 bg-accent-soft text-ink"
-              : "border-danger/30 bg-danger/5 text-danger")
+            "fd-alert mt-4 " + (state.ok ? "fd-alert-ok" : "fd-alert-error")
           }
         >
           {state.message}

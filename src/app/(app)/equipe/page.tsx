@@ -40,15 +40,15 @@ export default async function EquipePage() {
       {podeGerir && <ConvidarMembro orgId={ctx.current.org_id} />}
 
       {equipe.length === 0 ? (
-        <div className="mt-6"><Empty>Nenhum membro além de você.</Empty></div>
+        <div className="mt-6"><Empty titulo="Nenhum membro além de você.">Convide vendedores e aplicadores: sem aplicador ativo, o pedido não vira agenda.</Empty></div>
       ) : (
         <Table head={["Nome", "E-mail", "Papel", "Situação"]}>
           {equipe.map((m) => (
-            <tr key={m.id} className="border-b border-line last:border-0">
-              <td className="px-4 py-2.5 font-medium">{m.profiles?.full_name ?? "—"}</td>
-              <td className="px-4 py-2.5">{m.profiles?.email ?? "—"}</td>
-              <td className="px-4 py-2.5">{ROLE_LABEL[m.role]}</td>
-              <td className="px-4 py-2.5">
+            <tr key={m.id}>
+              <td className="font-medium">{m.profiles?.full_name ?? "—"}</td>
+              <td>{m.profiles?.email ?? "—"}</td>
+              <td>{ROLE_LABEL[m.role]}</td>
+              <td>
                 <Chip tone={m.active ? "bom" : "aviso"}>{m.active ? "ativo" : "inativo"}</Chip>
               </td>
             </tr>
@@ -58,17 +58,17 @@ export default async function EquipePage() {
 
       {pendentes.length > 0 && (
         <section className="mt-10">
-          <h2 className="text-xl font-bold tracking-tight">Convites pendentes</h2>
+          <h2 className="fd-h4">Convites pendentes</h2>
           <Table head={["E-mail", "Nome", "Papel", "Expira em", ""]}>
             {pendentes.map((i) => (
-              <tr key={i.id} className="border-b border-line last:border-0">
-                <td className="px-4 py-2.5">{i.email}</td>
-                <td className="px-4 py-2.5">{i.full_name ?? "—"}</td>
-                <td className="px-4 py-2.5">{ROLE_LABEL[i.role]}</td>
-                <td className="px-4 py-2.5 font-mono text-xs">
+              <tr key={i.id}>
+                <td>{i.email}</td>
+                <td>{i.full_name ?? "—"}</td>
+                <td>{ROLE_LABEL[i.role]}</td>
+                <td className="font-mono text-xs">
                   {new Date(i.expires_at).toLocaleDateString("pt-BR")}
                 </td>
-                <td className="px-4 py-2.5 text-right">
+                <td className="text-right">
                   {podeGerir && <CancelarConvite id={i.id} email={i.email} />}
                 </td>
               </tr>

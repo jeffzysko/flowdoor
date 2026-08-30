@@ -72,7 +72,7 @@ export function PermissaoLocalizacao() {
         </p>
         <button
           onClick={pedir}
-          className="mt-3 w-full bg-accent px-4 py-3 font-medium text-on-accent transition hover:bg-accent-hover"
+          className="fd-btn mt-3 w-full"
         >
           Liberar localização
         </button>
@@ -81,7 +81,7 @@ export function PermissaoLocalizacao() {
   }
 
   return (
-    <section className="mb-5 border border-warn/40 bg-warn/5 px-4 py-4">
+    <section className="fd-alert fd-alert-warn mb-5">
       <h2 className="text-sm font-bold">A localização está bloqueada</h2>
       <p className="mt-1 text-sm text-ink-2">
         Sem ela não dá para registrar chegada em nenhum ponto. O ajuste é fora

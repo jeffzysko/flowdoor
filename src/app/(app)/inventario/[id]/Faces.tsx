@@ -50,14 +50,14 @@ export function Faces({
     <section className="mt-10">
       <div className="flex flex-wrap items-end justify-between gap-4 border-b border-line pb-3">
         <div>
-          <h2 className="text-xl font-bold tracking-tight">Faces</h2>
+          <h2 className="fd-h4">Faces</h2>
           <p className="mt-1 text-sm text-ink-2">
             O ponto é a estrutura. A face é o lado que se vende — e cada uma
             tem preço, medida e sentido de fluxo próprios.
           </p>
         </div>
         {!novo && (
-          <button onClick={() => setNovo(true)} className="bg-accent px-4 py-2.5 font-medium text-on-accent transition hover:bg-accent-hover">
+          <button onClick={() => setNovo(true)} className="fd-btn">
             + Nova face
           </button>
         )}
@@ -86,7 +86,7 @@ function LinhaFace({ face, siteId }: { face: Face; siteId: string }) {
 
   if (!aberto) {
     return (
-      <li className="flex flex-wrap items-center justify-between gap-3 border border-line bg-surface px-4 py-3">
+      <li className="flex flex-wrap items-center justify-between gap-3 fd-card">
         <div className="flex flex-wrap items-center gap-3">
           <span className="font-mono text-sm font-medium">{face.code}</span>
           <Chip tone={face.medium === "digital" ? "bom" : "neutro"}>{rotuloDoFormato(face.kind)}</Chip>
@@ -97,12 +97,12 @@ function LinhaFace({ face, siteId }: { face: Face; siteId: string }) {
             {face.base_price ? ` · ${reais(face.base_price)}/bi-semana` : ""}
           </span>
           {!face.usada && (
-            <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-3">
+            <span className="fd-label">
               nunca vendida
             </span>
           )}
         </div>
-        <button onClick={() => setAberto(true)} className="border border-line px-3 py-1.5 text-sm">
+        <button onClick={() => setAberto(true)} className="fd-btn fd-btn-ghost fd-btn-sm">
           Editar
         </button>
       </li>
@@ -132,7 +132,7 @@ function FormFace({
     return (
       <div className="flex items-center justify-between gap-4">
         <p className="text-sm text-good">{state.message}</p>
-        <button onClick={aoFechar} className="border border-line px-3 py-1.5 text-sm">Fechar</button>
+        <button onClick={aoFechar} className="fd-btn fd-btn-ghost fd-btn-sm">Fechar</button>
       </div>
     );
   }
@@ -165,16 +165,16 @@ function FormFace({
         )}
 
         {state.message && !state.ok && (
-          <p role="alert" className="mt-4 border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger">
+          <p role="alert" className="fd-alert fd-alert-error mt-4">
             {state.message}
           </p>
         )}
 
         <div className="mt-4 flex flex-wrap gap-3">
-          <button type="submit" disabled={pendente} className="bg-accent px-5 py-2.5 font-medium text-on-accent transition hover:bg-accent-hover disabled:opacity-50">
+          <button type="submit" disabled={pendente} className="fd-btn">
             {pendente ? "Salvando…" : "Salvar face"}
           </button>
-          <button type="button" onClick={aoFechar} className="border border-line px-5 py-2.5">
+          <button type="button" onClick={aoFechar} className="fd-link">
             Cancelar
           </button>
         </div>
@@ -195,7 +195,7 @@ function ExcluirFace({ faceId, siteId, code }: { faceId: string; siteId: string;
       <input type="hidden" name="siteId" value={siteId} />
 
       {state.message && !state.ok && (
-        <p role="alert" className="mb-3 border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger">
+        <p role="alert" className="fd-alert fd-alert-error mb-3">
           {state.message}
         </p>
       )}
@@ -204,17 +204,17 @@ function ExcluirFace({ faceId, siteId, code }: { faceId: string; siteId: string;
         <button
           type="button"
           onClick={() => setConfirmando(true)}
-          className="text-sm text-danger underline underline-offset-4"
+          className="fd-link fd-link-sm fd-link-danger"
         >
           Excluir esta face
         </button>
       ) : (
         <div className="flex flex-wrap items-center gap-3">
           <span className="text-sm">Apagar {code}?</span>
-          <button type="button" onClick={() => setConfirmando(false)} className="border border-line px-3 py-1.5 text-sm">
+          <button type="button" onClick={() => setConfirmando(false)} className="fd-link fd-link-sm">
             Não
           </button>
-          <button type="submit" disabled={pendente} className="bg-danger px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50">
+          <button type="submit" disabled={pendente} className="fd-btn fd-btn-danger fd-btn-sm">
             {pendente ? "Excluindo…" : "Sim, excluir"}
           </button>
         </div>
@@ -239,9 +239,9 @@ function NovaFace({
 
   if (state.ok) {
     return (
-      <div className="mt-5 flex items-center justify-between gap-4 border border-good/40 bg-good/5 px-4 py-3">
+      <div className="fd-alert fd-alert-ok mt-5 flex items-center justify-between gap-4">
         <p className="text-sm text-good">{state.message}</p>
-        <button onClick={aoFechar} className="border border-line bg-surface px-3 py-1.5 text-sm">Fechar</button>
+        <button onClick={aoFechar} className="text-sm fd-card">Fechar</button>
       </div>
     );
   }
@@ -251,7 +251,7 @@ function NovaFace({
       <input type="hidden" name="siteId" value={siteId} />
       <input type="hidden" name="orgId" value={orgId} />
 
-      <h3 className="text-lg font-bold">Nova face neste ponto</h3>
+      <h3 className="fd-h4">Nova face neste ponto</h3>
       <p className="mt-1 text-sm text-ink-2">
         Uma estrutura com dois lados vende dois. O código costuma seguir a
         letra: {sugerido}.
@@ -277,16 +277,16 @@ function NovaFace({
       )}
 
       {state.message && !state.ok && (
-        <p role="alert" className="mt-4 border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger">
+        <p role="alert" className="fd-alert fd-alert-error mt-4">
           {state.message}
         </p>
       )}
 
       <div className="mt-5 flex flex-wrap gap-3">
-        <button type="submit" disabled={pendente} className="bg-accent px-5 py-2.5 font-medium text-on-accent transition hover:bg-accent-hover disabled:opacity-50">
+        <button type="submit" disabled={pendente} className="fd-btn">
           {pendente ? "Criando…" : "Criar face"}
         </button>
-        <button type="button" onClick={aoFechar} className="border border-line px-5 py-2.5">
+        <button type="button" onClick={aoFechar} className="fd-link">
           Cancelar
         </button>
       </div>
@@ -299,11 +299,11 @@ function F({
 }: { name: string; label: string; className?: string } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <label className={`block ${className}`}>
-      <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">{label}</span>
+      <span className="fd-label">{label}</span>
       <input
         {...rest}
         name={name}
-        className="mt-1 w-full border border-line bg-surface px-3 py-2.5 outline-none focus:border-accent"
+        className="fd-input"
       />
     </label>
   );
@@ -320,12 +320,12 @@ function S({
 }) {
   return (
     <label className="block">
-      <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">{label}</span>
+      <span className="fd-label">{label}</span>
       <select
         name={name}
         defaultValue={defaultValue}
         onChange={(e) => onChange?.(e.target.value)}
-        className="mt-1 w-full border border-line bg-surface px-3 py-2.5 outline-none focus:border-accent"
+        className="fd-input"
       >
         {opcoes.map(([v, r]) => (
           <option key={v} value={v}>{r}</option>

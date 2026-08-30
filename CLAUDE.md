@@ -212,6 +212,27 @@ base nova, schema novo.
    vendido aparecia como se a venda não tivesse acontecido. Onde a tela mostra
    uma lista que pode ser legitimamente vazia, o erro precisa aparecer
    separado do vazio.
+32. **A interface tem uma camada de componentes, e ela é a fonte.** As peças do
+   design system v2 vivem em `@layer components` no `globals.css` como classes
+   `.fd-*` — botão, card, tabela, tag, alerta, campo, estado vazio, modal —
+   construídas só com tokens `--fd-*`. Tela nova compõe essas classes; não
+   redesenha a peça com utilitários soltos. Três regras que não se negociam:
+   fundo laranja carrega texto **escuro** (4,88:1 contra 2,74:1 do branco), o
+   hover do botão **clareia** para `orange-400` (5,75:1), e laranja é **marca,
+   não estado** — sucesso é verde, atenção é mostarda, erro é vermelho. A régua
+   tipográfica do documento também governa o Tailwind: `--text-sm` é 13px e
+   `--text-3xl` é 32px, redefinidos no `@theme`.
+33. **Só levanta no hover o que é clicável.** `.fd-card` fica parado;
+   `.fd-card.is-interactive` sobe 2px. Card de indicador que não abre nada não
+   reage ao ponteiro — movimento sem destino ensina o usuário a ignorar
+   movimento.
+34. **Toda visão geral termina dizendo o que fazer em seguida.** O bloco
+   `ProximaAcao` muda de texto conforme o estado (sem ponto → cadastre; sem
+   anunciante → cadastre; sem pedido → venda; com pedido → confira). É o traço
+   de UX mais forte do produto; tela de resumo nova mantém o padrão.
+35. **Estado vazio tem três partes: o que falta, por quê, e o botão que
+   resolve.** Quem não tem permissão para resolver não vê botão — vê a frase
+   dizendo a quem pedir.
 28. **A unidade de venda é a bi-semana.** `faces.base_price` é o valor de
    **14 dias**, não do mês nem do período do pedido — é como mídia exterior se
    vende no Brasil, e a tabela `periods` já modela isso (104 períodos de 14

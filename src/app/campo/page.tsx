@@ -84,42 +84,42 @@ export default async function CampoPage() {
 
       <header className="flex items-start justify-between gap-4">
         <div>
-          <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent-ink">
+          <p className="fd-overline">
             {p.vazio ? "Nada na fila" : `Parada de agora · faltam ${p.restantes}`}
           </p>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight">
+          <h1 className="fd-h3 mt-1">
             Olá, {ctx.fullName.split(" ")[0]}
           </h1>
         </div>
         <form action="/auth/sair" method="post">
-          <button className="font-mono text-xs text-ink-3 underline underline-offset-4">
+          <button className="fd-link fd-link-sm">
             Sair
           </button>
         </form>
       </header>
 
       {p.vazio ? (
-        <section className="mt-8 border border-line bg-surface px-5 py-12 text-center">
-          <p className="text-lg font-medium">Sua fila está vazia.</p>
+        <section className="fd-empty mt-8">
+          <p className="fd-h4">Sua fila está vazia.</p>
           <p className="mt-2 text-ink-2">
             Quando a operação agendar a próxima aplicação, ela aparece aqui.
           </p>
           <Link
             href="/campo/historico"
-            className="mt-6 inline-block font-mono text-xs text-ink-3 underline underline-offset-4"
+            className="fd-link fd-link-sm mt-6"
           >
             Ver o que já concluí
           </Link>
         </section>
       ) : (
         <>
-          <section className="mt-6 border-2 border-accent bg-surface p-5">
-            <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-accent-ink">
+          <section className="fd-card mt-6 border-2 border-accent">
+            <p className="fd-overline">
               {rotulo("field_event_kind", p.kind)}
               {p.order_code ? ` · ${p.order_code}` : ""}
             </p>
 
-            <h2 className="mt-2 text-2xl font-bold leading-snug tracking-tight">
+            <h2 className="fd-h3 mt-2 leading-snug">
               {p.address}
             </h2>
             <p className="mt-1 text-ink-2">
@@ -134,7 +134,7 @@ export default async function CampoPage() {
 
             {p.latitude && p.longitude && (
               <a
-                className="mt-4 block bg-ink px-4 py-3 text-center font-medium text-white"
+                className="fd-btn fd-btn-block mt-4"
                 href={`https://www.google.com/maps/dir/?api=1&destination=${p.latitude},${p.longitude}`}
                 target="_blank"
                 rel="noreferrer noopener"
@@ -147,7 +147,7 @@ export default async function CampoPage() {
           {p.rejected_reason && (
             <p
               role="alert"
-              className="mt-4 border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
+              className="fd-alert fd-alert-error mt-4"
             >
               <strong>Foto recusada:</strong> {p.rejected_reason} Tire outra antes
               de seguir.
@@ -157,7 +157,7 @@ export default async function CampoPage() {
           {p.status === "aguardando_validacao" && !p.rejected_reason && (
             <p
               role="status"
-              className="mt-4 border border-warn/30 bg-warn/5 px-4 py-3 text-sm text-warn"
+              className="fd-alert fd-alert-warn mt-4"
             >
               Foto enviada, conferindo. Assim que passar, a próxima parada
               aparece aqui.
@@ -166,7 +166,7 @@ export default async function CampoPage() {
 
           {p.instructions && (
             <section className="mt-5 border-l-3 border-accent bg-surface px-4 py-3">
-              <h3 className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">
+              <h3 className="fd-label">
                 Instruções técnicas
               </h3>
               <p className="mt-1 whitespace-pre-wrap text-sm">{p.instructions}</p>
@@ -175,14 +175,14 @@ export default async function CampoPage() {
 
           {arteUrl && p.kind === "aplicacao" && (
             <section className="mt-5">
-              <h3 className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">
+              <h3 className="fd-label">
                 Arte que deve estar na face
               </h3>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={arteUrl}
                 alt="Arte aprovada da campanha"
-                className="mt-2 w-full border border-line bg-paper"
+                className="mt-2 w-full rounded-lg"
               />
               <p className="mt-1 text-xs text-ink-3">
                 A foto que você enviar é comparada com esta arte.
@@ -216,7 +216,7 @@ export default async function CampoPage() {
       <nav className="mt-10 text-center">
         <Link
           href="/campo/historico"
-          className="font-mono text-xs text-ink-3 underline underline-offset-4"
+          className="fd-link fd-link-sm"
         >
           Histórico
         </Link>

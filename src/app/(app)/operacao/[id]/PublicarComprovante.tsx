@@ -42,8 +42,8 @@ export function PublicarComprovante({
   }
 
   return (
-    <section className="mt-10 border border-line bg-surface p-5">
-      <h2 className="text-xl font-bold tracking-tight">Comprovante do anunciante</h2>
+    <section className="mt-10 fd-card">
+      <h2 className="fd-h4">Comprovante do anunciante</h2>
       <p className="mt-1 text-ink-2">
         Uma página pública, sem login, com a foto de cada face, o horário da
         chegada e a coordenada registrada no aparelho do aplicador. O conteúdo é
@@ -52,7 +52,7 @@ export function PublicarComprovante({
       </p>
 
       {parcial && (
-        <p className="mt-4 border border-warn/30 bg-warn/5 px-3 py-2 text-sm text-warn">
+        <p className="fd-alert fd-alert-warn mt-4">
           {concluidas === 0
             ? "Nenhuma aplicação foi concluída ainda. O comprovante sairia vazio."
             : `${total - concluidas} de ${total} aplicações ainda não foram concluídas. O comprovante sai parcial.`}
@@ -60,7 +60,7 @@ export function PublicarComprovante({
       )}
 
       {erro && (
-        <p role="alert" className="mt-4 border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger">
+        <p role="alert" className="fd-alert fd-alert-error mt-4">
           {erro}
         </p>
       )}
@@ -69,7 +69,7 @@ export function PublicarComprovante({
         <button
           onClick={publicar}
           disabled={publicando}
-          className="bg-accent px-5 py-2.5 font-medium text-on-accent transition hover:bg-accent-hover disabled:opacity-50"
+          className="fd-btn"
         >
           {publicando ? "Publicando…" : url ? "Republicar com os dados de agora" : "Publicar comprovante"}
         </button>
@@ -80,11 +80,11 @@ export function PublicarComprovante({
               href={url}
               target="_blank"
               rel="noreferrer noopener"
-              className="border border-line px-5 py-2.5"
+              className="fd-btn fd-btn-ghost"
             >
               Abrir
             </a>
-            <button onClick={copiar} className="bg-ink px-5 py-2.5 font-medium text-white">
+            <button onClick={copiar} className="fd-btn fd-btn-ghost">
               {copiado ? "Copiado" : "Copiar link"}
             </button>
           </>
@@ -92,7 +92,7 @@ export function PublicarComprovante({
       </div>
 
       {url && (
-        <code className="mt-4 block break-all border border-line bg-paper px-3 py-2 text-xs">
+        <code className="fd-inset mt-4 block break-all font-mono text-xs">
           {url}
         </code>
       )}

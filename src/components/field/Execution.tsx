@@ -326,17 +326,17 @@ export function Execution({
   if (etapa === "pronto") {
     return (
       <section className="mt-8 border border-accent bg-accent-soft px-5 py-8 text-center">
-        <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-accent-ink">
+        <p className="fd-overline">
           Enviado
         </p>
-        <h2 className="mt-2 text-2xl font-bold">Foto em conferência.</h2>
+        <h2 className="fd-h3 mt-2">Foto em conferência.</h2>
         <p className="mt-2 text-ink-2">
           Estamos checando o local, o horário, a peça e se a imagem já foi
           enviada antes. Passando, a próxima parada abre sozinha.
         </p>
         <a
           href="/campo"
-          className="mt-6 inline-block bg-accent px-6 py-3 font-medium text-on-accent transition hover:bg-accent-hover"
+          className="fd-btn mt-6"
         >
           Atualizar
         </a>
@@ -347,19 +347,19 @@ export function Execution({
   return (
     <section className="mt-8">
       {erro && (
-        <p role="alert" className="mb-4 border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger">
+        <p role="alert" className="fd-alert fd-alert-error mb-4">
           {erro}
         </p>
       )}
       {aviso && (
-        <p role="status" className="mb-4 border border-warn/30 bg-warn/5 px-4 py-3 text-sm text-warn">
+        <p role="status" className="fd-alert fd-alert-warn mb-4">
           {aviso}
         </p>
       )}
 
       {etapa === "chegada" && (
         <>
-          <h2 className="text-lg font-bold">1. Confirme que chegou</h2>
+          <h2 className="fd-h4">1. Confirme que chegou</h2>
           <p className="mt-1 text-sm text-ink-2">
             A localização do seu aparelho é registrada agora e comparada com a
             coordenada do ponto. É o que sustenta o comprovante do anunciante.
@@ -388,7 +388,7 @@ export function Execution({
                 </>
               ) : (
                 <>
-                  <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">
+                  <p className="fd-label">
                     Distância até o ponto
                   </p>
                   <p
@@ -422,7 +422,7 @@ export function Execution({
           <button
             onClick={() => registrarChegada(null)}
             disabled={ocupado || travado}
-            className="mt-5 w-full bg-accent px-4 py-5 text-lg font-medium text-on-accent transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40"
+            className="fd-btn mt-5 w-full disabled:cursor-not-allowed disabled:opacity-40"
           >
             {ocupado
               ? "Registrando…"
@@ -440,14 +440,14 @@ export function Execution({
           {podeEscapar && !escapeAberto && (
             <button
               onClick={() => setEscapeAberto(true)}
-              className="mt-4 w-full text-center font-mono text-xs text-ink-3 underline underline-offset-4"
+              className="fd-link fd-link-sm mt-4 w-full text-center"
             >
               O GPS não está pegando aqui
             </button>
           )}
 
           {podeEscapar && escapeAberto && (
-            <section className="mt-4 border border-warn/40 bg-warn/5 px-4 py-4">
+            <section className="fd-alert fd-alert-warn mt-4">
               <h3 className="text-sm font-bold">Registrar sem confirmar por GPS</h3>
               <p className="mt-1 text-sm text-ink-2">
                 Dá para seguir, mas esta parada não vai ser aprovada sozinha:
@@ -484,14 +484,14 @@ export function Execution({
                     setEscapeAberto(false);
                     setMotivoEscape(null);
                   }}
-                  className="flex-1 border border-line bg-surface px-4 py-3 font-medium"
+                  className="fd-btn fd-btn-ghost flex-1"
                 >
                   Voltar a tentar
                 </button>
                 <button
                   onClick={() => registrarChegada(motivoEscape)}
                   disabled={ocupado || !motivoEscape}
-                  className="flex-[2] bg-warn px-4 py-3 font-medium text-white disabled:opacity-40"
+                  className="fd-btn flex-[2]"
                 >
                   {ocupado ? "Registrando…" : "Registrar assim mesmo"}
                 </button>
@@ -508,14 +508,14 @@ export function Execution({
 
       {etapa === "execucao" && (
         <>
-          <h2 className="text-lg font-bold">2. Faça o serviço e fotografe</h2>
+          <h2 className="fd-h4">2. Faça o serviço e fotografe</h2>
           <p className="mt-1 text-sm text-ink-2">
             Enquadre a face inteira. A moldura vem na proporção do outdoor, e a
             foto sai carimbada com data, hora, ponto e coordenada.
           </p>
           <button
             onClick={abrirCamera}
-            className="mt-5 w-full bg-accent px-4 py-4 text-lg font-medium text-on-accent transition hover:bg-accent-hover"
+            className="fd-btn mt-5 w-full"
           >
             Abrir câmera
           </button>
@@ -523,7 +523,7 @@ export function Execution({
       )}
 
       {etapa === "foto" && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-black">
+        <div className="fixed inset-0 z-50 flex flex-col bg-night">
           <div className="relative flex-1 overflow-hidden">
             <video
               ref={videoRef}
@@ -533,33 +533,33 @@ export function Execution({
             />
             <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
               <div
-                className="w-[92%] border-2 border-white/90 shadow-[0_0_0_100vmax_rgba(0,0,0,0.45)]"
+                className="w-[92%] rounded-2xl border-[3px] border-cam-frame shadow-[0_0_0_100vmax_var(--fd-cam-scrim)]"
                 style={{ aspectRatio: "3.2 / 1" }}
               />
             </div>
-            <p className="pointer-events-none absolute inset-x-0 bottom-28 text-center font-mono text-xs text-white/90">
+            <p className="pointer-events-none absolute inset-x-0 bottom-28 text-center text-sm text-cam-hint">
               Encaixe a face inteira na moldura
             </p>
           </div>
 
-          <div className="flex items-center justify-between gap-4 bg-black px-6 py-6">
+          <div className="flex items-center justify-between gap-4 bg-night px-6 py-6">
             <button
               onClick={() => {
                 stopCamera(streamRef.current);
                 streamRef.current = null;
                 setEtapa("execucao");
               }}
-              className="font-mono text-sm text-white/70"
+              className="text-sm font-bold text-cam-hint"
             >
               Cancelar
             </button>
             <button
               onClick={tirarFoto}
               aria-label="Tirar foto"
-              className="h-18 w-18 rounded-full border-4 border-white bg-white/20 p-1"
+              className="rounded-full border-4 border-cam-frame bg-cam-frame/20 p-1"
               style={{ height: 72, width: 72 }}
             >
-              <span className="block h-full w-full rounded-full bg-white" />
+              <span className="block h-full w-full rounded-full bg-cam-frame" />
             </button>
             <span className="w-16" />
           </div>
@@ -568,14 +568,14 @@ export function Execution({
 
       {etapa === "revisao" && foto && (
         <>
-          <h2 className="text-lg font-bold">3. Confira antes de enviar</h2>
+          <h2 className="fd-h4">3. Confira antes de enviar</h2>
 
           {previewUrl && (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={previewUrl}
               alt="Prévia da foto de comprovação"
-              className="mt-4 w-full border border-line"
+              className="mt-4 w-full rounded-lg"
             />
           )}
 
@@ -591,7 +591,7 @@ export function Execution({
           </p>
 
           <label className="mt-4 block">
-            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">
+            <span className="fd-label">
               Observação (opcional)
             </span>
             <textarea
@@ -599,21 +599,21 @@ export function Execution({
               onChange={(e) => setNotas(e.target.value)}
               rows={3}
               placeholder="ex.: estrutura com lâmpada queimada no lado direito"
-              className="mt-1 w-full border border-line bg-surface px-3 py-2 outline-none focus:border-accent"
+              className="fd-input"
             />
           </label>
 
           <div className="mt-5 flex gap-3">
             <button
               onClick={abrirCamera}
-              className="flex-1 border border-line bg-surface px-4 py-4 font-medium"
+              className="fd-btn fd-btn-ghost flex-1"
             >
               Refazer
             </button>
             <button
               onClick={concluir}
               disabled={ocupado}
-              className="flex-[2] bg-accent px-4 py-4 text-lg font-medium text-on-accent transition hover:bg-accent-hover disabled:opacity-50"
+              className="fd-btn flex-[2]"
             >
               {ocupado ? "Enviando…" : "Enviar para conferência"}
             </button>

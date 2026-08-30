@@ -18,7 +18,7 @@ export default async function NovaOrgPage() {
       <main className="mx-auto max-w-3xl px-5 py-8">
         <Link
           href="/plataforma"
-          className="font-mono text-xs text-ink-3 underline underline-offset-4"
+          className="fd-link fd-link-sm"
         >
           ← Organizações
         </Link>

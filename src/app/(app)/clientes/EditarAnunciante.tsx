@@ -26,7 +26,7 @@ export function EditarAnunciante({ a }: { a: Anunciante }) {
         {state.ok && state.message && (
           <span className="text-xs text-good">{state.message}</span>
         )}
-        <button onClick={() => setAberto(true)} className="border border-line px-3 py-1.5 text-sm">
+        <button onClick={() => setAberto(true)} className="fd-btn fd-btn-ghost fd-btn-sm">
           Editar
         </button>
       </div>
@@ -47,28 +47,28 @@ export function EditarAnunciante({ a }: { a: Anunciante }) {
       </div>
 
       <label className="mt-3 block">
-        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">
+        <span className="fd-label">
           Observações
         </span>
         <textarea
           name="notes"
           rows={2}
           defaultValue={a.notes ?? ""}
-          className="mt-1 w-full border border-line bg-surface px-3 py-2 outline-none focus:border-accent"
+          className="fd-input"
         />
       </label>
 
       {state.message && !state.ok && (
-        <p role="alert" className="mt-3 border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger">
+        <p role="alert" className="fd-alert fd-alert-error mt-3">
           {state.message}
         </p>
       )}
 
       <div className="mt-4 flex gap-3">
-        <button type="submit" disabled={pendente} className="bg-accent px-4 py-2 text-sm font-medium text-on-accent transition hover:bg-accent-hover disabled:opacity-50">
+        <button type="submit" disabled={pendente} className="fd-btn fd-btn-sm">
           {pendente ? "Salvando…" : "Salvar"}
         </button>
-        <button type="button" onClick={() => setAberto(false)} className="border border-line px-4 py-2 text-sm">
+        <button type="button" onClick={() => setAberto(false)} className="fd-link fd-link-sm">
           Cancelar
         </button>
       </div>
@@ -81,11 +81,11 @@ function F({
 }: { name: string; label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <label className="block">
-      <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">{label}</span>
+      <span className="fd-label">{label}</span>
       <input
         {...rest}
         name={name}
-        className="mt-1 w-full border border-line bg-surface px-3 py-2.5 outline-none focus:border-accent"
+        className="fd-input"
       />
     </label>
   );
