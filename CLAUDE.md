@@ -263,8 +263,11 @@ real: DKIM `pass` com `header.i=@flowdoor.com.br`, SPF `pass` por
   (decisão 19), então a confirmação seria redundante. A tela de aceite ainda
   trata o caso de estar ligada: se `signUp` volta sem sessão, ela explica em
   vez de estourar "não autenticado".
-- `create_invitation` devolve o token em claro **uma vez**; a tela de equipe
-  monta o link `/convite/<token>`. O link é o segredo. Trate como senha.
+- `create_invitation` devolve o token em claro **uma vez**; a ação
+  `criarConvite` manda o e-mail pela API HTTP do Resend (`src/lib/email/`) e
+  devolve o link do mesmo jeito. Falha de envio nunca invalida o convite: vira
+  aviso na tela e o link continua ali para mandar à mão. Sem `RESEND_API_KEY`
+  o comportamento é exatamente esse. O link é o segredo. Trate como senha.
 - `/recuperar-senha` precisa estar em `PUBLIC_PREFIXES` no
   `src/lib/supabase/middleware.ts` — quem pede o link não tem sessão.
 - `NEXT_PUBLIC_SITE_URL` é `https://www.flowdoor.com.br`. Com `www`, com

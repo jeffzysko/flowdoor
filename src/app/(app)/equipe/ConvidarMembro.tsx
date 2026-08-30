@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { criarConvite } from "@/app/plataforma/actions";
+import { criarConvite, type ConviteState } from "@/app/plataforma/actions";
 import { ROLE_LABEL } from "@/lib/domain/permissions";
 import type { MemberRole } from "@/lib/domain/types";
 
@@ -14,7 +14,7 @@ const PAPEIS: MemberRole[] = [
   "leitura",
 ];
 
-const inicial = { ok: false } as { ok: boolean; link?: string; message?: string };
+const inicial: ConviteState = { ok: false };
 
 export function ConvidarMembro({ orgId }: { orgId: string }) {
   const [state, action, pendente] = useActionState(criarConvite, inicial);
@@ -35,9 +35,9 @@ export function ConvidarMembro({ orgId }: { orgId: string }) {
     <section className="mt-8 border border-line bg-surface p-5">
       <h2 className="text-lg font-bold">Convidar para a equipe</h2>
       <p className="mt-1 text-sm text-ink-2">
-        O convite gera um link. Enquanto não houver envio de e-mail configurado,
-        copie e mande pelo canal que preferir — o link é o segredo, trate como
-        senha.
+        O convite vai por e-mail para a pessoa. O link também aparece aqui,
+        para você mandar por outro canal se preferir — ele é o segredo, trate
+        como senha.
       </p>
 
       <form action={action} className="mt-5 grid gap-3 sm:grid-cols-[1fr_1fr_180px_auto]">
@@ -70,7 +70,7 @@ export function ConvidarMembro({ orgId }: { orgId: string }) {
           disabled={pendente}
           className="bg-accent px-5 py-2.5 font-medium text-white disabled:opacity-50"
         >
-          {pendente ? "Gerando…" : "Gerar convite"}
+          {pendente ? "Enviando…" : "Convidar"}
         </button>
       </form>
 
@@ -83,10 +83,21 @@ export function ConvidarMembro({ orgId }: { orgId: string }) {
         </p>
       )}
 
+      {state.aviso && (
+        <p
+          role="alert"
+          className="mt-4 border border-warn/30 bg-warn/5 px-3 py-2 text-sm text-warn"
+        >
+          {state.aviso}
+        </p>
+      )}
+
       {state.ok && state.link && (
         <div className="mt-5 border border-accent bg-accent-soft px-4 py-3">
           <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-accent">
-            Link do convite · válido por 14 dias
+            {state.enviadoPara
+              ? `Convite enviado para ${state.enviadoPara} · vale 14 dias`
+              : "Link do convite · válido por 14 dias"}
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-3">
             <code className="flex-1 break-all rounded-none border border-line bg-surface px-3 py-2 text-xs">
@@ -100,7 +111,9 @@ export function ConvidarMembro({ orgId }: { orgId: string }) {
             </button>
           </div>
           <p className="mt-2 text-xs text-ink-2">
-            Aparece uma vez só. Se perder, gere outro.
+            {state.enviadoPara
+              ? "O mesmo link que foi por e-mail. Aparece uma vez só; se perder, gere outro."
+              : "Aparece uma vez só. Se perder, gere outro."}
           </p>
         </div>
       )}

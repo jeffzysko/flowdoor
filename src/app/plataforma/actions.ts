@@ -3,6 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { enviarEmail } from "@/lib/email/enviar";
+import { emailDeConvite } from "@/lib/email/convite";
+import type { MemberRole } from "@/lib/domain/types";
 
 const schema = z.object({
   name: z.string().min(2, "Informe o nome da empresa"),
@@ -78,14 +81,25 @@ export async function criarOrganizacao(
   return { ok: true, message: `${v.name} criada.` };
 }
 
+export type ConviteState = {
+  ok: boolean;
+  link?: string;
+  message?: string;
+  enviadoPara?: string;
+  aviso?: string;
+};
+
 /**
- * Gera o convite e devolve o LINK. Sem SMTP configurado nenhum e-mail sai,
- * então quem convida copia o link e manda pelo canal que quiser.
+ * Gera o convite, manda o e-mail e devolve o link.
+ *
+ * O link volta SEMPRE, mesmo com o e-mail entregue: o token aparece uma vez
+ * só, e se o envio falhar em silêncio quem convidou fica sem nada na mão.
+ * Falha de e-mail não invalida o convite — vira aviso, e o link continua ali.
  */
 export async function criarConvite(
-  _prev: { ok: boolean; link?: string; message?: string },
+  _prev: ConviteState,
   formData: FormData
-): Promise<{ ok: boolean; link?: string; message?: string }> {
+): Promise<ConviteState> {
   const orgId = String(formData.get("orgId") ?? "");
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const nome = String(formData.get("fullName") ?? "").trim();
@@ -114,7 +128,54 @@ export async function criarConvite(
 
   const token = (data as { token: string }).token;
   const base = process.env.NEXT_PUBLIC_SITE_URL ?? "";
+  const link = `${base}/convite/${token}`;
 
   revalidatePath("/equipe");
-  return { ok: true, link: `${base}/convite/${token}` };
+
+  // Quem convidou e de qual empresa: entra no corpo do e-mail para a pessoa
+  // reconhecer o remetente. Se qualquer um dos dois faltar, o e-mail sai
+  // assim mesmo — texto um pouco mais seco, convite igual.
+  const [{ data: org }, { data: { user } }] = await Promise.all([
+    supabase.from("organizations").select("name").eq("id", orgId).maybeSingle(),
+    supabase.auth.getUser(),
+  ]);
+
+  // profiles.full_name e não user_metadata: o metadata só é preenchido no
+  // signUp, e quem entrou por outro caminho fica sem. O perfil é a fonte que
+  // o resto do app já usa.
+  const { data: perfil } = user
+    ? await supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle()
+    : { data: null };
+
+  const quemConvidou = (perfil?.full_name as string | null)?.trim() || null;
+
+  const { assunto, html, texto } = emailDeConvite({
+    link,
+    empresa: org?.name ?? "sua equipe",
+    papel: papel as MemberRole,
+    convidadoPor: quemConvidou,
+    diasDeValidade: 14,
+  });
+
+  const envio = await enviarEmail({
+    para: email,
+    assunto,
+    html,
+    texto,
+    // Responder ao e-mail cai em quem convidou, não num endereço morto.
+    responderPara: user?.email ?? undefined,
+  });
+
+  if (envio.enviado) {
+    return { ok: true, link, enviadoPara: email };
+  }
+
+  return {
+    ok: true,
+    link,
+    aviso:
+      envio.motivo === "sem_chave"
+        ? "O envio de e-mail não está configurado neste ambiente. Mande o link abaixo à mão."
+        : "O convite foi criado, mas o e-mail não saiu. Mande o link abaixo à mão.",
+  };
 }
