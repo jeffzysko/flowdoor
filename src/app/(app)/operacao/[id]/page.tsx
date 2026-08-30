@@ -7,6 +7,7 @@ import { Chip, Table } from "@/components/ui";
 import { PublicarComprovante } from "./PublicarComprovante";
 import { EditarPedido, type LinhaAtual } from "./EditarPedido";
 import { rotulo } from "@/lib/domain/rotulos";
+import { reais } from "@/lib/domain/dinheiro";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Pedido" };
@@ -42,7 +43,7 @@ export default async function PedidoPage({
   const [{ data: pedido }, { data: eventos }, { data: proof }] = await Promise.all([
     supabase
       .from("orders")
-      .select("id, code, title, status, starts_on, ends_on, instructions, artwork_path, advertisers(name, email, tax_id)")
+      .select("id, code, title, status, starts_on, ends_on, instructions, artwork_path, total_amount, advertisers(name, email, tax_id)")
       .eq("id", id)
       .single(),
     supabase
@@ -62,6 +63,7 @@ export default async function PedidoPage({
     id: string; code: string; title: string | null; status: string;
     starts_on: string; ends_on: string; instructions: string | null;
     artwork_path: string | null;
+    total_amount: number | null;
     advertisers: { name: string; email: string | null; tax_id: string | null } | null;
   };
 
@@ -141,11 +143,12 @@ export default async function PedidoPage({
           {d(o.starts_on)} até {d(o.ends_on)}
         </p>
 
-        <dl className="mt-5 grid grid-cols-2 gap-px border border-line bg-line sm:grid-cols-4">
+        <dl className="mt-5 grid grid-cols-2 gap-px border border-line bg-line sm:grid-cols-5">
           {[
             ["Status", rotulo("order_status", o.status)],
             ["Faces", String(lista.length)],
             ["Aplicadas", `${concluidas} de ${lista.length}`],
+            ["Valor", reais(o.total_amount)],
             ["Arte", o.artwork_path ? "enviada" : "pendente"],
           ].map(([k, v]) => (
             <div key={k} className="bg-surface px-4 py-3">

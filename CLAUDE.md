@@ -200,6 +200,19 @@ base nova, schema novo.
    mesma resposta para token inexistente e token queimado. Sem essa amarra,
    desligar a confirmação de e-mail deixaria entrar conta com endereço nunca
    verificado.
+28. **A unidade de venda é a bi-semana.** `faces.base_price` é o valor de
+   **14 dias**, não do mês nem do período do pedido — é como mídia exterior se
+   vende no Brasil, e a tabela `periods` já modela isso (104 períodos de 14
+   dias). Sobra de dias conta como bi-semana inteira. `bi_semanas()` no banco e
+   `biSemanas()` em `src/lib/domain/dinheiro.ts` fazem a mesma conta: a tela
+   precisa mostrar o total antes de salvar, o banco precisa garantir o total
+   salvo. **Se divergirem, a do banco é a que vale.**
+29. **O total do pedido é gatilho, não conta na RPC.** Criar, editar e cancelar
+   pedido mexem em `order_items` por caminhos diferentes; soma espalhada em
+   três lugares diverge cedo ou tarde. `order_items_soma_no_pedido` recalcula
+   `orders.total_amount` a cada insert, update e delete, e
+   `order_items_preco_padrao` preenche o preço da linha com o valor de tabela
+   quando ninguém mandou um — **linha sem preço nunca vira zero.**
 27. **A confiança na coordenada é informação de tela, não detalhe técnico.**
    Seis valores de `geo_precision` viram três na interface
    (`src/lib/domain/localizacao.ts`): **confere** (trava a chegada), **parcial**

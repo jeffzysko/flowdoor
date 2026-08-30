@@ -5,6 +5,7 @@ import { atualizarFace, criarFace, excluirFace, type FormState } from "../action
 import { Chip } from "@/components/ui";
 import { FACE_KIND, FACE_KIND_LABEL , rotuloDoFormato } from "@/lib/domain/formatos";
 import { rotulo, opcoes } from "@/lib/domain/rotulos";
+import { reais } from "@/lib/domain/dinheiro";
 
 const inicial: FormState = { ok: false };
 
@@ -93,7 +94,7 @@ function LinhaFace({ face, siteId }: { face: Face; siteId: string }) {
           <span className="font-mono text-xs text-ink-3">
             {face.width_m && face.height_m ? `${face.width_m}×${face.height_m} m` : "sem medida"}
             {face.orientation ? ` · ${face.orientation}` : ""}
-            {face.base_price ? ` · R$ ${face.base_price}` : ""}
+            {face.base_price ? ` · ${reais(face.base_price)}/bi-semana` : ""}
           </span>
           {!face.usada && (
             <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-3">
@@ -152,7 +153,7 @@ function FormFace({
           <F name="orientation" label="Sentido do fluxo" defaultValue={face.orientation ?? ""} placeholder="bairro-centro" />
           <F name="widthM" label="Largura (m)" defaultValue={face.width_m ?? ""} placeholder="9" />
           <F name="heightM" label="Altura (m)" defaultValue={face.height_m ?? ""} placeholder="3" />
-          <F name="basePrice" label="Preço de tabela" defaultValue={face.base_price ?? ""} placeholder="2400" />
+          <F name="basePrice" label="Preço por bi-semana" defaultValue={face.base_price ?? ""} placeholder="1100" />
         </div>
 
         {medium === "digital" && (
@@ -264,7 +265,7 @@ function NovaFace({
         <F name="orientation" label="Sentido do fluxo" placeholder="bairro-centro" />
         <F name="widthM" label="Largura (m)" placeholder="9" />
         <F name="heightM" label="Altura (m)" placeholder="3" />
-        <F name="basePrice" label="Preço de tabela" placeholder="2400" />
+        <F name="basePrice" label="Preço por bi-semana" placeholder="1100" />
       </div>
 
       {medium === "digital" && (

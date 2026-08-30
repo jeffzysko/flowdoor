@@ -5,6 +5,7 @@ import Link from "next/link";
 import { PageHead, Empty, Table, Chip } from "@/components/ui";
 import { canSell } from "@/lib/domain/permissions";
 import { rotulo } from "@/lib/domain/rotulos";
+import { reais } from "@/lib/domain/dinheiro";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Operação" };
@@ -13,6 +14,7 @@ const d = (v: string) => new Date(v + "T12:00:00").toLocaleDateString("pt-BR");
 
 type Pedido = {
   id: string; code: string; status: string; starts_on: string; ends_on: string;
+  total_amount: number | null;
   advertisers: { name: string } | null;
   order_items: { id: string }[];
 };
@@ -24,7 +26,7 @@ export default async function OperacaoPage() {
   const supabase = await createClient();
   const { data } = await supabase
     .from("orders")
-    .select("id, code, status, starts_on, ends_on, advertisers(name), order_items(id)")
+    .select("id, code, status, starts_on, ends_on, total_amount, advertisers(name), order_items(id)")
     .eq("org_id", ctx.current.org_id)
     .order("created_at", { ascending: false });
 
@@ -55,7 +57,7 @@ export default async function OperacaoPage() {
           </Empty>
         </div>
       ) : (
-        <Table head={["Código", "Anunciante", "Período", "Faces", "Status"]}>
+        <Table head={["Código", "Anunciante", "Período", "Faces", "Valor", "Status"]}>
           {rows.map((o) => (
             <tr key={o.id} className="border-b border-line last:border-0">
               <td className="px-4 py-2.5 font-mono text-xs">
@@ -66,6 +68,9 @@ export default async function OperacaoPage() {
               <td className="px-4 py-2.5">{o.advertisers?.name ?? "—"}</td>
               <td className="px-4 py-2.5 font-mono text-xs">{d(o.starts_on)} – {d(o.ends_on)}</td>
               <td className="px-4 py-2.5 font-mono">{o.order_items?.length ?? 0}</td>
+              <td className="px-4 py-2.5 text-right font-mono tabular-nums">
+                {reais(o.total_amount)}
+              </td>
               <td className="px-4 py-2.5">
                 <Chip tone={o.status === "concluido" ? "bom" : o.status === "cancelado" ? "risco" : "neutro"}>
                   {rotulo("order_status", o.status)}

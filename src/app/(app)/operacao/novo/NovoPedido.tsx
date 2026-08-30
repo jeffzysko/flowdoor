@@ -4,12 +4,15 @@ import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { criarPedido, type PedidoState } from "../actions";
+import { biSemanas, valorDeTabela, reais, paraNumero } from "@/lib/domain/dinheiro";
 
 type Face = {
   id: string;
   code: string;
+  kind: string;
   medium: string;
   orientation: string | null;
+  base_price: number | null;
   sites: {
     code: string;
     address: string;
@@ -26,6 +29,8 @@ type Linha = {
   data: string;
   hora: string;
   minutos: number;
+  /** Vazio = vale a tabela. Preenchido = desconto ou acréscimo negociado. */
+  preco: string;
 };
 
 const MAX_ARTE = 25 * 1024 * 1024;
@@ -37,6 +42,7 @@ const novaLinha = (): Linha => ({
   data: "",
   hora: "09:00",
   minutos: 60,
+  preco: "",
 });
 
 export function NovoPedido({
@@ -65,6 +71,21 @@ export function NovoPedido({
   const escolhidas = useMemo(
     () => new Set(linhas.map((l) => l.face_id).filter(Boolean)),
     [linhas]
+  );
+
+  const porId = useMemo(() => new Map(faces.map((f) => [f.id, f])), [faces]);
+  const periodos = biSemanas(inicio, fim);
+
+  /** Valor de cada linha: o negociado se houver, senão o de tabela. */
+  const valorDaLinha = (l: Linha): number | null => {
+    const manual = paraNumero(l.preco);
+    if (manual !== null) return manual;
+    return valorDeTabela(porId.get(l.face_id)?.base_price, inicio, fim);
+  };
+
+  const total = linhas.reduce((soma, l) => soma + (l.face_id ? valorDaLinha(l) ?? 0 : 0), 0);
+  const semPreco = linhas.some(
+    (l) => l.face_id && valorDaLinha(l) === null
   );
 
   const filtradas = useMemo(() => {
@@ -141,6 +162,8 @@ export function NovoPedido({
           scheduled_for: l.data ? `${l.data}T${l.hora || "09:00"}:00` : "",
           estimated_minutes: Number(l.minutos) || 60,
           slots: 1,
+          // Sem valor na linha, o banco aplica o de tabela. Nunca vai zero.
+          price: valorDaLinha(l) ?? undefined,
         })),
       });
       setState(r);
@@ -312,7 +335,7 @@ export function NovoPedido({
                   )}
                 </div>
 
-                <div className="grid gap-3 lg:grid-cols-[2fr_1.2fr_1fr_0.8fr_0.9fr]">
+                <div className="grid gap-3 lg:grid-cols-[2fr_1.1fr_1fr_0.8fr_0.9fr_1fr]">
                   <label className="block">
                     <Rotulo>Face</Rotulo>
                     <select
@@ -382,19 +405,69 @@ export function NovoPedido({
                       <option value={120}>2 horas</option>
                     </select>
                   </label>
+
+                  {(() => {
+                    const face = porId.get(l.face_id);
+                    const tabela = valorDeTabela(face?.base_price, inicio, fim);
+                    const negociado = paraNumero(l.preco);
+                    return (
+                      <label className="block">
+                        <Rotulo>Valor</Rotulo>
+                        <input
+                          inputMode="decimal"
+                          value={l.preco}
+                          onChange={(e) => atualizar(l.key, "preco", e.target.value)}
+                          // Em branco vale a tabela: o vendedor só digita quando
+                          // negocia. Zero digitado é zero de verdade.
+                          placeholder={tabela !== null ? reais(tabela) : "sem tabela"}
+                          className="mt-1 w-full border border-line px-3 py-2.5 text-right outline-none focus:border-accent"
+                        />
+                        <span className="mt-1 block text-right font-mono text-[10px] uppercase tracking-[0.1em] text-ink-3">
+                          {!l.face_id
+                            ? "escolha a face"
+                            : tabela === null
+                              ? "face sem preço de tabela"
+                              : negociado === null
+                                ? "valor de tabela"
+                                : negociado < tabela
+                                  ? `desconto de ${reais(tabela - negociado)}`
+                                  : negociado > tabela
+                                    ? `acréscimo de ${reais(negociado - tabela)}`
+                                    : "igual à tabela"}
+                        </span>
+                      </label>
+                    );
+                  })()}
                 </div>
               </li>
             );
           })}
         </ul>
 
-        <button
-          type="button"
-          onClick={() => setLinhas((a) => [...a, novaLinha()])}
-          className="mt-4 border border-line bg-surface px-4 py-2.5 font-medium"
-        >
-          + Adicionar outra face
-        </button>
+        <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
+          <button
+            type="button"
+            onClick={() => setLinhas((a) => [...a, novaLinha()])}
+            className="border border-line bg-surface px-4 py-2.5 font-medium"
+          >
+            + Adicionar outra face
+          </button>
+
+          <div className="text-right">
+            <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">
+              {periodos > 0
+                ? `${escolhidas.size} face(s) · ${periodos} bi-semana(s)`
+                : "informe o período da campanha"}
+            </p>
+            <p className="text-2xl font-bold tabular-nums">{reais(total)}</p>
+            {semPreco && (
+              <p className="mt-1 text-xs text-warn">
+                Há face sem preço de tabela. Digite o valor dela, ou o pedido
+                sai sem contar essa linha.
+              </p>
+            )}
+          </div>
+        </div>
       </fieldset>
 
       {state.message && !state.ok && (

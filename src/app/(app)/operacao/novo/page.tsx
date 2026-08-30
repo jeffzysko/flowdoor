@@ -26,7 +26,7 @@ export default async function NovoPedidoPage() {
         .order("name"),
       supabase
         .from("faces")
-        .select("id, code, medium, orientation, sites(code, address, district, city, state)")
+        .select("id, code, kind, medium, orientation, base_price, sites(code, address, district, city, state)")
         .eq("org_id", org)
         .eq("status", "ativa")
         .order("code"),
@@ -41,8 +41,10 @@ export default async function NovoPedidoPage() {
   const listaFaces = (faces ?? []) as unknown as {
     id: string;
     code: string;
+    kind: string;
     medium: string;
     orientation: string | null;
+    base_price: number | null;
     sites: {
       code: string;
       address: string;

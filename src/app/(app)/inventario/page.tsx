@@ -10,12 +10,13 @@ import { rotuloDoFormato } from "@/lib/domain/formatos";
 import { situacaoDoLocal, LOCAL_CURTO, LOCAL_TOM, LOCAL_EXPLICACAO } from "@/lib/domain/localizacao";
 import { canManageInventory } from "@/lib/domain/permissions";
 import { rotulo } from "@/lib/domain/rotulos";
+import { reais } from "@/lib/domain/dinheiro";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Inventário" };
 
 type Face = {
-  id: string; code: string; kind: string; medium: string;
+  id: string; code: string; kind: string; medium: string; base_price: number | null;
   orientation: string | null; width_m: number | null; height_m: number | null;
   status: string;
   sites: {
@@ -32,7 +33,7 @@ export default async function InventarioPage() {
   const supabase = await createClient();
   const { data } = await supabase
     .from("faces")
-    .select("id, code, kind, medium, orientation, width_m, height_m, status, sites(id, code, address, district, city, state, latitude, geo_precision)")
+    .select("id, code, kind, medium, orientation, width_m, height_m, base_price, status, sites(id, code, address, district, city, state, latitude, geo_precision)")
     .eq("org_id", ctx.current.org_id)
     .order("code");
 
@@ -76,7 +77,7 @@ export default async function InventarioPage() {
           </Empty>
         </div>
       ) : (
-        <Table head={["Face", "Ponto", "Endereço", "Local", "Tipo", "Medida", "Sentido", "Status"]}>
+        <Table head={["Face", "Ponto", "Endereço", "Local", "Tipo", "Medida", "Bi-semana", "Status"]}>
           {faces.map((f) => (
             <tr key={f.id} className="border-b border-line last:border-0">
               <td className="px-4 py-2.5 font-mono text-xs">{f.code}</td>
@@ -118,7 +119,9 @@ export default async function InventarioPage() {
               <td className="px-4 py-2.5 font-mono text-xs">
                 {f.width_m && f.height_m ? `${f.width_m}×${f.height_m}m` : "—"}
               </td>
-              <td className="px-4 py-2.5 text-xs">{f.orientation ?? "—"}</td>
+              <td className="px-4 py-2.5 text-right font-mono text-xs tabular-nums">
+                {reais(f.base_price)}
+              </td>
               <td className="px-4 py-2.5">
                 <Chip tone={f.status === "ativa" ? "bom" : "aviso"}>{rotulo("face_status", f.status)}</Chip>
               </td>
