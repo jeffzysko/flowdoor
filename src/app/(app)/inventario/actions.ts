@@ -489,6 +489,15 @@ export async function buscarCoordenadasEmLote(
 
   const supabase = await createClient();
 
+  // Primeiro a limpeza, depois a fila. A busca devolver o MESMO ponto para
+  // referências diferentes é chute, não acerto — e chute marcado como exata
+  // arma a trava e barra o aplicador no lugar certo. Isso roda ANTES de
+  // montar a fila porque é o que devolve esses pontos para ela; rodando só no
+  // fim, um inventário todo marcado exata nunca seria revisto.
+  const { data: rebaixadosAntes } = await supabase.rpc("demote_duplicate_coordinates", {
+    p_org: orgId,
+  });
+
   // 'confirmada' e 'manual' ficam de fora: já valem mais que qualquer busca.
   const { data: pontos, error: leituraErr } = await supabase
     .from("sites")
@@ -500,7 +509,13 @@ export async function buscarCoordenadasEmLote(
 
   if (leituraErr) return { ok: false, message: traduzir(leituraErr) };
   if (!pontos?.length) {
-    return { ok: true, message: "Todos os pontos já têm coordenada." };
+    revalidatePath("/inventario");
+    return {
+      ok: true,
+      message: Number(rebaixadosAntes ?? 0)
+        ? `${rebaixadosAntes} ponto(s) dividiam coordenada com outro e voltaram para a fila. Clique de novo para rebuscar.`
+        : "Todos os pontos já têm coordenada.",
+    };
   }
 
   let exatas = 0, aproximadas = 0, falhas = 0;
@@ -558,10 +573,7 @@ export async function buscarCoordenadasEmLote(
     };
   }
 
-  // A busca devolver o MESMO ponto para referências diferentes é chute, não
-  // acerto — e chute com selo de 'exata' arma a trava e barra o aplicador no
-  // lugar certo. Na dúvida, não trava.
-  const { data: rebaixados } = await supabase.rpc("demote_duplicate_coordinates", {
+  const { data: rebaixadosDepois } = await supabase.rpc("demote_duplicate_coordinates", {
     p_org: orgId,
   });
 
@@ -573,7 +585,7 @@ export async function buscarCoordenadasEmLote(
 
   revalidatePath("/inventario");
 
-  const duplicados = Number(rebaixados ?? 0);
+  const duplicados = Number(rebaixadosAntes ?? 0) + Number(rebaixadosDepois ?? 0);
   const partes = [
     `${Math.max(exatas - duplicados, 0)} ponto(s) com coordenada exata — esses já travam a chegada`,
     aproximadas ? `${aproximadas} aproximado(s), que travam depois que o campo confirmar` : null,
