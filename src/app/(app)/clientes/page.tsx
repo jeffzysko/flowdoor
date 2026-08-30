@@ -1,14 +1,15 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionContext } from "@/lib/domain/session";
-import { PageHead, Empty, Table } from "@/components/ui";
+import { PageHead, Empty } from "@/components/ui";
 import { canSell } from "@/lib/domain/permissions";
 import { NovoAnunciante } from "./NovoAnunciante";
+import { EditarAnunciante, type Anunciante } from "./EditarAnunciante";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Anunciantes" };
 
-type A = { id: string; name: string; tax_id: string | null; email: string | null; phone: string | null; category: string | null };
+
 
 export default async function ClientesPage() {
   const ctx = await getSessionContext();
@@ -17,31 +18,41 @@ export default async function ClientesPage() {
   const supabase = await createClient();
   const { data } = await supabase
     .from("advertisers")
-    .select("id, name, tax_id, email, phone, category")
+    .select("id, name, tax_id, email, phone, contact_name, category, notes")
     .eq("org_id", ctx.current.org_id)
     .order("name");
 
-  const rows = (data ?? []) as A[];
+  const rows = (data ?? []) as Anunciante[];
+  const pode = canSell(ctx.current.role);
 
   return (
     <>
       <PageHead eyebrow="Comercial" title="Anunciantes" lead="Quem paga pela campanha." />
 
-      {canSell(ctx.current.role) && <NovoAnunciante orgId={ctx.current.org_id} />}
+      {pode && <NovoAnunciante orgId={ctx.current.org_id} />}
       {rows.length === 0 ? (
         <div className="mt-6"><Empty>Nenhum anunciante cadastrado ainda.</Empty></div>
       ) : (
-        <Table head={["Nome", "CPF / CNPJ", "E-mail", "Telefone", "Categoria"]}>
+        <ul className="mt-5 space-y-3">
           {rows.map((a) => (
-            <tr key={a.id} className="border-b border-line last:border-0">
-              <td className="px-4 py-2.5 font-medium">{a.name}</td>
-              <td className="px-4 py-2.5 font-mono text-xs">{a.tax_id ?? "—"}</td>
-              <td className="px-4 py-2.5">{a.email ?? "—"}</td>
-              <td className="px-4 py-2.5 font-mono text-xs">{a.phone ?? "—"}</td>
-              <td className="px-4 py-2.5 text-xs">{a.category ?? "—"}</td>
-            </tr>
+            <li key={a.id} className="border border-line bg-surface px-4 py-3">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="font-medium">{a.name}</p>
+                  <p className="mt-0.5 font-mono text-xs text-ink-3">
+                    {a.tax_id ?? "sem CPF/CNPJ"}
+                    {a.category ? ` · ${a.category}` : ""}
+                  </p>
+                  <p className="mt-1 text-sm text-ink-2">
+                    {[a.contact_name, a.email, a.phone].filter(Boolean).join(" · ") ||
+                      "sem contato cadastrado"}
+                  </p>
+                </div>
+                {pode && <EditarAnunciante a={a} />}
+              </div>
+            </li>
           ))}
-        </Table>
+        </ul>
       )}
     </>
   );

@@ -114,3 +114,123 @@ export async function publicarComprovante(
   revalidatePath(`/operacao/${orderId}`);
   return { ok: true, url: `${base}/comprovante/${encodeURIComponent(token)}` };
 }
+
+// ========================================================= editar pedido
+const linhaEdicao = z.object({
+  face_id: z.string().uuid(),
+  starts_on: z.string().optional(),
+  ends_on: z.string().optional(),
+  assignee_id: z.string().uuid().or(z.literal("")).optional(),
+  scheduled_for: z.string().optional(),
+  estimated_minutes: z.number().int().positive().optional(),
+  price: z.number().nonnegative().optional(),
+  slots: z.number().int().positive().optional(),
+});
+
+const edicao = z.object({
+  orderId: z.string().uuid(),
+  title: z.string().optional(),
+  instructions: z.string().optional(),
+  startsOn: z.string().min(10, "Informe o início da campanha"),
+  endsOn: z.string().min(10, "Informe o fim da campanha"),
+  linhas: z.array(linhaEdicao).min(1, "O pedido precisa de ao menos uma face"),
+});
+
+/**
+ * Editar pedido é a operação mais perigosa do sistema comercial: mexer no
+ * período move todas as reservas de uma vez. A RPC faz a checagem de colisão
+ * antes de gravar e recusa a alteração inteira se qualquer face estiver
+ * vendida — não existe pedido alterado pela metade.
+ */
+export async function atualizarPedido(input: unknown): Promise<PedidoState> {
+  const parsed = edicao.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, message: parsed.error.issues[0]?.message ?? "Dados inválidos." };
+  }
+  const v = parsed.data;
+
+  if (v.endsOn < v.startsOn) {
+    return { ok: false, message: "O fim da campanha é antes do início." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("update_order", {
+    p_order: v.orderId,
+    p_title: v.title || null,
+    p_instructions: v.instructions || null,
+    p_starts_on: v.startsOn,
+    p_ends_on: v.endsOn,
+    p_lines: v.linhas.map((l) => ({
+      face_id: l.face_id,
+      starts_on: l.starts_on || null,
+      ends_on: l.ends_on || null,
+      assignee_id: l.assignee_id || null,
+      scheduled_for: l.scheduled_for || null,
+      estimated_minutes: l.estimated_minutes ?? null,
+      price: l.price ?? null,
+      slots: l.slots ?? null,
+    })),
+  });
+
+  if (error) {
+    const m = error.message.toLowerCase();
+    return {
+      ok: false,
+      message: m.includes("loop cheio")
+        ? "Um painel digital não tem inserções livres suficientes nesse período."
+        : m.includes("sem permissao")
+          ? "Você não tem permissão comercial nesta empresa."
+          : error.message,
+    };
+  }
+
+  revalidatePath("/operacao");
+  revalidatePath(`/operacao/${v.orderId}`);
+  revalidatePath("/disponibilidade");
+  return { ok: true, orderId: v.orderId };
+}
+
+/**
+ * Cancelar libera o inventário e para a rota, mas não apaga o que já
+ * aconteceu: aplicação concluída continua concluída, com foto e horário. Se
+ * três faces subiram antes do cancelamento, elas subiram.
+ */
+export async function cancelarPedido(
+  orderId: string,
+  motivo?: string
+): Promise<{ ok: boolean; message?: string }> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("cancel_order", {
+    p_order: orderId,
+    p_motivo: motivo || null,
+  });
+
+  if (error) {
+    return {
+      ok: false,
+      message: error.message.includes("sem permissao")
+        ? "Você não tem permissão comercial nesta empresa."
+        : error.message,
+    };
+  }
+
+  const r = data as {
+    reservas_liberadas?: number;
+    aplicacoes_canceladas?: number;
+    aplicacoes_concluidas?: number;
+  };
+
+  revalidatePath("/operacao");
+  revalidatePath(`/operacao/${orderId}`);
+  revalidatePath("/disponibilidade");
+
+  return {
+    ok: true,
+    message:
+      `${r.reservas_liberadas ?? 0} reserva(s) liberada(s), ` +
+      `${r.aplicacoes_canceladas ?? 0} aplicação(ões) cancelada(s)` +
+      (r.aplicacoes_concluidas
+        ? `. As ${r.aplicacoes_concluidas} já aplicadas foram mantidas, com foto e horário.`
+        : "."),
+  };
+}

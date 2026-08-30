@@ -5,6 +5,7 @@ import { getSessionContext } from "@/lib/domain/session";
 import { canSell } from "@/lib/domain/permissions";
 import { Chip, Table } from "@/components/ui";
 import { PublicarComprovante } from "./PublicarComprovante";
+import { EditarPedido, type LinhaAtual } from "./EditarPedido";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Pedido" };
@@ -16,6 +17,9 @@ const dt = (v: string | null) =>
 type Evento = {
   id: string;
   status: string;
+  face_id: string;
+  assignee_id: string | null;
+  estimated_minutes: number | null;
   scheduled_for: string | null;
   started_at: string | null;
   finished_at: string | null;
@@ -42,7 +46,10 @@ export default async function PedidoPage({
       .single(),
     supabase
       .from("field_events")
-      .select("id, status, scheduled_for, started_at, finished_at, faces(code, sites(address, city)), profiles(full_name)")
+      .select(
+        "id, status, face_id, assignee_id, estimated_minutes, scheduled_for, started_at, finished_at, " +
+          "faces(code, sites(address, city)), profiles(full_name)"
+      )
       .eq("order_id", id)
       .order("scheduled_for", { ascending: true, nullsFirst: false }),
     supabase.from("proofs").select("public_token, published_at").eq("order_id", id).maybeSingle(),
@@ -59,6 +66,57 @@ export default async function PedidoPage({
 
   const lista = (eventos ?? []) as unknown as Evento[];
   const concluidas = lista.filter((e) => e.status === "concluido").length;
+  const podeVender = canSell(ctx.current.role);
+
+  // O formulário de edição precisa do inventário e de quem pode ir a campo.
+  // Só busca para quem tem permissão de mexer no pedido.
+  const [{ data: faceRows }, { data: membroRows }] = podeVender
+    ? await Promise.all([
+        supabase
+          .from("faces")
+          .select("id, code, sites(address, city)")
+          .eq("org_id", ctx.current.org_id)
+          .eq("status", "ativa")
+          .order("code"),
+        supabase
+          .from("org_members")
+          .select("user_id, role, profiles(full_name)")
+          .eq("org_id", ctx.current.org_id)
+          .eq("active", true),
+      ])
+    : [{ data: [] }, { data: [] }];
+
+  const faces = ((faceRows ?? []) as unknown as {
+    id: string;
+    code: string;
+    sites: { address: string; city: string } | null;
+  }[]).map((f) => ({
+    id: f.id,
+    code: f.code,
+    endereco: f.sites ? `${f.sites.address} · ${f.sites.city}` : "sem endereço",
+  }));
+
+  const membros = ((membroRows ?? []) as unknown as {
+    user_id: string;
+    role: string;
+    profiles: { full_name: string } | null;
+  }[])
+    .filter((m) => ["aplicador", "fotografo", "operacao", "owner", "admin"].includes(m.role))
+    .map((m) => ({ id: m.user_id, nome: m.profiles?.full_name ?? "sem nome" }));
+
+  const linhas: LinhaAtual[] = lista
+    .filter((e) => e.status !== "cancelado")
+    .map((e) => ({
+      face_id: e.face_id,
+      face_code: e.faces?.code ?? "?",
+      endereco: e.faces?.sites
+        ? `${e.faces.sites.address} · ${e.faces.sites.city}`
+        : "sem endereço",
+      assignee_id: e.assignee_id,
+      scheduled_for: e.scheduled_for,
+      estimated_minutes: e.estimated_minutes,
+      travada: e.status === "concluido" || e.status === "aguardando_validacao",
+    }));
   const base = process.env.NEXT_PUBLIC_SITE_URL ?? "";
   const urlAtual = proof?.published_at
     ? `${base}/comprovante/${encodeURIComponent(proof.public_token)}`
@@ -134,7 +192,22 @@ export default async function PedidoPage({
         </Table>
       </section>
 
-      {canSell(ctx.current.role) && (
+      {podeVender && (
+        <EditarPedido
+          orderId={o.id}
+          codigo={o.code}
+          title={o.title}
+          instructions={o.instructions}
+          startsOn={o.starts_on}
+          endsOn={o.ends_on}
+          linhas={linhas}
+          faces={faces}
+          membros={membros}
+          cancelado={o.status === "cancelado"}
+        />
+      )}
+
+      {podeVender && (
         <PublicarComprovante
           orderId={o.id}
           urlAtual={urlAtual}

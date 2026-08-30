@@ -155,7 +155,22 @@ base nova, schema novo.
    pedido. **A trava é o gatilho, não a tela**: a interface esconde o botão
    quando sabe que vai ser recusado, mas alguém pode vender a face enquanto a
    página está aberta.
-16. **`create or replace` no Supabase reaplica os default privileges** do schema
+16. **Editar pedido é tudo-ou-nada.** `update_order` faz a checagem de colisão
+   de TODAS as faces antes de gravar qualquer coisa, e recusa a alteração
+   inteira nomeando a face e o pedido que ocupa o lugar. Meio pedido alterado
+   seria pior que nenhum. Duas regras que não devem ser afrouxadas:
+
+   - **Face com aplicação `concluido` ou `aguardando_validacao` não sai do
+     pedido.** Ela carrega foto, coordenada e horário — tirar destruiria a
+     prova que o anunciante já recebeu.
+   - **Cancelar não apaga o que aconteceu.** `cancel_order` libera as reservas
+     e cancela as aplicações pendentes; a aplicação concluída, a foto e o
+     comprovante daquelas faces continuam de pé.
+
+   Quando o período anda, `scheduled_for` de cada aplicação anda o mesmo
+   número de dias — senão mudar a campanha de semana deixaria a equipe
+   agendada na semana antiga.
+17. **`create or replace` no Supabase reaplica os default privileges** do schema
    `public`, que dão EXECUTE para `anon` e `authenticated`. Toda vez que uma RPC
    for recriada, refaça os `revoke ... from public, anon`. Conferir depois com
    `get_advisors` ou `has_function_privilege('anon', oid, 'execute')`.
@@ -261,9 +276,8 @@ são as que a auditoria encontrou, e nenhuma delas é óbvia olhando as telas:
 - **`category_exclusivity_rules` está vazia e não é consultada por nada.**
 - **Disponibilidade fala bi-semana, pedido fala data solta.**
   `/disponibilidade` lê `periods`; `NovoPedido` não menciona período.
-- **Edição parcial.** Ponto e face já se editam em `/inventario/[id]`, com
-  criação de face avulsa, mudança de status e exclusão. **Pedido e anunciante
-  continuam só com tela de criação.**
+- ~~Nenhuma edição.~~ **Fechado.** Ponto e face em `/inventario/[id]`, pedido e
+  anunciante em `/operacao/[id]` e `/clientes`.
 - **Zero testes.** Sem vitest, jest ou playwright; `package.json` tem `lint` e
   `typecheck` e não tem `test`.
 
