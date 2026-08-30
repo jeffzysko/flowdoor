@@ -82,7 +82,43 @@ base nova, schema novo.
    - **O score do aplicador não pune e não avisa.** Acima de `watch_threshold`,
      tudo dele cai em `revisao` com `watch_flag = true`, e o campo continua
      andando. Quem está em campo não vê nada — avisar ensina a burlar.
-13. **`create or replace` no Supabase reaplica os default privileges** do schema
+13. **A fila é trava de banco, não de tela.** `my_next_stop` mostrar uma parada
+   por vez não impedia nada: o RLS liberava `assignee_id = auth.uid()` em
+   `field_events` (com `position` e `scheduled_for`) e `sites`/`faces` usavam
+   `readable_org_ids()`, que ignora papel. Uma chamada ao PostgREST com a
+   chave pública do navegador devolvia a rota do mês e o inventário inteiro.
+   Agora:
+
+   - `is_field_only(org)` — verdadeiro só para quem é aplicador ou fotógrafo
+     **e nada além disso** naquela empresa. Quem acumula papel enxerga pelo
+     outro. Falso para quem não é membro, para não quebrar acesso de agência.
+   - `my_current_event_id()` — a única parada em que a pessoa pode mexer.
+     **Usa a mesma ordenação de `my_next_stop`; as duas têm que concordar.**
+   - `my_visible_event_ids()` / `my_visible_face_ids()` — a parada de agora
+     mais o que ela já concluiu. O passado não é segredo: ela esteve lá.
+   - As policies de `field_events`, `sites`, `faces`, `orders`, `order_items` e
+     `field_event_photos` passam por isso. **Mexeu em uma, confira as seis** —
+     o endereço da próxima parada vaza por `sites` mesmo com `field_events`
+     fechado.
+   - `field_start` e `field_finish` são SECURITY DEFINER e **não respeitam
+     RLS**. Por isso os dois checam `p_event = my_current_event_id()` por
+     dentro. Sem essa guarda, quem descobrisse um uuid abriria a parada de
+     fora da fila.
+   - Ao testar RLS, lembre que `is_platform_admin()` é o **primeiro ramo de
+     toda policy**: testar com o usuário dono da plataforma não prova nada.
+14. **A chegada é uma porta, não um carimbo.** Fora do raio, `field_start`
+   levanta exceção e a câmera não abre. A margem acompanha a precisão que o
+   aparelho informa, **com teto** (`accuracy_margin_max_m`): precisão é um
+   número que o cliente manda, e sem teto bastaria declarar 99999 para
+   atravessar. `start_radius_m` (250 m) é maior que `location_radius_m`
+   (150 m) de propósito — travar é mais caro que apontar, então a trava
+   perdoa mais e a conferência da foto continua apertada.
+   A conta de distância está em dois lugares, `distancia_m` no Postgres e
+   `src/lib/field/geo.ts` no navegador: **precisam bater**, senão a tela
+   mostra "chegou" e o servidor recusa.
+   `flushQueue` não lança — devolve `errors`. Quem chama **tem** que olhar,
+   senão uma chegada recusada avança a tela do mesmo jeito.
+15. **`create or replace` no Supabase reaplica os default privileges** do schema
    `public`, que dão EXECUTE para `anon` e `authenticated`. Toda vez que uma RPC
    for recriada, refaça os `revoke ... from public, anon`. Conferir depois com
    `get_advisors` ou `has_function_privilege('anon', oid, 'execute')`.
@@ -144,7 +180,12 @@ magic link **não saem por e-mail**. O caminho que funciona:
   existe). É onde os sinais antifraude viram trabalho: sem ela, `revisao` é um
   estado que ninguém olha.
 - Tela do score do aplicador (a RPC `operator_risk(org, user, dias)` já existe).
-- Tela de configuração de `field_validation_settings` pela interface.
+- Tela de configuração de `field_validation_settings` pela interface. São 18
+  colunas hoje, todas ajustáveis só por SQL na mão.
+- Liberação manual de uma parada quando o GPS falha de verdade (garagem,
+  prédio alto, aparelho velho). Hoje a trava não tem escape: se o sinal não
+  fixar, a pessoa não registra chegada e a operação não tem botão para
+  destravar.
 - Importação de faces por CSV/XLSX.
 - Envio de e-mail de convite (a rota /auth/callback e a tela /definir-senha
   ja existem; falta SMTP configurado no Supabase para o e-mail sair).

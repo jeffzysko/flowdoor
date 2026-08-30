@@ -30,6 +30,9 @@ type Parada = {
   order_title?: string | null;
   instructions?: string | null;
   artwork_path?: string | null;
+  require_proximity?: boolean;
+  start_radius_m?: number;
+  accuracy_margin_max_m?: number;
 };
 
 const hora = (v?: string | null) =>
@@ -44,8 +47,12 @@ const hora = (v?: string | null) =>
     : "sem horário";
 
 /**
- * Uma parada por vez. A próxima só aparece depois que a foto desta é validada —
- * é o que impede o aplicador de "adiantar" o dia e voltar depois.
+ * Uma parada por vez. A próxima só aparece depois que a foto desta é validada.
+ *
+ * E "aparece" aqui não é só a tela: o RLS fecha `field_events`, `sites` e
+ * `faces` para papéis de campo, então a rota futura não sai nem por chamada
+ * direta ao PostgREST com a chave do navegador. Ver
+ * `my_current_event_id()` e `is_field_only()` no banco.
  */
 export default async function CampoPage() {
   const ctx = await getSessionContext();
@@ -189,6 +196,11 @@ export default async function CampoPage() {
               cidade: p.city ? `${p.city}/${p.state}` : undefined,
               pedido: p.order_code ?? undefined,
             }}
+            siteLat={p.latitude}
+            siteLng={p.longitude}
+            requireProximity={p.require_proximity ?? false}
+            startRadiusM={p.start_radius_m ?? 250}
+            accuracyMarginMaxM={p.accuracy_margin_max_m ?? 100}
           />
         </>
       )}

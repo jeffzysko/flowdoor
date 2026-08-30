@@ -13,8 +13,11 @@ const PERMANENT = [
   "não pertence a você",
   "nao pertence a voce",
   "já concluído",
-  "evento não encontrado",
   "evento nao encontrado",
+  "evento não encontrado",
+  "ja concluido",
+  // Fora de ordem na fila: insistir não resolve, a parada não é essa.
+  "nao e a sua parada de agora",
 ];
 
 const isPermanent = (m: string) =>
@@ -81,15 +84,22 @@ export interface FlushResult {
   sent: number;
   failed: number;
   remaining: number;
+  /**
+   * Mensagens do servidor para o que não passou. A chegada agora pode ser
+   * recusada por distância, e recusa que ninguém mostra vira tela travada
+   * sem explicação.
+   */
+  errors: string[];
 }
 
 /** Drena a fila. Seguro chamar quantas vezes quiser. */
 export async function flushQueue(): Promise<FlushResult> {
   if (typeof navigator !== "undefined" && !navigator.onLine) {
-    return { sent: 0, failed: 0, remaining: (await listQueue()).length };
+    return { sent: 0, failed: 0, remaining: (await listQueue()).length, errors: [] };
   }
 
   const items = await listQueue();
+  const errors: string[] = [];
   let sent = 0;
   let failed = 0;
 
@@ -100,6 +110,7 @@ export async function flushQueue(): Promise<FlushResult> {
       sent++;
     } catch (e) {
       const message = e instanceof Error ? e.message : "falha desconhecida";
+      errors.push(message);
       if (isPermanent(message)) {
         // Não adianta insistir: tira da fila e deixa o registro do erro.
         await dequeue(item.key);
@@ -110,7 +121,7 @@ export async function flushQueue(): Promise<FlushResult> {
     }
   }
 
-  return { sent, failed, remaining: (await listQueue()).length };
+  return { sent, failed, remaining: (await listQueue()).length, errors };
 }
 
 /** Liga o dreno ao ciclo de vida: volta de rede, volta de aba, e um tick. */

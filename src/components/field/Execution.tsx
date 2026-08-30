@@ -9,7 +9,9 @@ import {
   stopCamera,
   type Capture,
   type Carimbo,
+  type Position,
 } from "@/lib/field/camera";
+import { distanceMeters, formatDistance } from "@/lib/field/geo";
 import { enqueue, newKey } from "@/lib/field/queue";
 import { flushQueue } from "@/lib/field/sync";
 
@@ -22,6 +24,13 @@ interface Props {
   startedAt: string | null;
   precisaChegada?: boolean;
   carimbo?: Omit<Carimbo, "quando" | "lat" | "lng">;
+  /** Coordenada cadastrada do ponto. Sem ela não há o que travar. */
+  siteLat?: number | null;
+  siteLng?: number | null;
+  /** Ligado, a chegada só é aceita dentro do raio. Quem decide é o servidor. */
+  requireProximity?: boolean;
+  startRadiusM?: number;
+  accuracyMarginMaxM?: number;
 }
 
 // abaixo disso a foto costuma sair tremida demais para virar comprovante
@@ -34,6 +43,11 @@ export function Execution({
   startedAt,
   precisaChegada = true,
   carimbo,
+  siteLat,
+  siteLng,
+  requireProximity = false,
+  startRadiusM = 250,
+  accuracyMarginMaxM = 100,
 }: Props) {
   const router = useRouter();
   const [etapa, setEtapa] = useState<Etapa>(
@@ -48,7 +62,8 @@ export function Execution({
   const [erro, setErro] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
   const [aviso, setAviso] = useState<string | null>(null);
-  const [posicao, setPosicao] = useState<{ lat: number; lng: number } | null>(null);
+  const [posicao, setPosicao] = useState<Position | null>(null);
+  const [geoNegado, setGeoNegado] = useState(false);
   const [notas, setNotas] = useState("");
   const [foto, setFoto] = useState<Capture | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -62,6 +77,45 @@ export function Execution({
       if (previewUrl) URL.revokeObjectURL(previewUrl);
     };
   }, [previewUrl]);
+
+  /**
+   * Enquanto a pessoa está se aproximando, a posição fica sendo acompanhada.
+   * É o que permite mostrar "faltam 400 m" em vez de deixá-la apertar o botão
+   * e levar uma recusa do servidor sem entender por quê.
+   */
+  useEffect(() => {
+    if (etapa !== "chegada" || !navigator.geolocation) return;
+
+    const id = navigator.geolocation.watchPosition(
+      (p) => {
+        setGeoNegado(false);
+        setPosicao({
+          lat: p.coords.latitude,
+          lng: p.coords.longitude,
+          accuracy: p.coords.accuracy,
+        });
+      },
+      (err) => setGeoNegado(err.code === err.PERMISSION_DENIED),
+      { enableHighAccuracy: true, maximumAge: 5_000, timeout: 20_000 }
+    );
+    return () => navigator.geolocation.clearWatch(id);
+  }, [etapa]);
+
+  // A conta é a mesma do servidor. Se divergir, a tela mente.
+  const distancia =
+    posicao && siteLat != null && siteLng != null
+      ? distanceMeters(posicao.lat, posicao.lng, siteLat, siteLng)
+      : null;
+
+  // A margem acompanha a imprecisão que o aparelho informa, com o mesmo teto
+  // que o banco aplica — senão a tela libera o que o servidor recusa.
+  const margem = Math.min(posicao?.accuracy ?? 0, accuracyMarginMaxM);
+
+  const travado =
+    requireProximity &&
+    siteLat != null &&
+    siteLng != null &&
+    (distancia == null || distancia - margem > startRadiusM);
 
   // ---------------------------------------------------------- chegada
   /**
@@ -80,11 +134,11 @@ export function Execution({
       let accuracy: number | null = null;
 
       try {
-        const pos = await getPosition();
+        const pos = posicao ?? (await getPosition());
         lat = pos.lat;
         lng = pos.lng;
         accuracy = pos.accuracy;
-        setPosicao({ lat, lng });
+        setPosicao(pos);
       } catch (e) {
         setAviso(
           (e instanceof Error ? e.message : "Sem localização.") +
@@ -100,7 +154,15 @@ export function Execution({
         payload: { lat, lng, accuracy },
       });
 
-      await flushQueue();
+      // flushQueue não lança: a recusa do servidor volta aqui dentro. Sem
+      // olhar isto, uma chegada recusada avançaria a tela mesmo assim.
+      const r = await flushQueue();
+      if (r.errors.length) {
+        setAviso(null);
+        setErro(r.errors[0]);
+        return;
+      }
+
       setEtapa("execucao");
       router.refresh();
     } catch (e) {
@@ -108,7 +170,7 @@ export function Execution({
     } finally {
       setOcupado(false);
     }
-  }, [eventId, orgId, router]);
+  }, [eventId, orgId, router, posicao]);
 
   // ------------------------------------------------------------ câmera
   const abrirCamera = useCallback(async () => {
@@ -184,7 +246,12 @@ export function Execution({
         photoName: "comprovacao.jpg",
       });
 
-      await flushQueue();
+      const r = await flushQueue();
+      if (r.errors.length) {
+        setErro(r.errors[0]);
+        return;
+      }
+
       setEtapa("pronto");
       // A próxima parada só chega depois que o servidor valida a foto.
       setTimeout(() => router.refresh(), 1200);
@@ -238,12 +305,61 @@ export function Execution({
             coordenada do ponto. É o que sustenta o comprovante do anunciante.
           </p>
 
+          {requireProximity && siteLat != null && siteLng != null && (
+            <div
+              className={`mt-5 border px-4 py-4 ${
+                travado
+                  ? "border-line bg-surface"
+                  : "border-good/40 bg-good/5"
+              }`}
+            >
+              {geoNegado ? (
+                <p className="text-sm text-warn">
+                  A localização está bloqueada neste navegador. Libere o acesso
+                  para registrar a chegada — sem coordenada não há comprovante.
+                </p>
+              ) : distancia == null ? (
+                <p className="font-mono text-sm text-ink-2">
+                  Procurando o sinal do GPS…
+                </p>
+              ) : (
+                <>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">
+                    Distância até o ponto
+                  </p>
+                  <p
+                    className={`mt-1 font-mono text-2xl font-bold ${
+                      travado ? "text-ink" : "text-good"
+                    }`}
+                  >
+                    {formatDistance(distancia)}
+                  </p>
+                  <p className="mt-1 text-sm text-ink-2">
+                    {travado
+                      ? `Aproxime-se para menos de ${formatDistance(startRadiusM)} do ponto. O botão libera sozinho.`
+                      : "Você está no ponto. Pode registrar a chegada."}
+                  </p>
+                  {posicao?.accuracy != null && posicao.accuracy > 60 && (
+                    <p className="mt-2 font-mono text-xs text-ink-3">
+                      Precisão do sinal: ±{Math.round(posicao.accuracy)} m. Ao ar
+                      livre e parado por alguns segundos ela melhora.
+                    </p>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+
           <button
             onClick={registrarChegada}
-            disabled={ocupado}
-            className="mt-6 w-full bg-accent px-4 py-5 text-lg font-medium text-white disabled:opacity-50"
+            disabled={ocupado || travado}
+            className="mt-5 w-full bg-accent px-4 py-5 text-lg font-medium text-white disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {ocupado ? "Registrando…" : "Cheguei no ponto"}
+            {ocupado
+              ? "Registrando…"
+              : travado
+                ? "Fora do ponto"
+                : "Cheguei no ponto"}
           </button>
 
           <p className="mt-3 text-center text-xs text-ink-3">
