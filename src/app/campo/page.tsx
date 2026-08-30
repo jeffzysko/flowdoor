@@ -6,6 +6,8 @@ import { QueueBanner } from "@/components/field/QueueBanner";
 import { PermissaoLocalizacao } from "@/components/field/PermissaoLocalizacao";
 import { Execution } from "@/components/field/Execution";
 import { rotulo } from "@/lib/domain/rotulos";
+import { CampoHeader } from "@/components/field/CampoHeader";
+import { Hero, CardDestaque, Empty } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Minha parada" };
@@ -78,70 +80,74 @@ export default async function CampoPage() {
   }
 
   return (
-    <main className="field-shell mx-auto max-w-2xl px-4 pb-28 pt-6">
+    <div className="field-shell">
+      <CampoHeader nome={ctx.fullName} />
+
+      <main className="mx-auto max-w-3xl px-4 pb-28 pt-4">
       <QueueBanner />
       <PermissaoLocalizacao />
 
-      <header className="flex items-start justify-between gap-4">
-        <div>
-          <p className="fd-overline">
-            {p.vazio ? "Nada na fila" : `Parada de agora · faltam ${p.restantes}`}
-          </p>
-          <h1 className="fd-h3 mt-1">
-            Olá, {ctx.fullName.split(" ")[0]}
-          </h1>
-        </div>
-        <form action="/auth/sair" method="post">
-          <button className="fd-link fd-link-sm">
-            Sair
-          </button>
-        </form>
-      </header>
+      <Hero
+        eyebrow="Minha jornada"
+        title="Meu dia"
+        lead="Veja suas aplicações atribuídas, chegue ao ponto e registre a conclusão com a comprovação fotográfica."
+        kpi={{ label: "Aplicações para hoje", value: p.vazio ? 0 : p.restantes }}
+        acao={
+          <Link href="/campo/historico" className="fd-btn">
+            Abrir agenda
+          </Link>
+        }
+      />
 
       {p.vazio ? (
-        <section className="fd-empty mt-8">
-          <p className="fd-h4">Sua fila está vazia.</p>
-          <p className="mt-2 text-ink-2">
-            Quando a operação agendar a próxima aplicação, ela aparece aqui.
-          </p>
-          <Link
-            href="/campo/historico"
-            className="fd-link fd-link-sm mt-6"
+        <div className="mt-6">
+          <Empty
+            titulo="Sua fila está vazia."
+            acao={
+              <Link href="/campo/historico" className="fd-btn fd-btn-ghost">
+                Ver o que já concluí
+              </Link>
+            }
           >
-            Ver o que já concluí
-          </Link>
-        </section>
+            Quando a operação agendar a próxima aplicação, ela aparece aqui.
+          </Empty>
+        </div>
       ) : (
         <>
-          <section className="fd-card mt-6 border-2 border-accent">
-            <p className="fd-overline">
-              {rotulo("field_event_kind", p.kind)}
-              {p.order_code ? ` · ${p.order_code}` : ""}
-            </p>
+          <section className="mt-6 grid gap-4 lg:grid-cols-[2fr_1fr]">
+            <CardDestaque
+              marcador={`Próxima aplicação${p.order_code ? ` · ${p.order_code}` : ""}`}
+              titulo={p.address ?? "—"}
+              lead={`${p.district ? `${p.district} · ` : ""}${p.city}/${p.state}${
+                p.orientation ? ` · sentido ${p.orientation}` : ""
+              }`}
+              acao={
+                p.latitude && p.longitude ? (
+                  <a
+                    className="fd-btn"
+                    href={`https://www.google.com/maps/dir/?api=1&destination=${p.latitude},${p.longitude}`}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                  >
+                    Traçar rota até o ponto
+                  </a>
+                ) : undefined
+              }
+            >
+              <p className="mt-3 text-xs text-ink-3">
+                {p.face_code} · {rotulo("field_event_kind", p.kind)} ·{" "}
+                {hora(p.scheduled_for)}
+                {p.estimated_minutes ? ` · ${p.estimated_minutes} min` : ""}
+              </p>
+            </CardDestaque>
 
-            <h2 className="fd-h3 mt-2 leading-snug">
-              {p.address}
-            </h2>
-            <p className="mt-1 text-ink-2">
-              {p.district ? `${p.district} · ` : ""}
-              {p.city}/{p.state}
-              {p.orientation ? ` · sentido ${p.orientation}` : ""}
-            </p>
-            <p className="mt-3 font-mono text-xs text-ink-3">
-              {p.face_code} · {hora(p.scheduled_for)}
-              {p.estimated_minutes ? ` · ${p.estimated_minutes} min` : ""}
-            </p>
-
-            {p.latitude && p.longitude && (
-              <a
-                className="fd-btn fd-btn-block mt-4"
-                href={`https://www.google.com/maps/dir/?api=1&destination=${p.latitude},${p.longitude}`}
-                target="_blank"
-                rel="noreferrer noopener"
-              >
-                Traçar rota até o ponto
-              </a>
-            )}
+            <div className="fd-card">
+              <small className="block text-xs text-ink-3">Na sua agenda</small>
+              <span className="fd-num my-3">{p.restantes}</span>
+              <span className="block text-xs font-bold text-ink-3">
+                {p.restantes === 1 ? "Aplicação pendente" : "Aplicações pendentes"}
+              </span>
+            </div>
           </section>
 
           {p.rejected_reason && (
@@ -165,7 +171,7 @@ export default async function CampoPage() {
           )}
 
           {p.instructions && (
-            <section className="mt-5 border-l-3 border-accent bg-surface px-4 py-3">
+            <section className="fd-card mt-5">
               <h3 className="fd-label">
                 Instruções técnicas
               </h3>
@@ -213,14 +219,7 @@ export default async function CampoPage() {
         </>
       )}
 
-      <nav className="mt-10 text-center">
-        <Link
-          href="/campo/historico"
-          className="fd-link fd-link-sm"
-        >
-          Histórico
-        </Link>
-      </nav>
-    </main>
+      </main>
+    </div>
   );
 }

@@ -3,7 +3,7 @@ import type { Route } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionContext } from "@/lib/domain/session";
 import {
-  PageHead, Stat, Empty, Table, Chip, LinhaTitulo, ProximaAcao,
+  Hero, Stat, Empty, Table, Chip, LinhaTitulo, CardDestaque,
 } from "@/components/ui";
 import Link from "next/link";
 import { canSell, canReview } from "@/lib/domain/permissions";
@@ -93,13 +93,52 @@ export default async function PainelPage() {
 
   return (
     <>
-      <PageHead
+      <Hero
         eyebrow={ctx.current.organizations.name}
         title="Visão geral"
-        lead="A operação de hoje, e o que vence antes de você lembrar."
+        lead="A operação de hoje, e o que vence antes de você lembrar. Pedidos, inventário e as fotos que ainda precisam de conferência."
+        kpi={{ label: "Aplicações abertas", value: abertos.count ?? 0 }}
+        acao={
+          <Link href={proxima.href} className="fd-btn">
+            {proxima.botao}
+          </Link>
+        }
       />
 
-      <section className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <section className="mt-6 grid gap-4 lg:grid-cols-3">
+        <CardDestaque
+          marcador="Próxima ação"
+          titulo={proxima.titulo}
+          lead={proxima.texto}
+          acao={
+            <Link href={proxima.href} className="fd-btn fd-btn-ghost">
+              {proxima.botao}
+            </Link>
+          }
+        />
+        <CardDestaque
+          marcador="Avisos"
+          titulo={
+            lista_avisos.length === 0
+              ? "Nada vencendo agora."
+              : `${lista_avisos.length} aviso${lista_avisos.length > 1 ? "s" : ""} aberto${lista_avisos.length > 1 ? "s" : ""}.`
+          }
+          lead={
+            urgentes
+              ? `${urgentes} exige${urgentes > 1 ? "m" : ""} atenção hoje.`
+              : "Licença, contrato de terreno e foto parada em conferência entram aqui sozinhos."
+          }
+        />
+        <CardDestaque
+          marcador="Pedidos"
+          titulo={`${lista.length === 8 ? "8+" : lista.length} recente${lista.length === 1 ? "" : "s"}`}
+          lead="O pedido reserva a face, calcula o valor e gera a agenda do aplicador."
+          href={"/operacao" as Route}
+          acao={<span className="fd-link fd-link-sm">Ver a operação</span>}
+        />
+      </section>
+
+      <section className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <Stat label="Pontos" value={sites.count ?? 0} hint="Estruturas ativas" href="/inventario" />
         <Stat label="Faces" value={faces.count ?? 0} hint="Inventário disponível" href="/disponibilidade" />
         <Stat label="Anunciantes" value={advertisers.count ?? 0} hint="Clientes finais" href="/clientes" />
@@ -174,17 +213,6 @@ export default async function PainelPage() {
           </Table>
         )}
       </section>
-
-      <ProximaAcao
-        titulo={proxima.titulo}
-        acao={
-          <Link href={proxima.href} className="fd-btn">
-            {proxima.botao}
-          </Link>
-        }
-      >
-        {proxima.texto}
-      </ProximaAcao>
     </>
   );
 }

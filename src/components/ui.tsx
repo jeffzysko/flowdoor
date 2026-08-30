@@ -22,11 +22,93 @@ export function PageHead({
     <header className="flex flex-wrap items-end justify-between gap-4">
       <div className="min-w-0">
         <p className="fd-overline">{eyebrow}</p>
-        <h1 className="fd-h2 mt-2">{title}</h1>
+        <h1 className="fd-h1 mt-2">{title}</h1>
         {lead && <p className="fd-lead mt-2 max-w-2xl">{lead}</p>}
       </div>
       {action}
     </header>
+  );
+}
+
+
+/**
+ * Hero da tela. A arte do outdoor entra atrás, em cinza, com degradê por cima
+ * — dá o assunto sem disputar leitura. O canto direito carrega o número que
+ * importa e a ação que ele pede; sem os dois, use só o PageHead.
+ */
+export function Hero({
+  eyebrow,
+  title,
+  lead,
+  kpi,
+  acao,
+  children,
+}: {
+  eyebrow: string;
+  title: string;
+  lead?: string;
+  kpi?: { label: string; value: string | number };
+  acao?: React.ReactNode;
+  children?: React.ReactNode;
+}) {
+  return (
+    <section className="fd-hero">
+      <span className="fd-hero-art" aria-hidden />
+      <div className="min-w-0 max-w-2xl">
+        <p className="fd-overline">{eyebrow}</p>
+        <h1 className="fd-hero-title">{title}</h1>
+        {lead && <p className="fd-hero-lead">{lead}</p>}
+        {children}
+      </div>
+      {(kpi || acao) && (
+        <div className="fd-kpi">
+          {kpi && (
+            <>
+              <small>{kpi.label}</small>
+              <b>{kpi.value}</b>
+            </>
+          )}
+          {acao}
+        </div>
+      )}
+    </section>
+  );
+}
+
+/** Card com marcador: kicker com ponto laranja, título, apoio e uma ação. */
+export function CardDestaque({
+  marcador,
+  titulo,
+  lead,
+  acao,
+  href,
+  children,
+}: {
+  marcador: string;
+  titulo: string;
+  lead?: string;
+  acao?: React.ReactNode;
+  href?: Route;
+  children?: React.ReactNode;
+}) {
+  const corpo = (
+    <>
+      <span className="fd-overline inline-flex items-center gap-2">
+        <span className="fd-dot" />
+        {marcador}
+      </span>
+      <p className="fd-h4 mt-3">{titulo}</p>
+      {lead && <p className="mt-1 text-sm text-ink-3">{lead}</p>}
+      {children}
+      {acao && <div className="mt-5">{acao}</div>}
+    </>
+  );
+  return href ? (
+    <Link href={href} className="fd-card is-interactive">
+      {corpo}
+    </Link>
+  ) : (
+    <div className="fd-card">{corpo}</div>
   );
 }
 
@@ -123,7 +205,7 @@ export function ProximaAcao({
     <div className="fd-card mt-10 flex flex-wrap items-center justify-between gap-5">
       <div className="min-w-0">
         <span className="fd-overline inline-flex items-center gap-2">
-          <span className="inline-block size-2 rounded-full bg-accent" />
+          <span className="fd-dot" />
           Próxima ação
         </span>
         <p className="fd-h3 mt-2">{titulo}</p>

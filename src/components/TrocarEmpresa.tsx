@@ -13,20 +13,23 @@ import { ROLE_LABEL } from "@/lib/domain/permissions";
 export function TrocarEmpresa({
   atual,
   empresas,
+  iniciais,
 }: {
   atual: Membership;
   empresas: Membership[];
+  iniciais: string;
 }) {
   const [aberto, setAberto] = useState(false);
   const [trocando, iniciar] = useTransition();
 
   if (empresas.length <= 1) {
     return (
-      <div className="text-right">
-        <p className="text-sm font-medium leading-tight">{atual.organizations.name}</p>
-        <p className="fd-label">
-          {ROLE_LABEL[atual.role]}
-        </p>
+      <div className="flex items-center gap-3">
+        <div className="hidden text-right sm:block">
+          <p className="text-sm font-bold leading-tight">{atual.organizations.name}</p>
+          <p className="text-xs text-ink-3">{ROLE_LABEL[atual.role]}</p>
+        </div>
+        <span className="fd-avatar">{iniciais}</span>
       </div>
     );
   }
@@ -38,19 +41,22 @@ export function TrocarEmpresa({
         aria-expanded={aberto}
         aria-haspopup="listbox"
         disabled={trocando}
-        className="block text-right disabled:opacity-50"
+        className="flex items-center gap-3 disabled:opacity-50"
       >
-        <p className="text-sm font-medium leading-tight">
-          {atual.organizations.name}
-          <span aria-hidden className="ml-1.5 text-ink-3">▾</span>
-        </p>
-        <p className="fd-label">
-          {trocando
-            ? "trocando…"
-            : atual.viaPlataforma
-              ? "pela plataforma"
-              : ROLE_LABEL[atual.role]}
-        </p>
+        <span className="hidden text-right sm:block">
+          <span className="block text-sm font-bold leading-tight">
+            {atual.organizations.name}
+            <span aria-hidden className="ml-1.5 text-ink-3">▾</span>
+          </span>
+          <span className="block text-xs text-ink-3">
+            {trocando
+              ? "trocando…"
+              : atual.viaPlataforma
+                ? "pela plataforma"
+                : ROLE_LABEL[atual.role]}
+          </span>
+        </span>
+        <span className="fd-avatar">{iniciais}</span>
       </button>
 
       {aberto && (

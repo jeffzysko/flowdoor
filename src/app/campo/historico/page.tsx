@@ -2,6 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionContext } from "@/lib/domain/session";
+import { CampoHeader } from "@/components/field/CampoHeader";
+import { Hero, Empty } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Histórico" };
@@ -28,18 +30,28 @@ export default async function HistoricoPage() {
   const rows = (data ?? []) as unknown as Row[];
 
   return (
-    <main className="field-shell mx-auto max-w-2xl px-4 pb-24 pt-6">
-      <Link href="/campo" className="fd-link fd-link-sm">
-        ← Minhas paradas
-      </Link>
+    <div className="field-shell">
+      <CampoHeader nome={ctx.fullName} />
 
-      <h1 className="fd-h2 mt-4">Histórico</h1>
-      <p className="mt-1 text-ink-2">O que você já concluiu.</p>
+      <main className="mx-auto max-w-3xl px-4 pb-24 pt-4">
+      <Hero
+        eyebrow="Campo"
+        title="Minha agenda"
+        lead="Chegada registrada por localização e foto obrigatória na conclusão. A sequência segue a data programada."
+        kpi={{ label: "Concluídas", value: rows.length }}
+        acao={
+          <Link href="/campo" className="fd-btn">
+            Voltar ao meu dia
+          </Link>
+        }
+      />
 
       {rows.length === 0 ? (
-        <p className="mt-8 text-center text-ink-2 fd-card">
-          Nada concluído ainda.
-        </p>
+        <div className="mt-6">
+          <Empty titulo="Nada concluído ainda.">
+            Cada aplicação que você fechar com foto entra nesta lista.
+          </Empty>
+        </div>
       ) : (
         <ul className="mt-6 divide-y divide-line bg-surface rounded-xl shadow-md">
           {rows.map((r) => (
@@ -59,6 +71,7 @@ export default async function HistoricoPage() {
           ))}
         </ul>
       )}
-    </main>
+      </main>
+    </div>
   );
 }

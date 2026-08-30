@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 420" fill="none"
+     stroke="#57514b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+     role="img" aria-label="Desenho de um outdoor">
+  <!-- painel: face frontal em perspectiva paralela -->
+  <path d="M92 62 L556 30 L556 182 L92 196 Z"/>
+  <path d="M106 76 L542 46 L542 168 L106 182 Z" stroke-opacity=".55"/>
+  <!-- lateral do painel -->
+  <path d="M556 30 L590 48 L590 198 L556 182 Z" stroke-opacity=".7"/>
+  <path d="M92 196 L126 212 L590 198" stroke-opacity=".45"/>
+  <!-- travessas atras -->
+  <path d="M92 120 L556 96" stroke-opacity=".28"/>
+  <path d="M240 52 L240 190 M394 42 L394 186" stroke-opacity=".28"/>
+  <!-- mastro -->
+  <path d="M300 196 L300 356 M348 194 L348 356"/>
+  <path d="M300 220 L348 252 M348 220 L300 252 M300 262 L348 294 M348 262 L300 294 M300 304 L348 336 M348 304 L300 336" stroke-opacity=".5"/>
+  <path d="M300 220 L348 218 M300 262 L348 260 M300 304 L348 302" stroke-opacity=".35"/>
+  <!-- base -->
+  <path d="M282 356 L366 356 L382 380 L266 380 Z" stroke-opacity=".8"/>
+  <!-- chao -->
+  <path d="M0 380 L660 380" stroke-opacity=".35"/>
+  <path d="M40 392 L150 392 M210 392 L330 392 M400 392 L520 392" stroke-opacity=".2"/>
+  <!-- poste de luz -->
+  <path d="M170 380 L170 210 M170 214 C170 200 182 194 196 194 M196 190 L212 190 L206 204 L190 204 Z" stroke-opacity=".6"/>
+  <!-- arvores -->
+  <path d="M96 380 L96 330 M96 344 L80 330 M96 352 L112 336" stroke-opacity=".55"/>
+  <path d="M74 322 C64 300 78 282 96 282 C116 282 130 300 118 322 C112 334 82 334 74 322 Z" stroke-opacity=".55"/>
+  <path d="M604 380 L604 336 M604 350 L590 338 M604 356 L618 344" stroke-opacity=".5"/>
+  <path d="M584 330 C574 310 588 294 604 294 C622 294 634 310 624 330 C618 340 592 340 584 330 Z" stroke-opacity=".5"/>
+  <!-- predios ao fundo -->
+  <path d="M0 380 L0 300 L46 300 L46 380 M12 314 L34 314 M12 332 L34 332 M12 350 L34 350" stroke-opacity=".22"/>
+  <path d="M642 380 L642 318 L660 318" stroke-opacity=".22"/>
+</svg>

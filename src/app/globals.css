@@ -460,3 +460,115 @@ button, [role="button"] { touch-action: manipulation; }
     background: var(--fd-surface-100);
   }
 }
+
+/* ==========================================================================
+   PEÇAS DE PÁGINA
+   --------------------------------------------------------------------------
+   O que dá cara de produto não é o botão isolado: é o hero com a arte, o
+   trilho de navegação no meio e o card com marcador. Estas são as peças
+   compostas — mesmas regras, mesmos tokens.
+   ========================================================================== */
+@layer components {
+
+  /* ---- hero -------------------------------------------------------------- */
+  /* A arte fica atrás, em cinza, com um degradê por cima: o desenho dá o
+     assunto da tela sem disputar com o texto. */
+  .fd-hero {
+    position: relative; overflow: hidden;
+    display: flex; flex-wrap: wrap; align-items: flex-end;
+    justify-content: space-between; gap: var(--fd-space-8);
+    min-height: 250px;
+    padding: var(--fd-space-10) var(--fd-space-8);
+    background: var(--fd-surface-000); border-radius: var(--fd-radius-xl);
+    box-shadow: var(--fd-shadow-md);
+  }
+  .fd-hero > * { position: relative; z-index: 2; }
+  .fd-hero-art {
+    position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background: url("/outdoor-sketch.svg") right 13% center / auto 98% no-repeat;
+    opacity: .45;
+  }
+  /* Degradê em três tempos: opaco onde mora o texto, quase limpo no meio para
+     o desenho aparecer, e opaco de novo na ponta direita, onde fica o número.
+     Sem o terceiro tempo, as linhas do desenho cruzam o número. */
+  .fd-hero-art::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(
+      94deg,
+      var(--fd-surface-000) 0%,
+      color-mix(in srgb, var(--fd-surface-000) 92%, transparent) 38%,
+      color-mix(in srgb, var(--fd-surface-000) 15%, transparent) 62%,
+      color-mix(in srgb, var(--fd-surface-000) 55%, transparent) 82%,
+      color-mix(in srgb, var(--fd-surface-000) 88%, transparent) 100%
+    );
+  }
+  .fd-hero-title {
+    font-family: var(--fd-font-display);
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: var(--fd-weight-medium);
+    letter-spacing: var(--fd-tracking-display);
+    line-height: var(--fd-leading-tight);
+    margin-top: var(--fd-space-4);
+    text-wrap: balance;
+  }
+  .fd-hero-lead {
+    margin-top: var(--fd-space-4); max-width: 46ch;
+    color: var(--fd-ink-500); font-size: var(--fd-text-body);
+  }
+
+  /* Indicador do canto do hero: rótulo pequeno, número grande, ação embaixo. */
+  .fd-kpi { text-align: right; min-width: 150px; }
+  .fd-kpi small { display: block; font-size: var(--fd-text-caption); color: var(--fd-ink-500); }
+  .fd-kpi b {
+    display: block; margin: var(--fd-space-2) 0 var(--fd-space-5);
+    font-family: var(--fd-font-display); font-size: var(--fd-text-h1);
+    font-weight: var(--fd-weight-medium); letter-spacing: var(--fd-tracking-tight);
+    font-variant-numeric: tabular-nums; line-height: 1;
+  }
+
+  /* ---- trilho de navegação ---------------------------------------------- */
+  .fd-seg {
+    display: inline-flex; align-items: center; gap: var(--fd-space-1);
+    padding: var(--fd-space-1); border-radius: var(--fd-radius-pill);
+    background: var(--fd-surface-200);
+  }
+  .fd-seg-item {
+    display: inline-flex; align-items: center; gap: var(--fd-space-2);
+    padding: var(--fd-space-2) var(--fd-space-4);
+    border-radius: var(--fd-radius-pill);
+    font-size: var(--fd-text-sm); font-weight: var(--fd-weight-bold);
+    color: var(--fd-ink-500); text-decoration: none; white-space: nowrap;
+    transition: background var(--fd-duration-base) var(--fd-ease),
+                color var(--fd-duration-base) ease;
+  }
+  .fd-seg-item:hover { color: var(--fd-ink-900); }
+  .fd-seg-item[aria-current="page"] {
+    background: var(--fd-surface-000); color: var(--fd-orange-700);
+    box-shadow: var(--fd-shadow-xs);
+  }
+
+  /* ---- identidade do usuário -------------------------------------------- */
+  .fd-avatar {
+    display: grid; place-items: center; flex: 0 0 auto;
+    width: 38px; height: 38px; border-radius: var(--fd-radius-circle);
+    background: var(--fd-orange-100); color: var(--fd-orange-700);
+    font-size: var(--fd-text-caption); font-weight: var(--fd-weight-bold);
+    letter-spacing: .02em;
+  }
+
+  /* Marcador do kicker: o ponto laranja que abre "Próxima ação". */
+  .fd-dot {
+    display: inline-block; width: 8px; height: 8px;
+    border-radius: var(--fd-radius-circle); background: var(--fd-orange-500);
+  }
+
+  /* Coluna estreita: o desenho recua para não cruzar a linha de leitura. */
+  @media (max-width: 1100px) {
+    .fd-hero-art { opacity: .3; background-position: right -8% center; }
+  }
+  @media (max-width: 720px) {
+    .fd-hero { min-height: 0; padding: var(--fd-space-6); }
+    .fd-hero-art { opacity: .18; background-position: right -20% bottom; }
+    .fd-kpi { text-align: left; }
+  }
+}
