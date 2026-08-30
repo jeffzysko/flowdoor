@@ -1,7 +1,9 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionContext } from "@/lib/domain/session";
+import Link from "next/link";
 import { PageHead, Empty, Table, Chip } from "@/components/ui";
+import { canSell } from "@/lib/domain/permissions";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Operação" };
@@ -33,6 +35,16 @@ export default async function OperacaoPage() {
         eyebrow="Operação"
         title="Pedidos"
         lead="Cada face reservada vira uma aplicação com QR, coordenada e foto."
+        action={
+          canSell(ctx.current.role) ? (
+            <Link
+              href={"/operacao/novo" as never}
+              className="bg-accent px-4 py-2.5 font-medium text-white"
+            >
+              + Novo pedido
+            </Link>
+          ) : undefined
+        }
       />
       {rows.length === 0 ? (
         <div className="mt-6">
@@ -45,7 +57,11 @@ export default async function OperacaoPage() {
         <Table head={["Código", "Anunciante", "Período", "Faces", "Status"]}>
           {rows.map((o) => (
             <tr key={o.id} className="border-b border-line last:border-0">
-              <td className="px-4 py-2.5 font-mono text-xs">{o.code}</td>
+              <td className="px-4 py-2.5 font-mono text-xs">
+                <Link href={`/operacao/${o.id}` as never} className="text-accent underline underline-offset-4">
+                  {o.code}
+                </Link>
+              </td>
               <td className="px-4 py-2.5">{o.advertisers?.name ?? "—"}</td>
               <td className="px-4 py-2.5 font-mono text-xs">{d(o.starts_on)} – {d(o.ends_on)}</td>
               <td className="px-4 py-2.5 font-mono">{o.order_items?.length ?? 0}</td>

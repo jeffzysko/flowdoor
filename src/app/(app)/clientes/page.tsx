@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionContext } from "@/lib/domain/session";
 import { PageHead, Empty, Table } from "@/components/ui";
+import { canSell } from "@/lib/domain/permissions";
+import { NovoAnunciante } from "./NovoAnunciante";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Anunciantes" };
@@ -24,6 +26,8 @@ export default async function ClientesPage() {
   return (
     <>
       <PageHead eyebrow="Comercial" title="Anunciantes" lead="Quem paga pela campanha." />
+
+      {canSell(ctx.current.role) && <NovoAnunciante orgId={ctx.current.org_id} />}
       {rows.length === 0 ? (
         <div className="mt-6"><Empty>Nenhum anunciante cadastrado ainda.</Empty></div>
       ) : (
