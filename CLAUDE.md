@@ -200,6 +200,22 @@ base nova, schema novo.
    mesma resposta para token inexistente e token queimado. Sem essa amarra,
    desligar a confirmação de e-mail deixaria entrar conta com endereço nunca
    verificado.
+21. **A coordenada é produzida pelo sistema, e carrega o quanto vale.** O
+   cliente entrega lista com endereço e ponto de referência; latitude ele não
+   tem e nunca vai ter. `sites.geo_precision` diz de onde veio a coordenada, e
+   **só `exata`, `confirmada` e `manual` armam a trava de chegada** —
+   `field_start` consulta `site_lock_ready()`. Barrar um aplicador com base num
+   centroide de rodovia é abrir chamado por erro nosso. Coordenada fraca
+   conserta sozinha: `confirm_site_coordinates()` roda todo dia às 08:30 UTC e
+   troca a estimativa pelo centro das chegadas reais quando 3 ou mais caem
+   agrupadas (escape não conta, espalhamento acima de 60 m não conta).
+22. **A busca de lugar vem antes da busca de endereço.** Em mídia exterior a
+   descrição é visual — "próx. Metalúrgica Gans", "Balança em São Luiz do
+   Purunã". `src/lib/geo/geocode.ts` tenta Places (lugar nomeado), depois
+   cruzamento, depois via, e para no primeiro resultado exato. O
+   `location_type` do Google decide a precisão: `GEOMETRIC_CENTER` vira
+   `aproximada`, nunca `exata` — numa rua curta é razoável, numa BR é inútil,
+   e daqui não dá para distinguir.
 20. **pgcrypto mora em `extensions`, não em `public`.** `digest()` e
    `gen_random_bytes()` não resolvem dentro de função com
    `set search_path to 'public'` — o erro é `42883 function digest(text,

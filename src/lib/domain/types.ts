@@ -12,6 +12,19 @@ export type MemberRole =
   | "leitura";
 
 export type FaceMedium = "estatico" | "digital";
+
+/**
+ * De onde veio a coordenada do ponto, e o quanto ela vale. Só "exata",
+ * "confirmada" e "manual" armam a trava de chegada do campo — barrar alguém
+ * com base num centroide de rodovia é gerar chamado por erro nosso.
+ */
+export type GeoPrecision =
+  | "exata"
+  | "aproximada"
+  | "estimada"
+  | "confirmada"
+  | "manual"
+  | "ausente";
 export type FieldEventKind =
   | "aplicacao"
   | "vistoria"

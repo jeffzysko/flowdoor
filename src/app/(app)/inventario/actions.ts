@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { geocodificarPonto, ehCoordenada } from "@/lib/geo/geocode";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 
@@ -37,6 +38,66 @@ function traduzir(err: { message: string; hint?: string | null }): string {
   return err.message;
 }
 
+/**
+ * Resolve a coordenada do ponto quando ninguém digitou uma.
+ *
+ * O cliente entrega endereço e ponto de referência; latitude e longitude ele
+ * nunca tem. Então o sistema busca — e devolve junto o quanto aquilo vale,
+ * porque é a precisão que decide se a trava de chegada arma no campo.
+ * Coordenada digitada à mão ganha de qualquer busca e não é sobrescrita.
+ */
+async function resolverCoordenada(v: {
+  latitude?: number | null;
+  longitude?: number | null;
+  address: string;
+  district?: string | null;
+  city: string;
+  state: string;
+  referencia?: string | null;
+  cruzamento?: string | null;
+}) {
+  if (v.latitude != null && v.longitude != null) {
+    return {
+      latitude: v.latitude,
+      longitude: v.longitude,
+      geo_precision: "manual" as const,
+      geo_source: "manual",
+      geo_query: null,
+      geo_updated_at: new Date().toISOString(),
+    };
+  }
+
+  const r = await geocodificarPonto({
+    endereco: v.address,
+    referencia: v.referencia ?? null,
+    cruzamento: v.cruzamento ?? null,
+    cidade: v.city,
+    uf: v.state.toUpperCase(),
+  });
+
+  if (!ehCoordenada(r)) {
+    // Falha de busca não impede cadastrar o ponto. Sem coordenada ele
+    // simplesmente não trava a chegada, e o campo confirma depois.
+    return {
+      latitude: null,
+      longitude: null,
+      geo_precision: "ausente" as const,
+      geo_source: null,
+      geo_query: null,
+      geo_updated_at: null,
+    };
+  }
+
+  return {
+    latitude: r.lat,
+    longitude: r.lng,
+    geo_precision: r.precisao,
+    geo_source: r.fonte,
+    geo_query: r.consulta,
+    geo_updated_at: new Date().toISOString(),
+  };
+}
+
 // ============================================================ criar ponto
 const novoPonto = z.object({
   orgId: z.string().uuid(),
@@ -71,6 +132,8 @@ export async function criarPonto(
   const v = parsed.data;
   const supabase = await createClient();
 
+  const geo = await resolverCoordenada(v);
+
   const { data: site, error: siteErr } = await supabase
     .from("sites")
     .insert({
@@ -80,10 +143,9 @@ export async function criarPonto(
       district: v.district ?? null,
       city: v.city,
       state: v.state.toUpperCase(),
-      latitude: v.latitude ?? null,
-      longitude: v.longitude ?? null,
       license_expires_on: v.licenseExpiresOn ?? null,
       lease_ends_on: v.leaseEndsOn ?? null,
+      ...geo,
     })
     .select("id")
     .single();
@@ -144,6 +206,20 @@ export async function atualizarPonto(
   const v = parsed.data;
   const supabase = await createClient();
 
+  // Coordenada digitada vale como decisão de gente e vira 'manual'. Campo
+  // vazio na edição não apaga o que a busca já achou: para trocar a
+  // coordenada, digite outra; para buscar de novo, use "Buscar coordenada".
+  const geo =
+    v.latitude != null && v.longitude != null
+      ? {
+          latitude: v.latitude,
+          longitude: v.longitude,
+          geo_precision: "manual" as const,
+          geo_source: "manual",
+          geo_updated_at: new Date().toISOString(),
+        }
+      : {};
+
   const { error } = await supabase
     .from("sites")
     .update({
@@ -152,8 +228,7 @@ export async function atualizarPonto(
       district: v.district ?? null,
       city: v.city,
       state: v.state.toUpperCase(),
-      latitude: v.latitude ?? null,
-      longitude: v.longitude ?? null,
+      ...geo,
       status: v.status,
       owner_name: v.ownerName ?? null,
       owner_contact: v.ownerContact ?? null,
@@ -318,4 +393,189 @@ export async function excluirPonto(
 
   revalidatePath("/inventario");
   return { ok: true, message: "Ponto excluído." };
+}
+
+// ==================================================== buscar coordenada
+/**
+ * Busca a coordenada de um ponto que já existe. É o botão para o caso do
+ * ponto que entrou sem coordenada, ou que entrou com uma estimada e ganhou
+ * um ponto de referência melhor na descrição depois.
+ */
+export async function buscarCoordenada(
+  _prev: FormState,
+  formData: FormData
+): Promise<FormState> {
+  const siteId = String(formData.get("siteId") ?? "");
+  if (!siteId) return { ok: false, message: "Ponto não informado." };
+
+  const supabase = await createClient();
+  const { data: site, error: leituraErr } = await supabase
+    .from("sites")
+    .select("id, code, address, district, city, state, notes, geo_precision")
+    .eq("id", siteId)
+    .single();
+
+  if (leituraErr || !site) return { ok: false, message: "Ponto não encontrado." };
+
+  if (site.geo_precision === "confirmada") {
+    return {
+      ok: false,
+      message:
+        "Esta coordenada foi confirmada pelas chegadas reais do campo. Buscar de novo seria trocar o que se sabe pelo que se supõe.",
+    };
+  }
+
+  const r = await geocodificarPonto({
+    endereco: site.address,
+    // A referência costuma estar nas observações do ponto, que é onde a
+    // descrição do cliente cai na importação.
+    referencia: site.notes ?? null,
+    cidade: site.city,
+    uf: site.state,
+  });
+
+  if (!ehCoordenada(r)) {
+    return {
+      ok: false,
+      message:
+        r.erro === "sem_chave"
+          ? "A busca de coordenadas não está configurada neste ambiente."
+          : r.erro === "recusado"
+            ? "O serviço de mapas recusou a consulta. Confira a chave e as APIs habilitadas."
+            : r.erro === "rede"
+              ? "Não foi possível falar com o serviço de mapas agora."
+              : "Não achei este endereço. Tente completar o endereço ou digitar a coordenada à mão.",
+    };
+  }
+
+  const { error } = await supabase
+    .from("sites")
+    .update({
+      latitude: r.lat,
+      longitude: r.lng,
+      geo_precision: r.precisao,
+      geo_source: r.fonte,
+      geo_query: r.consulta,
+      geo_updated_at: new Date().toISOString(),
+    })
+    .eq("id", siteId);
+
+  if (error) return { ok: false, message: traduzir(error) };
+
+  revalidatePath(`/inventario/${siteId}`);
+  return {
+    ok: true,
+    message:
+      r.precisao === "exata"
+        ? `Coordenada encontrada em ${r.rotulo ?? r.consulta}. A trava de chegada já vale para este ponto.`
+        : `Coordenada aproximada, de ${r.rotulo ?? r.consulta}. A trava de chegada só arma depois que as chegadas do campo confirmarem o lugar.`,
+  };
+}
+
+// ============================================ buscar coordenadas em lote
+const LOTE = 20;      // por chamada, para caber no tempo da função serverless
+const PARALELO = 4;   // requisições simultâneas ao Google
+
+/**
+ * Busca a coordenada de todos os pontos que ainda não têm uma confiável.
+ *
+ * É o botão do dia em que uma exibidora nova entra: a lista dela chega sem
+ * latitude nenhuma, e clicar ponto a ponto 53 vezes não é trabalho de gente.
+ * Roda em lotes porque função serverless tem tempo limitado — a tela diz
+ * quantos faltam e o botão pode ser clicado de novo.
+ */
+export async function buscarCoordenadasEmLote(
+  _prev: FormState,
+  formData: FormData
+): Promise<FormState> {
+  const orgId = String(formData.get("orgId") ?? "");
+  if (!orgId) return { ok: false, message: "Empresa não informada." };
+
+  const supabase = await createClient();
+
+  // 'confirmada' e 'manual' ficam de fora: já valem mais que qualquer busca.
+  const { data: pontos, error: leituraErr } = await supabase
+    .from("sites")
+    .select("id, code, address, city, state, notes")
+    .eq("org_id", orgId)
+    .in("geo_precision", ["ausente", "estimada"])
+    .order("code")
+    .limit(LOTE);
+
+  if (leituraErr) return { ok: false, message: traduzir(leituraErr) };
+  if (!pontos?.length) {
+    return { ok: true, message: "Todos os pontos já têm coordenada." };
+  }
+
+  let exatas = 0, aproximadas = 0, falhas = 0;
+  let motivoDaFalha: string | null = null;
+
+  const fila = [...pontos];
+  async function trabalhador() {
+    for (;;) {
+      const p = fila.shift();
+      if (!p) return;
+
+      const r = await geocodificarPonto({
+        endereco: p.address,
+        referencia: p.notes ?? null,
+        cidade: p.city,
+        uf: p.state,
+      });
+
+      if (!ehCoordenada(r)) {
+        falhas += 1;
+        if (r.erro === "sem_chave" || r.erro === "recusado") {
+          motivoDaFalha = r.erro;
+          fila.length = 0;   // chave errada não melhora nos próximos
+        }
+        continue;
+      }
+
+      await supabase
+        .from("sites")
+        .update({
+          latitude: r.lat,
+          longitude: r.lng,
+          geo_precision: r.precisao,
+          geo_source: r.fonte,
+          geo_query: r.consulta,
+          geo_updated_at: new Date().toISOString(),
+        })
+        .eq("id", p.id);
+
+      if (r.precisao === "exata") exatas += 1;
+      else aproximadas += 1;
+    }
+  }
+
+  await Promise.all(Array.from({ length: PARALELO }, trabalhador));
+
+  if (motivoDaFalha === "sem_chave") {
+    return { ok: false, message: "A busca de coordenadas não está configurada neste ambiente." };
+  }
+  if (motivoDaFalha === "recusado") {
+    return {
+      ok: false,
+      message:
+        "O serviço de mapas recusou a consulta. Confira se a chave está válida e se as APIs Geocoding e Places estão habilitadas.",
+    };
+  }
+
+  const { count: faltam } = await supabase
+    .from("sites")
+    .select("id", { count: "exact", head: true })
+    .eq("org_id", orgId)
+    .in("geo_precision", ["ausente", "estimada"]);
+
+  revalidatePath("/inventario");
+
+  const partes = [
+    `${exatas} ponto(s) com coordenada exata — esses já travam a chegada`,
+    aproximadas ? `${aproximadas} aproximado(s), que travam depois que o campo confirmar` : null,
+    falhas ? `${falhas} sem resultado` : null,
+    faltam ? `Faltam ${faltam}: clique de novo.` : null,
+  ].filter(Boolean);
+
+  return { ok: true, message: partes.join(". ") + "." };
 }

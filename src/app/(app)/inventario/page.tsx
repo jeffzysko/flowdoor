@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getSessionContext } from "@/lib/domain/session";
 import { PageHead, Empty, Table, Chip } from "@/components/ui";
 import { NovoPonto } from "./NovoPonto";
+import { Coordenadas } from "./Coordenadas";
 import { canManageInventory } from "@/lib/domain/permissions";
 
 export const dynamic = "force-dynamic";
@@ -31,6 +32,13 @@ export default async function InventarioPage() {
   const faces = (data ?? []) as unknown as Face[];
   const pode = canManageInventory(ctx.current.role);
 
+  const [{ count: semCoordenada }, { count: aproximados }] = await Promise.all([
+    supabase.from("sites").select("id", { count: "exact", head: true })
+      .eq("org_id", ctx.current.org_id).eq("geo_precision", "ausente"),
+    supabase.from("sites").select("id", { count: "exact", head: true })
+      .eq("org_id", ctx.current.org_id).in("geo_precision", ["aproximada", "estimada"]),
+  ]);
+
   return (
     <>
       <PageHead
@@ -40,6 +48,14 @@ export default async function InventarioPage() {
       />
 
       {pode && <NovoPonto orgId={ctx.current.org_id} />}
+
+      {pode && (
+        <Coordenadas
+          orgId={ctx.current.org_id}
+          semCoordenada={semCoordenada ?? 0}
+          aproximados={aproximados ?? 0}
+        />
+      )}
 
       {faces.length === 0 ? (
         <div className="mt-6">
