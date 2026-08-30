@@ -58,9 +58,12 @@ async function porLugar(
   termo: string,
   cidade: string,
   uf: string,
-  chave: string
+  chave: string,
+  tetoAproximada = false
 ): Promise<Coordenada | FalhaGeo> {
-  const consulta = `${termo}, ${cidade} - ${uf}, Brasil`;
+  const consulta = cidade
+    ? `${termo}, ${cidade} - ${uf}, Brasil`
+    : `${termo}, ${uf}, Brasil`;
   try {
     const r = await chamar(PLACES, {
       method: "POST",
@@ -90,7 +93,7 @@ async function porLugar(
       // Estabelecimento encontrado pelo nome é o próprio lugar: o outdoor está
       // ao lado dele, dentro de qualquer raio de chegada razoável. Mas só vale
       // como exata se o que voltou for mesmo o que foi pedido.
-      precisao: combina(termo, rotulo) ? "exata" : "aproximada",
+      precisao: combina(termo, rotulo) && !tetoAproximada ? "exata" : "aproximada",
       fonte: "google_places",
       consulta,
       rotulo,
@@ -227,7 +230,15 @@ export async function geocodificarPonto(entrada: {
   const tentativas: (() => Promise<Coordenada | FalhaGeo>)[] = [];
 
   if (entrada.referencia?.trim()) {
-    tentativas.push(() => porLugar(entrada.referencia!.trim(), cidade, uf, chave));
+    const ref = entrada.referencia.trim();
+    tentativas.push(() => porLugar(ref, cidade, uf, chave));
+
+    // Ponto de rodovia costuma referenciar lugar do municipio vizinho — a
+    // "Balança em São Luiz do Purunã" fica em Balsa Nova, e a busca presa em
+    // Campo Largo não a encontra. Uma segunda tentativa no estado inteiro
+    // resolve, mas nunca vale como exata: sem a cidade para desempatar, um
+    // homônimo em outra ponta do Paraná passaria batido.
+    tentativas.push(() => porLugar(ref, "", uf, chave, true));
   }
   if (entrada.cruzamento?.trim()) {
     tentativas.push(() =>
