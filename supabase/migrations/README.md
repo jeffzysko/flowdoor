@@ -13,13 +13,15 @@ apagado levaria junto tudo que não estava no git.
 
 Os arquivos aqui foram extraídos de `supabase_migrations.schema_migrations`,
 que guarda o SQL exato de cada aplicação, e conferidos por md5 contra o
-registro do servidor: **23 de 23 idênticos**. O nome de cada arquivo é a
-versão registrada lá, então o histórico local e o remoto falam a mesma língua.
+registro do servidor: **31 de 31 idênticos** (30 arquivos aqui mais o seed em
+`../seed/`). O nome de cada arquivo é a versão registrada lá, então o histórico
+local e o remoto falam a mesma língua.
 
 Ficaram de fora as entradas `tmp_*`, que são testes de fumaça e sondagens de
 RLS feitos durante o desenvolvimento. Uma delas chega a desligar as
 conferências de local, horário e campanha — um banco novo não pode nascer
-assim.
+assim. As `temp_*` que apareceram depois eram o mesmo tipo de andaime e foram
+apagadas do histórico pela migração `limpa_andaimes_de_teste`.
 
 ## Regra daqui para frente
 

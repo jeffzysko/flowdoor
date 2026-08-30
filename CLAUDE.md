@@ -191,6 +191,22 @@ base nova, schema novo.
    `public`, que dão EXECUTE para `anon` e `authenticated`. Toda vez que uma RPC
    for recriada, refaça os `revoke ... from public, anon`. Conferir depois com
    `get_advisors` ou `has_function_privilege('anon', oid, 'execute')`.
+19. **O convite decide o token E o endereço.** O token prova que a pessoa foi
+   convidada; ele não decide qual conta entra na empresa. `accept_invitation`
+   compara `auth.users.email` da sessão com `invitations.email` e recusa com
+   `insufficient_privilege` se forem diferentes. A tela de aceite mostra o
+   e-mail como texto fixo, vindo de `invitation_preview(token)` — que roda sem
+   sessão porque precisa preencher a tela antes de existir conta, e devolve a
+   mesma resposta para token inexistente e token queimado. Sem essa amarra,
+   desligar a confirmação de e-mail deixaria entrar conta com endereço nunca
+   verificado.
+20. **pgcrypto mora em `extensions`, não em `public`.** `digest()` e
+   `gen_random_bytes()` não resolvem dentro de função com
+   `set search_path to 'public'` — o erro é `42883 function digest(text,
+   unknown) does not exist`, e só aparece em tempo de execução. Foi assim que
+   convite ficou quebrado desde o início, criar e aceitar, sem ninguém notar.
+   Para hash use `sha256(texto::bytea)`, que é nativo do Postgres e dá o mesmo
+   digest; para o resto, qualifique: `extensions.gen_random_bytes(24)`.
 4. **Imagens em Storage.** Buckets `artworks`, `field-photos`, `avatars`.
    Caminho sempre `<org_id>/...` — a primeira pasta é a fronteira do tenant.
    Nunca base64 em coluna.
@@ -232,16 +248,28 @@ Consequência: com `node_modules` de macOS, `npx next build` **não roda mais na
 VM**. Mas `npx tsc --noEmit` roda — TypeScript é JS puro, sem binário nativo.
 Use-o como verificação a cada mudança; o build completo fica com o Jeff.
 
-## Sem SMTP
+## E-mail
 
-O projeto não tem servidor de e-mail. Por isso convite, recuperação de senha e
-magic link **não saem por e-mail**. O caminho que funciona:
+Sai pelo Resend, configurado como SMTP customizado no Supabase Auth. Remetente
+`Flowdoor <nao-responda@flowdoor.com.br>`. DNS na Vercel; conferido em entrega
+real: DKIM `pass` com `header.i=@flowdoor.com.br`, SPF `pass` por
+`rsend.flowdoor.com.br`, DMARC `pass` alinhado por DKIM, caixa de entrada.
 
+- Os templates de *Authentication → Emails* são editados no painel, não estão
+  no repositório. Todos em português — o padrão do Supabase vem em inglês e o
+  assunto é fácil de esquecer.
+- Em *Authentication → Providers → Email*, "Confirm email" fica **desligado**.
+  O convite chega pelo e-mail e o servidor amarra a conta àquele endereço
+  (decisão 19), então a confirmação seria redundante. A tela de aceite ainda
+  trata o caso de estar ligada: se `signUp` volta sem sessão, ela explica em
+  vez de estourar "não autenticado".
 - `create_invitation` devolve o token em claro **uma vez**; a tela de equipe
-  monta o link `/convite/<token>` para copiar e mandar à mão.
-- O link é o segredo. Trate como senha.
-- Em *Authentication → Providers → Email*, "Confirm email" precisa estar
-  **desligado**, senão quem aceita o convite cria conta e não consegue entrar.
+  monta o link `/convite/<token>`. O link é o segredo. Trate como senha.
+- `/recuperar-senha` precisa estar em `PUBLIC_PREFIXES` no
+  `src/lib/supabase/middleware.ts` — quem pede o link não tem sessão.
+- `NEXT_PUBLIC_SITE_URL` é `https://www.flowdoor.com.br`. Com `www`, com
+  `https`: o apex faz 308 para o `www`, e essa variável monta o link do
+  convite, o do comprovante e o `redirectTo` da recuperação.
 
 ## Ainda não existe
 
