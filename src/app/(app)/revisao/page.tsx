@@ -5,6 +5,7 @@ import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { Chip, Empty, PageHead, Stat } from "@/components/ui";
 import { RevisarFoto } from "./RevisarFoto";
 import { CorrigirPonto } from "./CorrigirPonto";
+import { rotulo } from "@/lib/domain/rotulos";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Revisão" };
@@ -185,7 +186,7 @@ export default async function RevisaoPage() {
                   <div>
                     <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-accent">
                       {i.order_code ?? "Sem pedido"} · {i.face_code} ·{" "}
-                      {i.kind === "aplicacao" ? "aplicação" : i.kind}
+                      {rotulo("field_event_kind", i.kind)}
                     </p>
                     <h2 className="mt-1 text-lg font-bold">
                       {i.address}

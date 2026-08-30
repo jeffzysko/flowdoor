@@ -7,6 +7,7 @@ import { Chip, Empty, PageHead } from "@/components/ui";
 import { EditarPonto, type Ponto } from "./EditarPonto";
 import { Faces, type Face } from "./Faces";
 import { rotuloDoFormato } from "@/lib/domain/formatos";
+import { rotulo } from "@/lib/domain/rotulos";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Ponto" };
@@ -120,9 +121,9 @@ export default async function PontoPage({
       </div>
 
       <div className="mt-5 flex flex-wrap items-center gap-2">
-        <Chip tone={ponto.status === "ativo" ? "bom" : "aviso"}>{ponto.status}</Chip>
+        <Chip tone={ponto.status === "ativo" ? "bom" : "aviso"}>{rotulo("site_status", ponto.status)}</Chip>
         <Chip tone={licencaVencida ? "risco" : ponto.license_state === "vigente" ? "bom" : "aviso"}>
-          licença {ponto.license_state}
+          licença {rotulo("license_status", ponto.license_state)}
         </Chip>
         {ponto.license_expires_on && (
           <span className="font-mono text-xs text-ink-3">
@@ -182,7 +183,7 @@ export default async function PontoPage({
               <li key={f.id} className="flex flex-wrap items-center gap-3 border border-line bg-surface px-4 py-3">
                 <span className="font-mono text-sm">{f.code}</span>
                 <Chip tone={f.medium === "digital" ? "bom" : "neutro"}>{rotuloDoFormato(f.kind)}</Chip>
-                <Chip tone={f.status === "ativa" ? "bom" : "aviso"}>{f.status}</Chip>
+                <Chip tone={f.status === "ativa" ? "bom" : "aviso"}>{rotulo("face_status", f.status)}</Chip>
               </li>
             ))}
           </ul>
@@ -209,12 +210,12 @@ export default async function PontoPage({
                     <span className="ml-2 font-mono text-xs text-ink-3">{e.faces?.code}</span>
                   </p>
                   <p className="mt-0.5 font-mono text-xs text-ink-3">
-                    {e.kind} · agendado {dt(e.scheduled_for)}
+                    {rotulo("field_event_kind", e.kind)} · agendado {dt(e.scheduled_for)}
                     {e.finished_at ? ` · concluído ${dt(e.finished_at)}` : ""}
                   </p>
                 </div>
                 <Chip tone={e.status === "concluido" ? "bom" : e.status === "reprovado" ? "risco" : "neutro"}>
-                  {e.status}
+                  {rotulo("field_event_status", e.status)}
                 </Chip>
               </li>
             ))}

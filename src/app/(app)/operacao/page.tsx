@@ -4,6 +4,7 @@ import { getSessionContext } from "@/lib/domain/session";
 import Link from "next/link";
 import { PageHead, Empty, Table, Chip } from "@/components/ui";
 import { canSell } from "@/lib/domain/permissions";
+import { rotulo } from "@/lib/domain/rotulos";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Operação" };
@@ -67,7 +68,7 @@ export default async function OperacaoPage() {
               <td className="px-4 py-2.5 font-mono">{o.order_items?.length ?? 0}</td>
               <td className="px-4 py-2.5">
                 <Chip tone={o.status === "concluido" ? "bom" : o.status === "cancelado" ? "risco" : "neutro"}>
-                  {o.status}
+                  {rotulo("order_status", o.status)}
                 </Chip>
               </td>
             </tr>

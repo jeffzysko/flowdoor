@@ -5,6 +5,7 @@ import { getSessionContext } from "@/lib/domain/session";
 import { QueueBanner } from "@/components/field/QueueBanner";
 import { PermissaoLocalizacao } from "@/components/field/PermissaoLocalizacao";
 import { Execution } from "@/components/field/Execution";
+import { rotulo } from "@/lib/domain/rotulos";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Minha parada" };
@@ -114,7 +115,7 @@ export default async function CampoPage() {
         <>
           <section className="mt-6 border-2 border-accent bg-surface p-5">
             <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-accent">
-              {p.kind === "aplicacao" ? "Aplicação" : "Registro fotográfico"}
+              {rotulo("field_event_kind", p.kind)}
               {p.order_code ? ` · ${p.order_code}` : ""}
             </p>
 

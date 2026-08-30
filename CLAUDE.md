@@ -200,6 +200,12 @@ base nova, schema novo.
    mesma resposta para token inexistente e token queimado. Sem essa amarra,
    desligar a confirmação de e-mail deixaria entrar conta com endereço nunca
    verificado.
+26. **Valor de banco não aparece na tela como está.** No Postgres os valores
+   não têm acento nem espaço — `em_renovacao`, `aguardando_validacao`,
+   `painel_rodoviario`. `src/lib/domain/rotulos.ts` é o único lugar onde isso
+   vira português: `rotulo(tipo, valor)` para exibir, `opcoes(tipo)` para
+   montar seletor sem repetir a lista. Valor que a tela ainda não conhece cai
+   num último recurso que troca sublinhado por espaço — nunca sai cru.
 24. **A busca de lugar recebe a referência, não a descrição.** O Places
    responde alguma coisa para qualquer texto — mandar "Painel rodoviário.
    Rodovia BR 277 - próx. Igreja Rondinha - sentido Curitiba" faz ele

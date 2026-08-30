@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { atualizarPonto, excluirPonto, type FormState } from "../actions";
+import { opcoes } from "@/lib/domain/rotulos";
 
 const inicial: FormState = { ok: false };
 
@@ -66,7 +67,7 @@ export function EditarPonto({ ponto, podeExcluir }: { ponto: Ponto; podeExcluir:
         <F name="latitude" label="Latitude" defaultValue={ponto.latitude ?? ""} placeholder="-30.0346" />
         <F name="longitude" label="Longitude" defaultValue={ponto.longitude ?? ""} placeholder="-51.2177" />
         <S name="status" label="Situação" defaultValue={ponto.status}
-           opcoes={[["ativo","Ativo"],["inativo","Inativo"],["manutencao","Em manutenção"],["removido","Removido"]]} />
+           opcoes={opcoes("site_status")} />
       </div>
 
       <Grupo titulo="Terreno" />
@@ -82,7 +83,7 @@ export function EditarPonto({ ponto, podeExcluir }: { ponto: Ponto; podeExcluir:
         <F name="licenseNumber" label="Número da licença" defaultValue={ponto.license_number ?? ""} />
         <F name="licenseExpiresOn" label="Vence em" type="date" defaultValue={ponto.license_expires_on ?? ""} />
         <S name="licenseState" label="Situação da licença" defaultValue={ponto.license_state}
-           opcoes={[["vigente","Vigente"],["vencida","Vencida"],["em_renovacao","Em renovação"],["dispensada","Dispensada"],["desconhecida","Desconhecida"]]} />
+           opcoes={opcoes("license_status")} />
       </div>
 
       <Grupo titulo="Observações" />

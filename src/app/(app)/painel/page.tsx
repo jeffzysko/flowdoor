@@ -4,6 +4,7 @@ import { getSessionContext } from "@/lib/domain/session";
 import { PageHead, Stat, Empty, Table, Chip } from "@/components/ui";
 import { canSell, canReview } from "@/lib/domain/permissions";
 import { Avisos, type Aviso } from "./Avisos";
+import { rotulo } from "@/lib/domain/rotulos";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Visão geral" };
@@ -111,7 +112,7 @@ export default async function PainelPage() {
                 </td>
                 <td className="px-4 py-2.5">
                   <Chip tone={o.status === "concluido" ? "bom" : "neutro"}>
-                    {o.status}
+                    {rotulo("order_status", o.status)}
                   </Chip>
                 </td>
               </tr>

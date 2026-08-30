@@ -6,6 +6,7 @@ import { canSell } from "@/lib/domain/permissions";
 import { Chip, Table } from "@/components/ui";
 import { PublicarComprovante } from "./PublicarComprovante";
 import { EditarPedido, type LinhaAtual } from "./EditarPedido";
+import { rotulo } from "@/lib/domain/rotulos";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Pedido" };
@@ -142,7 +143,7 @@ export default async function PedidoPage({
 
         <dl className="mt-5 grid grid-cols-2 gap-px border border-line bg-line sm:grid-cols-4">
           {[
-            ["Status", o.status],
+            ["Status", rotulo("order_status", o.status)],
             ["Faces", String(lista.length)],
             ["Aplicadas", `${concluidas} de ${lista.length}`],
             ["Arte", o.artwork_path ? "enviada" : "pendente"],
@@ -184,7 +185,7 @@ export default async function PedidoPage({
                     e.status === "concluido" ? "bom" : e.status === "em_andamento" ? "aviso" : "neutro"
                   }
                 >
-                  {e.status}
+                  {rotulo("field_event_status", e.status)}
                 </Chip>
               </td>
             </tr>

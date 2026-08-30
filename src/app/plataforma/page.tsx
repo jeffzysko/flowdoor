@@ -5,6 +5,7 @@ import { PageHead, Empty, Table, Chip } from "@/components/ui";
 import Link from "next/link";
 import { Bootstrap } from "./Bootstrap";
 import { AppHeader } from "@/components/AppHeader";
+import { rotulo } from "@/lib/domain/rotulos";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Plataforma" };
@@ -82,11 +83,11 @@ export default async function PlataformaPage() {
           {orgs.map((o) => (
             <tr key={o.id} className="border-b border-line last:border-0">
               <td className="px-4 py-2.5 font-medium">{o.name}</td>
-              <td className="px-4 py-2.5"><Chip>{o.kind}</Chip></td>
+              <td className="px-4 py-2.5"><Chip>{rotulo("org_kind", o.kind)}</Chip></td>
               <td className="px-4 py-2.5">{o.city ? `${o.city}/${o.state}` : "—"}</td>
               <td className="px-4 py-2.5 font-mono text-xs">{o.plan}</td>
               <td className="px-4 py-2.5">
-                <Chip tone={o.status === "ativa" ? "bom" : "aviso"}>{o.status}</Chip>
+                <Chip tone={o.status === "ativa" ? "bom" : "aviso"}>{rotulo("org_status", o.status)}</Chip>
               </td>
               <td className="px-4 py-2.5 font-mono text-xs">
                 {new Date(o.created_at).toLocaleDateString("pt-BR")}

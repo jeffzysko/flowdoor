@@ -8,6 +8,7 @@ import { NovoPonto } from "./NovoPonto";
 import { Coordenadas } from "./Coordenadas";
 import { rotuloDoFormato } from "@/lib/domain/formatos";
 import { canManageInventory } from "@/lib/domain/permissions";
+import { rotulo } from "@/lib/domain/rotulos";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Inventário" };
@@ -95,7 +96,7 @@ export default async function InventarioPage() {
               </td>
               <td className="px-4 py-2.5 text-xs">{f.orientation ?? "—"}</td>
               <td className="px-4 py-2.5">
-                <Chip tone={f.status === "ativa" ? "bom" : "aviso"}>{f.status}</Chip>
+                <Chip tone={f.status === "ativa" ? "bom" : "aviso"}>{rotulo("face_status", f.status)}</Chip>
               </td>
             </tr>
           ))}

@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { atualizarFace, criarFace, excluirFace, type FormState } from "../actions";
 import { Chip } from "@/components/ui";
 import { FACE_KIND, FACE_KIND_LABEL , rotuloDoFormato } from "@/lib/domain/formatos";
+import { rotulo, opcoes } from "@/lib/domain/rotulos";
 
 const inicial: FormState = { ok: false };
 
@@ -88,7 +89,7 @@ function LinhaFace({ face, siteId }: { face: Face; siteId: string }) {
         <div className="flex flex-wrap items-center gap-3">
           <span className="font-mono text-sm font-medium">{face.code}</span>
           <Chip tone={face.medium === "digital" ? "bom" : "neutro"}>{rotuloDoFormato(face.kind)}</Chip>
-          <Chip tone={face.status === "ativa" ? "bom" : "aviso"}>{face.status}</Chip>
+          <Chip tone={face.status === "ativa" ? "bom" : "aviso"}>{rotulo("face_status", face.status)}</Chip>
           <span className="font-mono text-xs text-ink-3">
             {face.width_m && face.height_m ? `${face.width_m}×${face.height_m} m` : "sem medida"}
             {face.orientation ? ` · ${face.orientation}` : ""}
@@ -144,10 +145,10 @@ function FormFace({
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <F name="code" label="Código" defaultValue={face.code} required />
           <S name="kind" label="Tipo" defaultValue={face.kind} opcoes={TIPOS} />
-          <S name="medium" label="Meio" defaultValue={face.medium} opcoes={[["estatico","Estático"],["digital","Digital (LED)"]]}
+          <S name="medium" label="Meio" defaultValue={face.medium} opcoes={opcoes("face_medium")}
              onChange={setMedium} />
           <S name="status" label="Situação" defaultValue={face.status}
-             opcoes={[["ativa","Ativa"],["inativa","Inativa"],["manutencao","Em manutenção"]]} />
+             opcoes={opcoes("face_status")} />
           <F name="orientation" label="Sentido do fluxo" defaultValue={face.orientation ?? ""} placeholder="bairro-centro" />
           <F name="widthM" label="Largura (m)" defaultValue={face.width_m ?? ""} placeholder="9" />
           <F name="heightM" label="Altura (m)" defaultValue={face.height_m ?? ""} placeholder="3" />
@@ -259,7 +260,7 @@ function NovaFace({
         <F name="code" label="Código" defaultValue={sugerido} required />
         <S name="kind" label="Tipo" defaultValue="outdoor" opcoes={TIPOS} />
         <S name="medium" label="Meio" defaultValue="estatico"
-           opcoes={[["estatico","Estático"],["digital","Digital (LED)"]]} onChange={setMedium} />
+           opcoes={opcoes("face_medium")} onChange={setMedium} />
         <F name="orientation" label="Sentido do fluxo" placeholder="bairro-centro" />
         <F name="widthM" label="Largura (m)" placeholder="9" />
         <F name="heightM" label="Altura (m)" placeholder="3" />
