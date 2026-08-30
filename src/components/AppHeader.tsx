@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { NAV, ROLE_LABEL } from "@/lib/domain/permissions";
+import { NAV } from "@/lib/domain/permissions";
+import { TrocarEmpresa } from "./TrocarEmpresa";
 import type { SessionContext } from "@/lib/domain/types";
 
 /**
@@ -62,17 +63,17 @@ export function AppHeader({
           )}
         </nav>
 
-        <div className="hidden text-right sm:block">
-          <p className="text-sm font-medium leading-tight">
-            {naEmpresa && ctx.current
-              ? ctx.current.organizations.name
-              : "Plataforma Flowdoor"}
-          </p>
-          <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-3">
-            {naEmpresa && ctx.current
-              ? ROLE_LABEL[ctx.current.role]
-              : ctx.fullName.split(" ")[0]}
-          </p>
+        <div className="hidden sm:block">
+          {naEmpresa && ctx.current ? (
+            <TrocarEmpresa atual={ctx.current} empresas={ctx.memberships} />
+          ) : (
+            <div className="text-right">
+              <p className="text-sm font-medium leading-tight">Plataforma Flowdoor</p>
+              <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-3">
+                {ctx.fullName.split(" ")[0]}
+              </p>
+            </div>
+          )}
         </div>
 
         <form action="/auth/sair" method="post">

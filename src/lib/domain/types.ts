@@ -51,6 +51,12 @@ export type OrderStatus =
 export interface Membership {
   org_id: string;
   role: MemberRole;
+  /**
+   * Verdadeiro quando a pessoa alcança a empresa por ser responsável pela
+   * plataforma, e não por ter vínculo com ela. A interface mostra isso, porque
+   * "estou vendo a empresa de fora" e "eu trabalho aqui" não são a mesma coisa.
+   */
+  viaPlataforma?: boolean;
   organizations: {
     id: string;
     name: string;

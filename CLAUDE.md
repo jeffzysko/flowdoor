@@ -200,6 +200,14 @@ base nova, schema novo.
    mesma resposta para token inexistente e token queimado. Sem essa amarra,
    desligar a confirmação de e-mail deixaria entrar conta com endereço nunca
    verificado.
+23. **Quem responde pela plataforma enxerga todas as empresas.** A lista de
+   empresas em `getSessionContext` não vem só de `org_members`: para o
+   responsável pela plataforma ela inclui toda `organizations`, marcada com
+   `viaPlataforma`. A empresa atual vem do cookie `flowdoor_org`, que é
+   preferência de navegação e não credencial — a troca só aceita empresa que
+   já está na lista, e quem manda no que pode ser lido é o RLS. Antes disso a
+   atual era `list[0]`: quem alcançava duas empresas ficava preso na que o
+   banco devolvesse primeiro.
 21. **A coordenada é produzida pelo sistema, e carrega o quanto vale.** O
    cliente entrega lista com endereço e ponto de referência; latitude ele não
    tem e nunca vai ter. `sites.geo_precision` diz de onde veio a coordenada, e
