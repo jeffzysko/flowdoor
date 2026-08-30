@@ -11,6 +11,8 @@
  * a fila offline e de lá para o Storage.
  */
 
+import { stampBandHeight } from "./stamp";
+
 export const OUTDOOR_RATIO = 3.2;
 export const MAX_EDGE = 2000;
 export const TARGET_QUALITY = 0.82;
@@ -20,6 +22,12 @@ export interface Capture {
   width: number;
   height: number;
   sharpness: number; // 0..1, quanto maior melhor
+  /**
+   * Hora do relógio do aparelho no disparo. Não é a hora que vale — essa é
+   * a do servidor. Vai junto só para o servidor medir a diferença: relógio
+   * fora do lugar é sinal de aparelho mexido.
+   */
+  takenAt: Date;
 }
 
 /** O que vai carimbado na imagem. */
@@ -50,14 +58,17 @@ function carimbar(
   const pad = Math.round(22 * escala);
   const linha1 = Math.round(34 * escala);
   const linha2 = Math.round(22 * escala);
-  const altura = pad * 2 + linha1 + linha2 * 2 + Math.round(10 * escala);
 
-  const grad = ctx.createLinearGradient(0, h - altura * 1.6, 0, h);
+  // A altura vem de stamp.ts porque o servidor precisa do mesmo número para
+  // descontar esta faixa do hash perceptual.
+  const faixa = stampBandHeight(w);
+
+  const grad = ctx.createLinearGradient(0, h - faixa, 0, h);
   grad.addColorStop(0, "rgba(0,0,0,0)");
   grad.addColorStop(0.45, "rgba(0,0,0,0.55)");
   grad.addColorStop(1, "rgba(0,0,0,0.82)");
   ctx.fillStyle = grad;
-  ctx.fillRect(0, h - altura * 1.6, w, altura * 1.6);
+  ctx.fillRect(0, h - faixa, w, faixa);
 
   const data = c.quando.toLocaleDateString("pt-BR", {
     day: "2-digit", month: "2-digit", year: "numeric",
@@ -148,6 +159,7 @@ export async function capture(
   video: HTMLVideoElement,
   carimbo?: Carimbo
 ): Promise<Capture> {
+  const takenAt = carimbo?.quando ?? new Date();
   const vw = video.videoWidth;
   const vh = video.videoHeight;
   if (!vw || !vh) throw new Error("Câmera ainda não está pronta.");
@@ -192,7 +204,7 @@ export async function capture(
   );
   if (!blob) throw new Error("Não foi possível salvar a foto.");
 
-  return { blob, width: outW, height: outH, sharpness };
+  return { blob, width: outW, height: outH, sharpness, takenAt };
 }
 
 export interface Position {

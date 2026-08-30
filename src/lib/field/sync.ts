@@ -11,8 +11,10 @@ import {
 /** Erros que não adiantam repetir: o servidor já decidiu. */
 const PERMANENT = [
   "não pertence a você",
+  "nao pertence a voce",
   "já concluído",
   "evento não encontrado",
+  "evento nao encontrado",
 ];
 
 const isPermanent = (m: string) =>
@@ -54,6 +56,7 @@ async function send(item: QueueItem): Promise<void> {
     p_lng: item.payload.lng,
     p_notes: item.payload.notes ?? null,
     p_idempotency_key: item.key,
+    p_client_time: item.payload.clientTime ?? null,
   });
   if (error) throw new Error(error.message);
 

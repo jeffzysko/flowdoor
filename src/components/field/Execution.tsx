@@ -174,7 +174,12 @@ export function Execution({
         action: "finish",
         eventId,
         orgId,
-        payload: { lat, lng, notes: notas.trim() || null },
+        payload: {
+          lat,
+          lng,
+          notes: notas.trim() || null,
+          clientTime: foto.takenAt.toISOString(),
+        },
         photo: foto.blob,
         photoName: "comprovacao.jpg",
       });
@@ -199,8 +204,8 @@ export function Execution({
         </p>
         <h2 className="mt-2 text-2xl font-bold">Foto em conferência.</h2>
         <p className="mt-2 text-ink-2">
-          Estamos checando o local, o horário e se a peça é da campanha certa.
-          Passando, a próxima parada abre sozinha.
+          Estamos checando o local, o horário, a peça e se a imagem já foi
+          enviada antes. Passando, a próxima parada abre sozinha.
         </p>
         <a
           href="/campo"

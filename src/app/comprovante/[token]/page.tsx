@@ -9,7 +9,13 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-type Photo = { path: string; kind: string; taken_at: string };
+type Photo = {
+  path: string;
+  kind: string;
+  taken_at: string;
+  sha256: string | null;
+  verdict: string | null;
+};
 
 type Item = {
   face_code: string;
@@ -187,6 +193,17 @@ export default async function ProofPage({
                   </a>
                 </div>
               )}
+
+              {photo?.sha256 && (
+                <div className="border-t border-line px-5 py-3">
+                  <dt className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-3">
+                    Impressão digital da imagem · SHA-256
+                  </dt>
+                  <dd className="mt-1 break-all font-mono text-[11px] leading-relaxed text-ink-2">
+                    {photo.sha256}
+                  </dd>
+                </div>
+              )}
             </li>
           );
         })}
@@ -200,6 +217,12 @@ export default async function ProofPage({
         <p className="mt-1">
           Cada aplicação registrou a coordenada do aparelho do aplicador no momento
           da chegada, e a foto foi conferida contra a arte aprovada da campanha.
+        </p>
+        <p className="mt-1">
+          A impressão digital abaixo de cada foto é o SHA-256 do arquivo original,
+          calculado no servidor no momento do envio e congelado neste comprovante.
+          Baixe a imagem e rode <code>shasum -a 256 arquivo.jpg</code>: se o valor
+          bater, é exatamente a foto que saiu do celular no ponto.
         </p>
       </footer>
     </main>

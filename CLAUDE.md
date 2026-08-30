@@ -27,7 +27,7 @@ base nova, schema novo.
    representação; `org_relationships` liga provider (dono do inventário) a
    consumer. Papel de plataforma vive em `platform_admins`, fora das orgs.
 3. **`field_events` é genérico.** Tipo: aplicação, vistoria, retirada, troca,
-   manutenção, registro. Mesmo QR, mesmo GPS, mesma câmera.
+   manutenção, registro. Mesmo GPS, mesma câmera, mesma validação.
 9. **Não existe QR nas estruturas.** Nunca existiu, e manter etiqueta em
    centenas de pontos na rua não se sustenta. A prova de presença é a
    **coordenada do aparelho na chegada**, conferida contra a coordenada do
@@ -47,6 +47,45 @@ base nova, schema novo.
    aplicador na rua. Incerto libera o campo e cai na fila de revisão, a menos
    que `block_on_uncertain` esteja ligado. Reprovação devolve o evento para
    `em_andamento` com o motivo: a pessoa ainda está no ponto e refaz a foto.
+12. **Antifraude é camada, não muro.** Coordenada de GPS é falsificável num
+   celular com root, e nenhum sinal isolado prova fraude. O que existe tira do
+   fraudador as opções baratas, e cada sinal tem um papel definido:
+
+   | sinal | onde | reprova? |
+   |---|---|---|
+   | `check_duplicate` | `register_photo_hashes` | sim, com SHA-256 igual ou pHash próximo em **outra** estrutura |
+   | `check_screen` | IA, em `analisarFoto` | sim, só com confiança ≥ 0,8 |
+   | `check_speed` | `field_finish` | **nunca** — só revisão |
+   | `check_freshness` | `field_finish` | **nunca** — só revisão |
+   | `clock_skew_seconds` | `field_finish` | **nunca** — só entra no score |
+
+   Regras que não devem ser afrouxadas:
+
+   - **Hash é calculado no servidor**, em `src/lib/media/hash.ts`, nunca no
+     navegador. Hash que o cliente manda é hash que o fraudador escreve.
+   - **O pHash ignora a faixa do carimbo.** A geometria mora em
+     `src/lib/field/stamp.ts` e é usada pelos dois lados. Se as contas
+     divergirem, o hash passa a medir o carimbo — que é igual em toda foto — e
+     tudo vira duplicata.
+   - **A duplicata busca do pior caso para o menos grave**: primeiro a mesma
+     imagem em outra face (reprova), depois na mesma face em outro pedido
+     (revisão). Mesma face e mesmo pedido é refoto legítima depois de reprova.
+   - **`sem_dado` nos sinais novos não gera revisão.** A primeira parada do dia
+     não tem parada anterior; se `sem_dado` pesasse, toda manhã começaria na
+     mesa de revisão. Só `check_location`, `check_time` e `check_campaign`
+     tratam `sem_dado` como dúvida.
+   - **Velocidade só é calculada acima de 2 km e 60 s.** Abaixo disso o erro do
+     GPS explica qualquer número absurdo, e duas faces da mesma estrutura são
+     exatamente esse caso.
+   - **A hora que vale é sempre `now()` do servidor.** `client_taken_at` existe
+     só para medir a diferença.
+   - **O score do aplicador não pune e não avisa.** Acima de `watch_threshold`,
+     tudo dele cai em `revisao` com `watch_flag = true`, e o campo continua
+     andando. Quem está em campo não vê nada — avisar ensina a burlar.
+13. **`create or replace` no Supabase reaplica os default privileges** do schema
+   `public`, que dão EXECUTE para `anon` e `authenticated`. Toda vez que uma RPC
+   for recriada, refaça os `revoke ... from public, anon`. Conferir depois com
+   `get_advisors` ou `has_function_privilege('anon', oid, 'execute')`.
 4. **Imagens em Storage.** Buckets `artworks`, `field-photos`, `avatars`.
    Caminho sempre `<org_id>/...` — a primeira pasta é a fronteira do tenant.
    Nunca base64 em coluna.
@@ -101,7 +140,10 @@ magic link **não saem por e-mail**. O caminho que funciona:
 
 ## Ainda não existe
 
-- Tela de revisão das fotos marcadas como "revisao" (a RPC `review_photo` já existe).
+- Tela de revisão das fotos marcadas como "revisao" (a RPC `review_photo` já
+  existe). É onde os sinais antifraude viram trabalho: sem ela, `revisao` é um
+  estado que ninguém olha.
+- Tela do score do aplicador (a RPC `operator_risk(org, user, dias)` já existe).
 - Tela de configuração de `field_validation_settings` pela interface.
 - Importação de faces por CSV/XLSX.
 - Envio de e-mail de convite (a rota /auth/callback e a tela /definir-senha
@@ -110,3 +152,9 @@ magic link **não saem por e-mail**. O caminho que funciona:
 - Recuperação de senha pela interface.
 - Edição de ponto/face depois de criados.
 - Aprovação de arte pelo cliente final.
+- Foto de referência do ponto, para a IA comparar o **entorno** e não só a peça.
+  É o que fecha o vetor do GPS falsificado, e o único item da lista que um app
+  de localização falsa não vence.
+- Auditoria por amostragem: uma fatia das aplicações roteada para uma segunda
+  pessoa conferir em campo. Não é software, é processo — e é o único controle
+  que muda comportamento em vez de só detectar.

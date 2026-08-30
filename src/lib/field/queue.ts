@@ -31,6 +31,8 @@ export interface QueueItem {
     lng: number | null;
     accuracy?: number | null;
     notes?: string | null;
+    /** Relógio do aparelho no disparo, ISO. O servidor usa só para comparar. */
+    clientTime?: string | null;
   };
   photo?: Blob;
   photoName?: string;
