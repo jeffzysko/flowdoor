@@ -43,7 +43,7 @@ export default function DefinirSenhaPage() {
 
   return (
     <main className="mx-auto max-w-sm px-6 py-24">
-      <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent">
+      <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent-ink">
         Flowdoor
       </p>
       <h1 className="mt-3 text-3xl font-bold tracking-tight">Defina sua senha</h1>
@@ -77,7 +77,7 @@ export default function DefinirSenhaPage() {
         <button
           type="submit"
           disabled={ocupado}
-          className="w-full bg-accent px-4 py-3 font-medium text-white disabled:opacity-50"
+          className="w-full bg-accent px-4 py-3 font-medium text-on-accent transition hover:bg-accent-hover disabled:opacity-50"
         >
           {ocupado ? "Salvando…" : "Salvar e entrar"}
         </button>

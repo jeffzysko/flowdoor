@@ -107,7 +107,7 @@ export function RevisarFoto({
             name="acao"
             value="aprovar"
             disabled={pendente}
-            className="flex-1 bg-accent px-3 py-2.5 text-sm font-medium text-white disabled:opacity-50"
+            className="flex-1 bg-accent px-3 py-2.5 text-sm font-medium text-on-accent transition hover:bg-accent-hover disabled:opacity-50"
           >
             {pendente ? "Salvando…" : "Aprovar"}
           </button>

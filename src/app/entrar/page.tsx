@@ -11,7 +11,7 @@ export default function EntrarPage() {
     <main className="grid min-h-dvh lg:grid-cols-2">
       <section className="flex items-center justify-center px-6 py-16">
         <div className="w-full max-w-sm">
-          <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent">
+          <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent-ink">
             Flowdoor
           </p>
           <h1 className="mt-3 text-3xl font-bold tracking-tight">
@@ -151,7 +151,7 @@ function Formulario() {
       <button
         type="submit"
         disabled={carregando}
-        className="w-full bg-accent px-4 py-3 font-medium text-white transition hover:opacity-90 disabled:opacity-50"
+        className="w-full bg-accent px-4 py-3 font-medium text-on-accent transition hover:bg-accent-hover transition hover:opacity-90 disabled:opacity-50"
       >
         {carregando ? "Entrando…" : "Entrar"}
       </button>

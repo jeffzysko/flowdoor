@@ -23,7 +23,7 @@ export function NovaOrganizacao() {
   if (state.ok) {
     return (
       <section className="mt-6 border border-accent bg-accent-soft px-6 py-10 text-center">
-        <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-accent">
+        <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-accent-ink">
           Criada
         </p>
         <h1 className="mt-2 text-2xl font-bold">{state.message}</h1>
@@ -31,7 +31,7 @@ export function NovaOrganizacao() {
           Agora convide a equipe dela e cadastre os primeiros pontos.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <Link href="/painel" className="bg-accent px-5 py-2.5 font-medium text-white">
+          <Link href="/painel" className="bg-accent px-5 py-2.5 font-medium text-on-accent transition hover:bg-accent-hover">
             Ir para a operação
           </Link>
           <Link href="/plataforma" className="border border-line bg-surface px-5 py-2.5">
@@ -142,7 +142,7 @@ export function NovaOrganizacao() {
       <button
         type="submit"
         disabled={pendente}
-        className="mt-5 bg-accent px-6 py-3 font-medium text-white disabled:opacity-50"
+        className="mt-5 bg-accent px-6 py-3 font-medium text-on-accent transition hover:bg-accent-hover disabled:opacity-50"
       >
         {pendente ? "Criando…" : "Criar empresa"}
       </button>

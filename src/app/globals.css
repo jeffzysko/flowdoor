@@ -1,20 +1,157 @@
 @import "tailwindcss";
 
-@theme {
-  --color-ink: #14211f;
-  --color-ink-2: #4a5754;
-  --color-ink-3: #7b8783;
-  --color-paper: #f6f7f5;
-  --color-surface: #ffffff;
-  --color-line: #e3e7e2;
-  --color-accent: #0a7a75;
-  --color-accent-soft: #e2f0ef;
-  --color-danger: #a8372a;
-  --color-warn: #8d6410;
-  --color-good: #2c6a48;
+/* ==========================================================================
+   FLOWDOOR — DESIGN SYSTEM v2 · marca laranja
+   --------------------------------------------------------------------------
+   Camada de tokens, portada de design-system/flowdoor-design-tokens.css.
+   Aquele arquivo foi escrito para o protótipo em HTML + real-app.js, que não
+   é este código: aqui não há styles.css nem blocos <style> injetados, e sim
+   Next.js com Tailwind v4. Então o que veio foram os TOKENS e as REGRAS —
+   as classes .real-* ficaram de fora porque não existe HTML que as use.
 
-  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+   REGRA DE OURO: nenhum hex fora deste arquivo. Precisou de uma cor, espaço,
+   raio ou sombra que não existe? O token entra aqui primeiro.
+
+   A regra que mais muda em relação ao teal: o laranja da marca carrega texto
+   ESCURO (4,88:1), nunca branco (2,74:1 — reprova).
+   ========================================================================== */
+
+:root {
+  /* ---- marca · os dois hex do logotipo. Intocáveis. --------------------- */
+  --fd-brand-orange: #f67901;
+  --fd-brand-ink:    #2f2f2f;
+
+  /* ---- rampa laranja ---------------------------------------------------- */
+  --fd-orange-050: #fef6ee;   /* fundo mais suave */
+  --fd-orange-100: #fdead8;   /* tag da marca, botão ghost, chip */
+  --fd-orange-200: #fdd7b2;   /* hover de ghost, borda de estado ativo */
+  --fd-orange-300: #fdb168;   /* borda de campo em foco */
+  --fd-orange-400: #ff8c1f;   /* HOVER do botão: clareia (4,88 → 5,75) */
+  --fd-orange-500: #f67901;   /* MARCA. Preenchimento, ícone, moldura */
+  --fd-orange-700: #974b02;   /* laranja COMO TEXTO — 6,32:1 no branco */
+  --fd-orange-900: #572c02;   /* texto sobre orange-200 */
+
+  /* ---- neutros de viés quente ------------------------------------------- */
+  --fd-ink-900:     #1c1a18;  /* texto primário          17,35:1 */
+  --fd-ink-800:     #2f2f2f;  /* = marca. Rótulo sobre laranja */
+  --fd-ink-600:     #57514b;  /* secundário forte         7,82:1 */
+  --fd-ink-500:     #6b635c;  /* apoio                    5,89:1 */
+  --fd-ink-400:     #736a62;  /* rótulo de tabela         5,29:1 */
+  --fd-ink-300:     #a9a099;  /* apoio SOBRE fundo escuro apenas */
+  --fd-line-200:    #e7e2dc;  /* borda de card e divisor */
+  --fd-line-300:    #ded8d1;  /* borda de campo */
+  --fd-surface-000: #ffffff;
+  --fd-surface-050: #fafafa;  /* fundo do app */
+  --fd-surface-100: #faf7f4;  /* bloco interno */
+  --fd-surface-200: #f2f0ee;  /* trilho de navegação */
+  --fd-charcoal-900:#26231f;
+  --fd-night-900:   #12100e;  /* fundo da câmera de campo */
+
+  /* ---- semântica · laranja é MARCA, não estado -------------------------- */
+  --fd-success-text: #106b40;   /* 5,89:1 sobre success-bg */
+  --fd-success-bg:   #e8f6ee;
+  --fd-warning-text: #7d5a05;   /* 5,68:1 sobre warning-bg */
+  --fd-warning-bg:   #fdf3d6;
+  --fd-danger-text:  #9c2830;   /* 6,75:1 sobre danger-bg */
+  --fd-danger-bg:    #fdeeee;
+  --fd-danger-solid: #a32b32;   /* 7,12:1 no branco */
+  --fd-info-text:    #57514b;   /* 7,33:1 sobre info-bg */
+  --fd-info-bg:      #faf7f4;
+
+  /* ---- câmera de campo · nunca laranja aqui ----------------------------- */
+  --fd-cam-frame: #ffffff;    /* moldura 3.2:1 em repouso */
+  --fd-cam-ready: #8df0bd;    /* moldura com o outdoor enquadrado */
+  --fd-cam-hint:  #f2ede8;
+  --fd-cam-ok:    #6ee7a8;
+
+  /* ---- tipografia ------------------------------------------------------- */
+  --fd-font-display: "Manrope", "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --fd-font-body:    "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --fd-font-mono:    ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --fd-text-overline: 11px;  --fd-text-caption: 12px;  --fd-text-sm:  13px;
+  --fd-text-body:     15px;  --fd-text-lead:    17px;  --fd-text-h4:  20px;
+  --fd-text-h3:       24px;  --fd-text-h2:      32px;  --fd-text-h1:  40px;
+  --fd-text-display:  52px;
+
+  --fd-weight-regular: 400;  --fd-weight-medium: 500;
+  --fd-weight-semibold: 600; --fd-weight-bold: 700;   --fd-weight-black: 800;
+
+  --fd-leading-tight: 1.0;   --fd-leading-snug: 1.2;
+  --fd-leading-normal: 1.45; --fd-leading-relaxed: 1.6;
+
+  --fd-tracking-display: -0.05em;  --fd-tracking-tight: -0.03em;
+  --fd-tracking-normal: 0;         --fd-tracking-wide: 0.14em;
+
+  /* ---- espaçamento · base 4px ------------------------------------------- */
+  --fd-space-1: 4px;   --fd-space-2: 8px;   --fd-space-3: 12px;
+  --fd-space-4: 16px;  --fd-space-5: 20px;  --fd-space-6: 24px;
+  --fd-space-8: 32px;  --fd-space-10: 40px; --fd-space-12: 48px;
+  --fd-space-16: 64px;
+
+  /* ---- raio ------------------------------------------------------------- */
+  --fd-radius-sm: 8px;    --fd-radius-md: 12px;   --fd-radius-lg: 16px;
+  --fd-radius-xl: 24px;   --fd-radius-2xl: 32px;  --fd-radius-pill: 999px;
+  --fd-radius-circle: 50%;
+
+  /* ---- elevação · sombra em neutro quente, nunca preto puro ------------- */
+  --fd-shadow-xs: 0 2px 6px rgba(38, 35, 31, .05);
+  --fd-shadow-sm: 0 4px 14px rgba(38, 35, 31, .07);
+  --fd-shadow-md: 0 12px 32px rgba(38, 35, 31, .06);
+  --fd-shadow-lg: 0 18px 38px rgba(38, 35, 31, .09);
+  --fd-shadow-xl: 0 30px 80px rgba(38, 35, 31, .20);
+  --fd-shadow-brand: 0 9px 18px rgba(246, 121, 1, .22);
+  --fd-ring-focus: 0 0 0 4px #ffe4c6;
+
+  /* ---- movimento -------------------------------------------------------- */
+  --fd-duration-fast: 140ms;
+  --fd-duration-base: 200ms;
+  --fd-duration-slow: 280ms;
+  --fd-ease: cubic-bezier(.2, .6, .2, 1);
+}
+
+/* --------------------------------------------------------------------------
+   Ponte para o Tailwind. Os nomes semânticos que o código já usa passam a
+   apontar para os tokens do design system — nenhum hex aqui, só referência.
+   -------------------------------------------------------------------------- */
+@theme {
+  --color-ink:    var(--fd-ink-900);
+  --color-ink-2:  var(--fd-ink-600);
+  --color-ink-3:  var(--fd-ink-500);
+  --color-ink-4:  var(--fd-ink-400);   /* rótulo de tabela, metadado */
+
+  --color-paper:     var(--fd-surface-050);
+  --color-surface:   var(--fd-surface-000);
+  --color-surface-2: var(--fd-surface-100);
+  --color-line:      var(--fd-line-200);
+  --color-line-2:    var(--fd-line-300);
+
+  /* A marca em três papéis separados, que é o ponto da v2:
+     accent      preenchimento (fundo)
+     on-accent   o que se escreve EM CIMA do laranja — escuro, nunca branco
+     accent-ink  o laranja quando ele precisa SER texto */
+  --color-accent:       var(--fd-orange-500);
+  --color-accent-hover: var(--fd-orange-400);
+  --color-on-accent:    var(--fd-ink-800);
+  --color-accent-ink:   var(--fd-orange-700);
+  --color-accent-soft:  var(--fd-orange-100);
+  --color-accent-line:  var(--fd-orange-200);
+
+  --color-good:      var(--fd-success-text);
+  --color-good-soft: var(--fd-success-bg);
+  --color-warn:      var(--fd-warning-text);
+  --color-warn-soft: var(--fd-warning-bg);
+  --color-danger:    var(--fd-danger-text);
+  --color-danger-solid: var(--fd-danger-solid);
+  --color-danger-soft:  var(--fd-danger-bg);
+
+  --color-night: var(--fd-night-900);
+  --color-cam-frame: var(--fd-cam-frame);
+  --color-cam-ready: var(--fd-cam-ready);
+
+  --font-sans:    var(--fd-font-body);
+  --font-display: var(--fd-font-display);
+  --font-mono:    var(--fd-font-mono);
 }
 
 :root { color-scheme: light; }
@@ -26,13 +163,16 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Manrope carrega título e número; DM Sans carrega o corpo. */
+h1, h2, h3 { font-family: var(--font-display); }
+
 /* o app de campo é usado no sol, de pé, com uma mão */
 .field-shell { min-height: 100dvh; }
 
 button, [role="button"] { touch-action: manipulation; }
 
 *:focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--fd-orange-500);
   outline-offset: 2px;
 }
 

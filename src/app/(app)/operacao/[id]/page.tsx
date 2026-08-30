@@ -137,7 +137,7 @@ export default async function PedidoPage({
       </Link>
 
       <header className="mt-4 border-b border-line pb-5">
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent">
+        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent-ink">
           {o.code}
         </p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight">

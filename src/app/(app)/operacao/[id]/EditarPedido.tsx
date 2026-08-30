@@ -121,7 +121,7 @@ export function EditarPedido({
   if (!aberto) {
     return (
       <div className="mt-8 flex flex-wrap items-center gap-4">
-        <button onClick={() => setAberto(true)} className="bg-accent px-4 py-2.5 font-medium text-white">
+        <button onClick={() => setAberto(true)} className="bg-accent px-4 py-2.5 font-medium text-on-accent transition hover:bg-accent-hover">
           Editar pedido
         </button>
         <CancelarPedido orderId={orderId} codigo={codigo} />
@@ -274,7 +274,7 @@ export function EditarPedido({
         <button
           onClick={salvar}
           disabled={salvando || linhas.length === 0}
-          className="bg-accent px-5 py-2.5 font-medium text-white disabled:opacity-50"
+          className="bg-accent px-5 py-2.5 font-medium text-on-accent transition hover:bg-accent-hover disabled:opacity-50"
         >
           {salvando ? "Salvando…" : "Salvar pedido"}
         </button>

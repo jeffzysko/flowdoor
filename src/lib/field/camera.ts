@@ -13,6 +13,15 @@
 
 import { stampBandHeight } from "./stamp";
 
+/**
+ * O carimbo é desenhado no canvas, sobre a foto — não é interface, é conteúdo
+ * da imagem. Canvas não lê variável CSS, então a cor vive aqui, nomeada. Ela é
+ * branca de propósito: o carimbo cai sobre uma faixa escura no rodapé da foto,
+ * e é o único lugar do produto onde branco sobre escuro é a leitura certa.
+ */
+const CARIMBO_TEXTO = "#ffffff";
+const CARIMBO_TEXTO_FRACO = "rgba(255,255,255,0.92)";
+
 export const OUTDOOR_RATIO = 3.2;
 export const MAX_EDGE = 2000;
 export const TARGET_QUALITY = 0.82;
@@ -78,12 +87,12 @@ function carimbar(
   });
 
   ctx.textBaseline = "alphabetic";
-  ctx.fillStyle = "#ffffff";
+  ctx.fillStyle = CARIMBO_TEXTO;
   ctx.font = `700 ${linha1}px ui-monospace, "SF Mono", Menlo, monospace`;
   ctx.fillText(`${data}  ${hora}`, pad, h - pad - linha2 * 2 - Math.round(8 * escala));
 
   ctx.font = `500 ${linha2}px ui-monospace, "SF Mono", Menlo, monospace`;
-  ctx.fillStyle = "rgba(255,255,255,0.92)";
+  ctx.fillStyle = CARIMBO_TEXTO_FRACO;
 
   const local = [c.faceCode, c.endereco, c.cidade].filter(Boolean).join(" · ");
   if (local) ctx.fillText(local, pad, h - pad - linha2 - Math.round(4 * escala));

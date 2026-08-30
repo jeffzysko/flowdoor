@@ -16,7 +16,7 @@ export function NovoPonto({ orgId }: { orgId: string }) {
       <div className="mt-6 flex items-center gap-4">
         <button
           onClick={() => setAberto(true)}
-          className="bg-accent px-4 py-2.5 font-medium text-white"
+          className="bg-accent px-4 py-2.5 font-medium text-on-accent transition hover:bg-accent-hover"
         >
           + Novo ponto
         </button>
@@ -96,7 +96,7 @@ export function NovoPonto({ orgId }: { orgId: string }) {
         <button
           type="submit"
           disabled={pendente}
-          className="bg-accent px-5 py-2.5 font-medium text-white disabled:opacity-50"
+          className="bg-accent px-5 py-2.5 font-medium text-on-accent transition hover:bg-accent-hover disabled:opacity-50"
         >
           {pendente ? "Salvando…" : "Criar ponto e primeira face"}
         </button>

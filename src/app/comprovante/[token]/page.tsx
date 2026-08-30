@@ -149,7 +149,7 @@ export default async function ProofPage({
                 <span
                   className={`font-mono text-[10px] uppercase tracking-[0.1em] px-2 py-1 ${
                     ok
-                      ? "bg-accent-soft text-accent"
+                      ? "bg-accent-soft text-accent-ink"
                       : "bg-paper text-ink-3 border border-line"
                   }`}
                 >
@@ -184,7 +184,7 @@ export default async function ProofPage({
               {ev?.started_lat && ev?.started_lng && (
                 <div className="border-t border-line px-5 py-3">
                   <a
-                    className="font-mono text-xs text-accent underline underline-offset-4"
+                    className="font-mono text-xs text-accent-ink underline underline-offset-4"
                     href={`https://www.google.com/maps/search/?api=1&query=${ev.started_lat},${ev.started_lng}`}
                     target="_blank"
                     rel="noreferrer noopener"

@@ -238,7 +238,7 @@ export function AceitarConvite({ token }: { token: string }) {
         </p>
         <button
           onClick={sairETrocar}
-          className="mt-6 bg-accent px-5 py-2.5 font-medium text-white"
+          className="mt-6 bg-accent px-5 py-2.5 font-medium text-on-accent transition hover:bg-accent-hover"
         >
           Sair e continuar
         </button>
@@ -295,7 +295,7 @@ export function AceitarConvite({ token }: { token: string }) {
 
         <button
           type="submit"
-          className="w-full bg-accent px-4 py-3 font-medium text-white"
+          className="w-full bg-accent px-4 py-3 font-medium text-on-accent transition hover:bg-accent-hover"
         >
           Criar conta e entrar
         </button>
@@ -316,7 +316,7 @@ function traduzir(m: string) {
 function Moldura({ children }: { children: React.ReactNode }) {
   return (
     <main className="mx-auto max-w-sm px-6 py-24">
-      <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent">
+      <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent-ink">
         Flowdoor
       </p>
       <div className="mt-3">{children}</div>

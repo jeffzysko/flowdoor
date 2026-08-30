@@ -85,11 +85,11 @@ export default async function NovoPedidoPage() {
               Antes de vender, a empresa precisa de inventário e equipe. Falta:{" "}
               <strong>{faltando.join(" e ")}</strong>.
               <span className="mt-3 block">
-                <Link href="/inventario" className="text-accent underline underline-offset-4">
+                <Link href="/inventario" className="text-accent-ink underline underline-offset-4">
                   Cadastrar ponto
                 </Link>
                 {" · "}
-                <Link href="/equipe" className="text-accent underline underline-offset-4">
+                <Link href="/equipe" className="text-accent-ink underline underline-offset-4">
                   Convidar aplicador
                 </Link>
               </span>

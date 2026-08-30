@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { MARCA_LARANJA } from "@/lib/design/marca";
 
 export const metadata: Metadata = {
   title: { default: "Flowdoor", template: "%s · Flowdoor" },
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0a7a75",
+  themeColor: MARCA_LARANJA,
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -29,7 +30,7 @@ export default function RootLayout({
         />
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Manrope:wght@500;600;700;800&display=swap"
         />
       </head>
       <body>{children}</body>

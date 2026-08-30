@@ -184,7 +184,7 @@ export default async function RevisaoPage() {
               <li key={i.photo_id} className="border border-line bg-surface">
                 <div className="flex flex-wrap items-start justify-between gap-3 border-b border-line px-5 py-4">
                   <div>
-                    <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-accent">
+                    <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-accent-ink">
                       {i.order_code ?? "Sem pedido"} · {i.face_code} ·{" "}
                       {rotulo("field_event_kind", i.kind)}
                     </p>
@@ -364,7 +364,7 @@ export default async function RevisaoPage() {
                     {Number(p.lng_sugerido).toFixed(5)}
                   </p>
                   <a
-                    className="mt-2 inline-block font-mono text-xs text-accent underline underline-offset-4"
+                    className="mt-2 inline-block font-mono text-xs text-accent-ink underline underline-offset-4"
                     href={`https://www.google.com/maps/search/?api=1&query=${p.lat_sugerido},${p.lng_sugerido}`}
                     target="_blank"
                     rel="noreferrer noopener"

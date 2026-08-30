@@ -173,7 +173,7 @@ export function NovoPedido({
   if (state.ok && state.code) {
     return (
       <section className="mt-6 border border-accent bg-accent-soft px-6 py-10 text-center">
-        <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-accent">
+        <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-accent-ink">
           Pedido criado
         </p>
         <h1 className="mt-2 font-mono text-3xl font-bold">{state.code}</h1>
@@ -184,7 +184,7 @@ export function NovoPedido({
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link
             href={`/operacao/${state.orderId}` as never}
-            className="bg-accent px-5 py-2.5 font-medium text-white"
+            className="bg-accent px-5 py-2.5 font-medium text-on-accent transition hover:bg-accent-hover"
           >
             Ver o pedido
           </Link>
@@ -207,7 +207,7 @@ export function NovoPedido({
 
       {/* ---------------------------------------------------- campanha */}
       <fieldset className="mt-7 border border-line bg-surface p-5">
-        <legend className="px-2 font-mono text-[10px] uppercase tracking-[0.12em] text-accent">
+        <legend className="px-2 font-mono text-[10px] uppercase tracking-[0.12em] text-accent-ink">
           Campanha
         </legend>
 
@@ -300,7 +300,7 @@ export function NovoPedido({
 
       {/* ------------------------------------------------------- faces */}
       <fieldset className="mt-6 border border-line bg-surface p-5">
-        <legend className="px-2 font-mono text-[10px] uppercase tracking-[0.12em] text-accent">
+        <legend className="px-2 font-mono text-[10px] uppercase tracking-[0.12em] text-accent-ink">
           Faces e aplicações
         </legend>
 
@@ -483,7 +483,7 @@ export function NovoPedido({
         <button
           type="submit"
           disabled={enviando || subindoArte || advertisers.length === 0}
-          className="bg-accent px-6 py-3 text-lg font-medium text-white disabled:opacity-50"
+          className="bg-accent px-6 py-3 text-lg font-medium text-on-accent transition hover:bg-accent-hover disabled:opacity-50"
         >
           {subindoArte
             ? "Enviando a arte…"

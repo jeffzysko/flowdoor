@@ -69,7 +69,7 @@ export function PublicarComprovante({
         <button
           onClick={publicar}
           disabled={publicando}
-          className="bg-accent px-5 py-2.5 font-medium text-white disabled:opacity-50"
+          className="bg-accent px-5 py-2.5 font-medium text-on-accent transition hover:bg-accent-hover disabled:opacity-50"
         >
           {publicando ? "Publicando…" : url ? "Republicar com os dados de agora" : "Publicar comprovante"}
         </button>

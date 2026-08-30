@@ -34,7 +34,7 @@ export function AppHeader({
               <Link
                 key={item.href}
                 href={item.href as never}
-                className="px-3 py-1.5 text-sm text-ink-2 transition hover:bg-accent-soft hover:text-accent"
+                className="px-3 py-1.5 text-sm text-ink-2 transition hover:bg-accent-soft hover:text-accent-ink"
               >
                 {item.label}
               </Link>
@@ -45,8 +45,8 @@ export function AppHeader({
               href="/plataforma"
               className={`px-3 py-1.5 text-sm transition ${
                 naEmpresa
-                  ? "text-ink-3 hover:bg-accent-soft hover:text-accent"
-                  : "bg-accent-soft font-medium text-accent"
+                  ? "text-ink-3 hover:bg-accent-soft hover:text-accent-ink"
+                  : "bg-accent-soft font-medium text-accent-ink"
               }`}
             >
               Plataforma
@@ -56,7 +56,7 @@ export function AppHeader({
           {!naEmpresa && ctx.current && (
             <Link
               href="/painel"
-              className="px-3 py-1.5 text-sm text-ink-2 transition hover:bg-accent-soft hover:text-accent"
+              className="px-3 py-1.5 text-sm text-ink-2 transition hover:bg-accent-soft hover:text-accent-ink"
             >
               ← Voltar para {ctx.current.organizations.name}
             </Link>

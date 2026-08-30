@@ -15,7 +15,7 @@ export function PageHead({
   return (
     <header className="flex flex-wrap items-end justify-between gap-4 border-b border-line pb-5">
       <div>
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent">
+        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent-ink">
           {eyebrow}
         </p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight">{title}</h1>
@@ -98,11 +98,14 @@ export function Chip({
   tone?: "neutro" | "bom" | "aviso" | "risco";
   children: React.ReactNode;
 }) {
+  // Pares do design system, medidos: sucesso 5,89:1 · atenção 5,68:1 ·
+  // erro 6,75:1 · neutro 7,33:1. A tag padrão é VERDE — ela marca estado
+  // positivo, e laranja aqui competiria com o botão primário na mesma tela.
   const cls = {
-    neutro: "bg-paper text-ink-3 border-line",
-    bom: "bg-accent-soft text-accent border-accent/30",
-    aviso: "bg-warn/10 text-warn border-warn/30",
-    risco: "bg-danger/10 text-danger border-danger/30",
+    neutro: "bg-surface-2 text-ink-2 border-line",
+    bom: "bg-good-soft text-good border-good/30",
+    aviso: "bg-warn-soft text-warn border-warn/30",
+    risco: "bg-danger-soft text-danger border-danger/30",
   }[tone];
   return (
     <span

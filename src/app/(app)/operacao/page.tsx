@@ -42,7 +42,7 @@ export default async function OperacaoPage() {
           canSell(ctx.current.role) ? (
             <Link
               href={"/operacao/novo" as never}
-              className="bg-accent px-4 py-2.5 font-medium text-white"
+              className="bg-accent px-4 py-2.5 font-medium text-on-accent transition hover:bg-accent-hover"
             >
               + Novo pedido
             </Link>
@@ -61,7 +61,7 @@ export default async function OperacaoPage() {
           {rows.map((o) => (
             <tr key={o.id} className="border-b border-line last:border-0">
               <td className="px-4 py-2.5 font-mono text-xs">
-                <Link href={`/operacao/${o.id}` as never} className="text-accent underline underline-offset-4">
+                <Link href={`/operacao/${o.id}` as never} className="text-accent-ink underline underline-offset-4">
                   {o.code}
                 </Link>
               </td>

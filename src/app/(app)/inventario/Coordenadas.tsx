@@ -60,7 +60,7 @@ export function Coordenadas({
           <button
             type="submit"
             disabled={pendente}
-            className="bg-accent px-5 py-2.5 font-medium text-white disabled:opacity-50"
+            className="bg-accent px-5 py-2.5 font-medium text-on-accent transition hover:bg-accent-hover disabled:opacity-50"
           >
             {pendente ? "Buscando…" : "Buscar coordenadas"}
           </button>

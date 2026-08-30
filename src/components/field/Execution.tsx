@@ -326,7 +326,7 @@ export function Execution({
   if (etapa === "pronto") {
     return (
       <section className="mt-8 border border-accent bg-accent-soft px-5 py-8 text-center">
-        <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-accent">
+        <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-accent-ink">
           Enviado
         </p>
         <h2 className="mt-2 text-2xl font-bold">Foto em conferência.</h2>
@@ -336,7 +336,7 @@ export function Execution({
         </p>
         <a
           href="/campo"
-          className="mt-6 inline-block bg-accent px-6 py-3 font-medium text-white"
+          className="mt-6 inline-block bg-accent px-6 py-3 font-medium text-on-accent transition hover:bg-accent-hover"
         >
           Atualizar
         </a>
@@ -422,7 +422,7 @@ export function Execution({
           <button
             onClick={() => registrarChegada(null)}
             disabled={ocupado || travado}
-            className="mt-5 w-full bg-accent px-4 py-5 text-lg font-medium text-white disabled:cursor-not-allowed disabled:opacity-40"
+            className="mt-5 w-full bg-accent px-4 py-5 text-lg font-medium text-on-accent transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40"
           >
             {ocupado
               ? "Registrando…"
@@ -515,7 +515,7 @@ export function Execution({
           </p>
           <button
             onClick={abrirCamera}
-            className="mt-5 w-full bg-accent px-4 py-4 text-lg font-medium text-white"
+            className="mt-5 w-full bg-accent px-4 py-4 text-lg font-medium text-on-accent transition hover:bg-accent-hover"
           >
             Abrir câmera
           </button>
@@ -613,7 +613,7 @@ export function Execution({
             <button
               onClick={concluir}
               disabled={ocupado}
-              className="flex-[2] bg-accent px-4 py-4 text-lg font-medium text-white disabled:opacity-50"
+              className="flex-[2] bg-accent px-4 py-4 text-lg font-medium text-on-accent transition hover:bg-accent-hover disabled:opacity-50"
             >
               {ocupado ? "Enviando…" : "Enviar para conferência"}
             </button>

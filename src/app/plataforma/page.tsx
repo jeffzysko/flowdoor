@@ -69,7 +69,7 @@ export default async function PlataformaPage() {
         action={
           <Link
             href="/plataforma/nova"
-            className="bg-accent px-4 py-2.5 font-medium text-white"
+            className="bg-accent px-4 py-2.5 font-medium text-on-accent transition hover:bg-accent-hover"
           >
             + Nova empresa
           </Link>

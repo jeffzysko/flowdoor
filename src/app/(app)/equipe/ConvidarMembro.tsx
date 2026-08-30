@@ -68,7 +68,7 @@ export function ConvidarMembro({ orgId }: { orgId: string }) {
         <button
           type="submit"
           disabled={pendente}
-          className="bg-accent px-5 py-2.5 font-medium text-white disabled:opacity-50"
+          className="bg-accent px-5 py-2.5 font-medium text-on-accent transition hover:bg-accent-hover disabled:opacity-50"
         >
           {pendente ? "Enviando…" : "Convidar"}
         </button>
@@ -94,7 +94,7 @@ export function ConvidarMembro({ orgId }: { orgId: string }) {
 
       {state.ok && state.link && (
         <div className="mt-5 border border-accent bg-accent-soft px-4 py-3">
-          <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-accent">
+          <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-accent-ink">
             {state.enviadoPara
               ? `Convite enviado para ${state.enviadoPara} · vale 14 dias`
               : "Link do convite · válido por 14 dias"}

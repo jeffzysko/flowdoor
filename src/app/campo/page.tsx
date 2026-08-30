@@ -84,7 +84,7 @@ export default async function CampoPage() {
 
       <header className="flex items-start justify-between gap-4">
         <div>
-          <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent">
+          <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent-ink">
             {p.vazio ? "Nada na fila" : `Parada de agora · faltam ${p.restantes}`}
           </p>
           <h1 className="mt-1 text-2xl font-bold tracking-tight">
@@ -114,7 +114,7 @@ export default async function CampoPage() {
       ) : (
         <>
           <section className="mt-6 border-2 border-accent bg-surface p-5">
-            <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-accent">
+            <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-accent-ink">
               {rotulo("field_event_kind", p.kind)}
               {p.order_code ? ` · ${p.order_code}` : ""}
             </p>

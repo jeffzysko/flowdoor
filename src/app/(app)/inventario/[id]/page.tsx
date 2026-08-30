@@ -141,7 +141,7 @@ export default async function PontoPage({
         )}
         {ponto.latitude && ponto.longitude && (
           <a
-            className="font-mono text-xs text-accent underline underline-offset-4"
+            className="font-mono text-xs text-accent-ink underline underline-offset-4"
             href={`https://www.google.com/maps/search/?api=1&query=${ponto.latitude},${ponto.longitude}`}
             target="_blank"
             rel="noreferrer noopener"

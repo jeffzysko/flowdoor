@@ -29,7 +29,7 @@ export function Bootstrap() {
 
   return (
     <main className="mx-auto max-w-md px-6 py-24 text-center">
-      <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent">
+      <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent-ink">
         Primeira execução
       </p>
       <h1 className="mt-3 text-3xl font-bold tracking-tight">
@@ -49,7 +49,7 @@ export function Bootstrap() {
       <button
         onClick={assumir}
         disabled={ocupado}
-        className="mt-7 w-full bg-accent px-5 py-3 font-medium text-white disabled:opacity-50"
+        className="mt-7 w-full bg-accent px-5 py-3 font-medium text-on-accent transition hover:bg-accent-hover disabled:opacity-50"
       >
         {ocupado ? "Confirmando…" : "Sou o responsável"}
       </button>

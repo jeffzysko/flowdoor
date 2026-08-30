@@ -72,7 +72,7 @@ export function PermissaoLocalizacao() {
         </p>
         <button
           onClick={pedir}
-          className="mt-3 w-full bg-accent px-4 py-3 font-medium text-white"
+          className="mt-3 w-full bg-accent px-4 py-3 font-medium text-on-accent transition hover:bg-accent-hover"
         >
           Liberar localização
         </button>

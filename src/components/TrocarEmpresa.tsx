@@ -81,7 +81,7 @@ export function TrocarEmpresa({
                     className={
                       "block w-full px-4 py-2.5 text-left text-sm transition " +
                       (ehAtual
-                        ? "bg-accent-soft font-medium text-accent"
+                        ? "bg-accent-soft font-medium text-accent-ink"
                         : "hover:bg-line/40")
                     }
                   >
