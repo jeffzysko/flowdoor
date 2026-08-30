@@ -253,10 +253,12 @@ magic link **não saem por e-mail**. O caminho que funciona:
 - Liberação de uma parada **pela operação** (o escape hoje é self-service, do
   lado de quem está na rua; não há botão do outro lado).
 - Importação de faces por CSV/XLSX.
-- Envio de e-mail de convite (a rota /auth/callback e a tela /definir-senha
-  ja existem; falta SMTP configurado no Supabase para o e-mail sair).
+- Envio de e-mail: `/recuperar-senha`, `/auth/callback` e `/definir-senha`
+  estão prontos e **só funcionam com SMTP configurado no Supabase**. Sem ele o
+  Supabase usa o remetente de teste, limitado a pouquíssimos e-mails por hora.
+  O convite não depende disso: usa tabela e token próprios, e o link é copiado
+  à mão até existir um envio nosso.
 - Financeiro, bonificação e exclusividade de categoria (tabela existe, regra não).
-- Recuperação de senha pela interface.
 - Aprovação de arte pelo cliente final.
 - Ordem da rota por proximidade de GPS. Hoje a sequência é a que a operação
   montou (`position`); o GPS libera, não escolhe.

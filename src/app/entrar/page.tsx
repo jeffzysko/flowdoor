@@ -1,6 +1,8 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
+import Link from "next/link";
+import type { Route } from "next";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -26,7 +28,8 @@ export default function EntrarPage() {
           </Suspense>
 
           <p className="mt-6 text-sm text-ink-3">
-            Recebeu um convite? Use o link do e-mail para criar sua senha.
+            Recebeu um convite? Abra o link que mandaram para você e crie sua
+            senha por lá.
           </p>
         </div>
       </section>
@@ -152,6 +155,15 @@ function Formulario() {
       >
         {carregando ? "Entrando…" : "Entrar"}
       </button>
+
+      <p className="text-center">
+        <Link
+          href={"/recuperar-senha" as Route}
+          className="font-mono text-xs text-ink-3 underline underline-offset-4"
+        >
+          Esqueci minha senha
+        </Link>
+      </p>
     </form>
   );
 }
