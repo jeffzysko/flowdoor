@@ -7,6 +7,7 @@ import { PageHead, Empty, Table, Chip } from "@/components/ui";
 import { NovoPonto } from "./NovoPonto";
 import { Coordenadas } from "./Coordenadas";
 import { rotuloDoFormato } from "@/lib/domain/formatos";
+import { situacaoDoLocal, LOCAL_CURTO, LOCAL_TOM, LOCAL_EXPLICACAO } from "@/lib/domain/localizacao";
 import { canManageInventory } from "@/lib/domain/permissions";
 import { rotulo } from "@/lib/domain/rotulos";
 
@@ -17,7 +18,11 @@ type Face = {
   id: string; code: string; kind: string; medium: string;
   orientation: string | null; width_m: number | null; height_m: number | null;
   status: string;
-  sites: { id: string; code: string; address: string; district: string | null; city: string; state: string } | null;
+  sites: {
+    id: string; code: string; address: string; district: string | null;
+    city: string; state: string;
+    latitude: number | null; geo_precision: string;
+  } | null;
 };
 
 export default async function InventarioPage() {
@@ -27,19 +32,22 @@ export default async function InventarioPage() {
   const supabase = await createClient();
   const { data } = await supabase
     .from("faces")
-    .select("id, code, kind, medium, orientation, width_m, height_m, status, sites(id, code, address, district, city, state)")
+    .select("id, code, kind, medium, orientation, width_m, height_m, status, sites(id, code, address, district, city, state, latitude, geo_precision)")
     .eq("org_id", ctx.current.org_id)
     .order("code");
 
   const faces = (data ?? []) as unknown as Face[];
   const pode = canManageInventory(ctx.current.role);
 
-  const [{ count: semCoordenada }, { count: aproximados }] = await Promise.all([
-    supabase.from("sites").select("id", { count: "exact", head: true })
-      .eq("org_id", ctx.current.org_id).eq("geo_precision", "ausente"),
-    supabase.from("sites").select("id", { count: "exact", head: true })
-      .eq("org_id", ctx.current.org_id).in("geo_precision", ["aproximada", "estimada"]),
-  ]);
+  const [{ count: semLocal }, { count: parciais }, { count: conferem }] =
+    await Promise.all([
+      supabase.from("sites").select("id", { count: "exact", head: true })
+        .eq("org_id", ctx.current.org_id).eq("geo_precision", "ausente"),
+      supabase.from("sites").select("id", { count: "exact", head: true })
+        .eq("org_id", ctx.current.org_id).in("geo_precision", ["aproximada", "estimada"]),
+      supabase.from("sites").select("id", { count: "exact", head: true })
+        .eq("org_id", ctx.current.org_id).in("geo_precision", ["exata", "confirmada", "manual"]),
+    ]);
 
   return (
     <>
@@ -54,8 +62,9 @@ export default async function InventarioPage() {
       {pode && (
         <Coordenadas
           orgId={ctx.current.org_id}
-          semCoordenada={semCoordenada ?? 0}
-          aproximados={aproximados ?? 0}
+          conferem={conferem ?? 0}
+          parciais={parciais ?? 0}
+          semLocal={semLocal ?? 0}
         />
       )}
 
@@ -67,7 +76,7 @@ export default async function InventarioPage() {
           </Empty>
         </div>
       ) : (
-        <Table head={["Face", "Ponto", "Endereço", "Tipo", "Medida", "Sentido", "Status"]}>
+        <Table head={["Face", "Ponto", "Endereço", "Local", "Tipo", "Medida", "Sentido", "Status"]}>
           {faces.map((f) => (
             <tr key={f.id} className="border-b border-line last:border-0">
               <td className="px-4 py-2.5 font-mono text-xs">{f.code}</td>
@@ -87,6 +96,21 @@ export default async function InventarioPage() {
                   {f.sites?.district ? `${f.sites.district} · ` : ""}
                   {f.sites?.city}/{f.sites?.state}
                 </span>
+              </td>
+              <td className="px-4 py-2.5">
+                {(() => {
+                  const sit = situacaoDoLocal(
+                    f.sites?.geo_precision,
+                    f.sites?.latitude != null
+                  );
+                  return (
+                    // O title carrega a explicação: a coluna precisa caber, mas
+                    // "parcial" sozinho não diz o que fazer a respeito.
+                    <span title={LOCAL_EXPLICACAO[sit]}>
+                      <Chip tone={LOCAL_TOM[sit]}>{LOCAL_CURTO[sit]}</Chip>
+                    </span>
+                  );
+                })()}
               </td>
               <td className="px-4 py-2.5">
                 <Chip tone={f.medium === "digital" ? "bom" : "neutro"}>{rotuloDoFormato(f.kind)}</Chip>

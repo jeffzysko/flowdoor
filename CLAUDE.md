@@ -200,6 +200,13 @@ base nova, schema novo.
    mesma resposta para token inexistente e token queimado. Sem essa amarra,
    desligar a confirmação de e-mail deixaria entrar conta com endereço nunca
    verificado.
+27. **A confiança na coordenada é informação de tela, não detalhe técnico.**
+   Seis valores de `geo_precision` viram três na interface
+   (`src/lib/domain/localizacao.ts`): **confere** (trava a chegada), **parcial**
+   (não trava; espera o campo confirmar) e **sem local**. O operador não
+   precisa saber se veio do Places ou do Geocoding — precisa saber se pode
+   mandar alguém para lá. Coluna "Local" na lista do inventário, bloco
+   explicando o porquê no detalhe do ponto, e contagem no topo.
 26. **Valor de banco não aparece na tela como está.** No Postgres os valores
    não têm acento nem espaço — `em_renovacao`, `aguardando_validacao`,
    `painel_rodoviario`. `src/lib/domain/rotulos.ts` é o único lugar onde isso

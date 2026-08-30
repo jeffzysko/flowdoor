@@ -8,6 +8,9 @@ import { EditarPonto, type Ponto } from "./EditarPonto";
 import { Faces, type Face } from "./Faces";
 import { rotuloDoFormato } from "@/lib/domain/formatos";
 import { rotulo } from "@/lib/domain/rotulos";
+import {
+  situacaoDoLocal, LOCAL_ROTULO, LOCAL_TOM, LOCAL_EXPLICACAO, LOCAL_ORIGEM,
+} from "@/lib/domain/localizacao";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Ponto" };
@@ -41,7 +44,8 @@ export default async function PontoPage({
     .select(
       "id, code, address, district, city, state, latitude, longitude, status, " +
         "owner_name, owner_contact, lease_ends_on, lease_monthly_cost, " +
-        "license_number, license_expires_on, license_state, notes"
+        "license_number, license_expires_on, license_state, notes, " +
+        "geo_precision, geo_source, geo_query, geo_updated_at, geo_arrivals"
     )
     .eq("id", id)
     .single();
@@ -135,7 +139,7 @@ export default async function PontoPage({
             contrato até {d(ponto.lease_ends_on)}
           </span>
         )}
-        {ponto.latitude && ponto.longitude ? (
+        {ponto.latitude && ponto.longitude && (
           <a
             className="font-mono text-xs text-accent underline underline-offset-4"
             href={`https://www.google.com/maps/search/?api=1&query=${ponto.latitude},${ponto.longitude}`}
@@ -144,10 +148,47 @@ export default async function PontoPage({
           >
             {Number(ponto.latitude).toFixed(5)}, {Number(ponto.longitude).toFixed(5)}
           </a>
-        ) : (
-          <Chip tone="risco">sem coordenada</Chip>
         )}
       </div>
+
+      {/* A confiança na coordenada decide se a chegada do aplicador é travada.
+          Sem isso na tela, "parcial" e "confere" pareciam a mesma coisa. */}
+      {(() => {
+        const sit = situacaoDoLocal(ponto.geo_precision, ponto.latitude != null);
+        const origem = ponto.geo_source ? LOCAL_ORIGEM[ponto.geo_source] : null;
+        return (
+          <section
+            className={
+              "mt-5 border px-5 py-4 " +
+              (sit === "confere"
+                ? "border-accent/30 bg-accent-soft"
+                : sit === "parcial"
+                  ? "border-warn/30 bg-warn/5"
+                  : "border-danger/30 bg-danger/5")
+            }
+          >
+            <div className="flex flex-wrap items-center gap-2">
+              <Chip tone={LOCAL_TOM[sit]}>{LOCAL_ROTULO[sit]}</Chip>
+              {ponto.geo_arrivals > 0 && (
+                <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-3">
+                  {ponto.geo_arrivals} chegada(s) confirmaram
+                </span>
+              )}
+            </div>
+
+            <p className="mt-2 text-sm text-ink-2">{LOCAL_EXPLICACAO[sit]}</p>
+
+            {ponto.geo_query && (
+              <p className="mt-2 text-xs text-ink-3">
+                Encontrado por {origem ?? ponto.geo_source} — buscamos{" "}
+                <span className="font-mono">{ponto.geo_query}</span>.
+                {sit === "parcial" &&
+                  " Se este não é o lugar, corrija a coordenada abaixo: coordenada digitada à mão passa a valer e trava a chegada."}
+              </p>
+            )}
+          </section>
+        );
+      })()}
 
       {!ponto.latitude && (
         <p className="mt-4 border border-warn/40 bg-warn/5 px-4 py-3 text-sm text-warn">

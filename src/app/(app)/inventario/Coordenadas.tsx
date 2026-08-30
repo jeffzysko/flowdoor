@@ -2,58 +2,70 @@
 
 import { useActionState } from "react";
 import { buscarCoordenadasEmLote } from "./actions";
+import { Chip } from "@/components/ui";
+import { LOCAL_ROTULO, LOCAL_TOM, LOCAL_EXPLICACAO } from "@/lib/domain/localizacao";
 
 const inicial = { ok: false } as { ok: boolean; message?: string };
 
 /**
- * Aparece só quando há ponto sem coordenada confiável. O cliente entrega a
- * lista com endereço e ponto de referência, nunca com latitude — quem produz
- * a coordenada é o sistema, e é daqui.
+ * Painel de situação do local, no topo do inventário.
+ *
+ * O cliente entrega a lista com endereço e ponto de referência; latitude ele
+ * nunca tem. Quem produz a coordenada é o sistema — e o operador precisa ver,
+ * de relance, em quantos pontos ela vale o bastante para travar a chegada.
  */
 export function Coordenadas({
   orgId,
-  semCoordenada,
-  aproximados,
+  conferem,
+  parciais,
+  semLocal,
 }: {
   orgId: string;
-  semCoordenada: number;
-  aproximados: number;
+  conferem: number;
+  parciais: number;
+  semLocal: number;
 }) {
   const [state, action, pendente] = useActionState(buscarCoordenadasEmLote, inicial);
-
-  if (semCoordenada === 0 && aproximados === 0 && !state.message) return null;
+  const faltam = parciais + semLocal;
 
   return (
     <section className="mt-6 border border-line bg-surface p-5">
-      <h2 className="text-lg font-bold">Coordenadas dos pontos</h2>
-      <p className="mt-1 text-sm text-ink-2">
-        {semCoordenada > 0 ? (
-          <>
-            <strong>{semCoordenada}</strong> ponto(s) ainda sem coordenada.
-            Enquanto isso, a chegada do aplicador não trava neles.
-          </>
-        ) : (
-          <>Todos os pontos têm coordenada.</>
-        )}{" "}
-        {aproximados > 0 && (
-          <>
-            Outros <strong>{aproximados}</strong> estão com coordenada aproximada:
-            valem para o mapa, mas só travam a chegada depois que as aplicações
-            reais confirmarem o lugar.
-          </>
-        )}
+      <h2 className="text-lg font-bold">Localização dos pontos</h2>
+
+      <div className="mt-3 flex flex-wrap gap-4">
+        {(
+          [
+            ["confere", conferem],
+            ["parcial", parciais],
+            ["ausente", semLocal],
+          ] as const
+        ).map(([sit, n]) => (
+          <div key={sit} className="flex items-center gap-2" title={LOCAL_EXPLICACAO[sit]}>
+            <span className="text-2xl font-bold tabular-nums">{n}</span>
+            <Chip tone={LOCAL_TOM[sit]}>{LOCAL_ROTULO[sit]}</Chip>
+          </div>
+        ))}
+      </div>
+
+      <p className="mt-3 max-w-3xl text-sm text-ink-2">
+        Só o que <strong>confere</strong> trava a chegada do aplicador. O que está{" "}
+        <strong>parcial</strong> aparece no mapa e é vendável, mas a conferência de
+        local fica desligada até três aplicações caírem agrupadas no mesmo lugar —
+        aí a coordenada real substitui a estimada sozinha.
       </p>
 
-      <form action={action} className="mt-4">
-        <input type="hidden" name="orgId" value={orgId} />
-        <button
-          type="submit"
-          disabled={pendente}
-          className="bg-accent px-5 py-2.5 font-medium text-white disabled:opacity-50"
-        >
-          {pendente ? "Buscando…" : "Buscar coordenadas"}
-        </button>
-      </form>
+      {faltam > 0 && (
+        <form action={action} className="mt-4">
+          <input type="hidden" name="orgId" value={orgId} />
+          <button
+            type="submit"
+            disabled={pendente}
+            className="bg-accent px-5 py-2.5 font-medium text-white disabled:opacity-50"
+          >
+            {pendente ? "Buscando…" : "Buscar coordenadas"}
+          </button>
+        </form>
+      )}
 
       {state.message && (
         <p

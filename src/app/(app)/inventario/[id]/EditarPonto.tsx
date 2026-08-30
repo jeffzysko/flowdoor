@@ -24,6 +24,13 @@ export interface Ponto {
   license_expires_on: string | null;
   license_state: string;
   notes: string | null;
+  // De onde veio a coordenada e o quanto ela vale. É isso que decide se a
+  // chegada do aplicador é travada por ela.
+  geo_precision: string;
+  geo_source: string | null;
+  geo_query: string | null;
+  geo_updated_at: string | null;
+  geo_arrivals: number;
 }
 
 export function EditarPonto({ ponto, podeExcluir }: { ponto: Ponto; podeExcluir: boolean }) {
