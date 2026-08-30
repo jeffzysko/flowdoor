@@ -179,3 +179,32 @@ export async function criarConvite(
         : "O convite foi criado, mas o e-mail não saiu. Mande o link abaixo à mão.",
   };
 }
+
+/**
+ * Cancela um convite que ainda não foi aceito. O link vale 14 dias e é o
+ * segredo — e-mail digitado errado precisa de um jeito de desligar.
+ */
+export async function cancelarConvite(
+  _prev: { ok: boolean; message?: string },
+  formData: FormData
+): Promise<{ ok: boolean; message?: string }> {
+  const id = String(formData.get("id") ?? "");
+  if (!id) return { ok: false, message: "Convite não informado." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("revoke_invitation", { p_id: id });
+
+  if (error) {
+    return {
+      ok: false,
+      message: error.message.includes("sem permissao")
+        ? "Você não tem permissão para cancelar convites aqui."
+        : error.message.includes("ja foi aceito")
+          ? "Esse convite já foi aceito. Para tirar a pessoa da equipe, desative o vínculo dela."
+          : "Não foi possível cancelar o convite.",
+    };
+  }
+
+  revalidatePath("/equipe");
+  return { ok: true };
+}

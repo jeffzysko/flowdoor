@@ -268,6 +268,10 @@ real: DKIM `pass` com `header.i=@flowdoor.com.br`, SPF `pass` por
   devolve o link do mesmo jeito. Falha de envio nunca invalida o convite: vira
   aviso na tela e o link continua ali para mandar à mão. Sem `RESEND_API_KEY`
   o comportamento é exatamente esse. O link é o segredo. Trate como senha.
+- `revoke_invitation(id)` cancela um convite pendente — e-mail digitado errado
+  é um link válido por 14 dias, precisa de desligamento. Não apaga a linha:
+  convite cancelado é histórico. Convite já aceito não cancela; o caminho é
+  desativar o vínculo do membro.
 - `/recuperar-senha` precisa estar em `PUBLIC_PREFIXES` no
   `src/lib/supabase/middleware.ts` — quem pede o link não tem sessão.
 - `NEXT_PUBLIC_SITE_URL` é `https://www.flowdoor.com.br`. Com `www`, com

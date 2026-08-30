@@ -6,6 +6,7 @@ import { ROLE_LABEL } from "@/lib/domain/permissions";
 import type { MemberRole } from "@/lib/domain/types";
 import { canManageTeam } from "@/lib/domain/permissions";
 import { ConvidarMembro } from "./ConvidarMembro";
+import { CancelarConvite } from "./CancelarConvite";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Equipe" };
@@ -30,14 +31,13 @@ export default async function EquipePage() {
 
   const equipe = (members ?? []) as unknown as M[];
   const pendentes = (invites ?? []) as I[];
+  const podeGerir = canManageTeam(ctx.current.role);
 
   return (
     <>
       <PageHead eyebrow="Pessoas" title="Equipe" lead="Quem vende, quem opera e quem vai à rua." />
 
-      {canManageTeam(ctx.current.role) && (
-        <ConvidarMembro orgId={ctx.current.org_id} />
-      )}
+      {podeGerir && <ConvidarMembro orgId={ctx.current.org_id} />}
 
       {equipe.length === 0 ? (
         <div className="mt-6"><Empty>Nenhum membro além de você.</Empty></div>
@@ -59,7 +59,7 @@ export default async function EquipePage() {
       {pendentes.length > 0 && (
         <section className="mt-10">
           <h2 className="text-xl font-bold tracking-tight">Convites pendentes</h2>
-          <Table head={["E-mail", "Nome", "Papel", "Expira em"]}>
+          <Table head={["E-mail", "Nome", "Papel", "Expira em", ""]}>
             {pendentes.map((i) => (
               <tr key={i.id} className="border-b border-line last:border-0">
                 <td className="px-4 py-2.5">{i.email}</td>
@@ -67,6 +67,9 @@ export default async function EquipePage() {
                 <td className="px-4 py-2.5">{ROLE_LABEL[i.role]}</td>
                 <td className="px-4 py-2.5 font-mono text-xs">
                   {new Date(i.expires_at).toLocaleDateString("pt-BR")}
+                </td>
+                <td className="px-4 py-2.5 text-right">
+                  {podeGerir && <CancelarConvite id={i.id} email={i.email} />}
                 </td>
               </tr>
             ))}
