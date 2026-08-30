@@ -37,9 +37,9 @@ export default function EntrarPage() {
             A peça está no ar. Com hora, coordenada e foto.
           </p>
           <p className="mt-4 text-white/70">
-            Cada aplicação abre pela leitura do QR fixado no ponto e registra a
-            posição do aparelho na chegada. O comprovante que o anunciante
-            recebe não é uma foto solta no WhatsApp.
+            Cada aplicação registra a posição do aparelho na chegada e sai com a
+            foto carimbada com data, hora e coordenada. O comprovante que o
+            anunciante recebe não é uma foto solta no WhatsApp.
           </p>
         </blockquote>
       </aside>

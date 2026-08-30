@@ -19,7 +19,6 @@ type Evento = {
   scheduled_for: string | null;
   started_at: string | null;
   finished_at: string | null;
-  qr_token: string;
   faces: { code: string; sites: { address: string; city: string } | null } | null;
   profiles: { full_name: string } | null;
 };
@@ -43,7 +42,7 @@ export default async function PedidoPage({
       .single(),
     supabase
       .from("field_events")
-      .select("id, status, scheduled_for, started_at, finished_at, qr_token, faces(code, sites(address, city)), profiles(full_name)")
+      .select("id, status, scheduled_for, started_at, finished_at, faces(code, sites(address, city)), profiles(full_name)")
       .eq("order_id", id)
       .order("scheduled_for", { ascending: true, nullsFirst: false }),
     supabase.from("proofs").select("public_token, published_at").eq("order_id", id).maybeSingle(),

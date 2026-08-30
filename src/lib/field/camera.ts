@@ -22,6 +22,75 @@ export interface Capture {
   sharpness: number; // 0..1, quanto maior melhor
 }
 
+/** O que vai carimbado na imagem. */
+export interface Carimbo {
+  quando: Date;
+  faceCode?: string;
+  endereco?: string;
+  cidade?: string;
+  pedido?: string;
+  lat?: number | null;
+  lng?: number | null;
+}
+
+/**
+ * Escreve data, hora, ponto e coordenada na própria imagem.
+ *
+ * O registro que vale juridicamente é o do servidor — hora de chegada, GPS e
+ * snapshot imutável. O carimbo resolve outro problema: a foto sai do sistema
+ * por WhatsApp, PDF e impressão, e fora daqui ela precisa se explicar sozinha.
+ */
+function carimbar(
+  ctx: CanvasRenderingContext2D,
+  w: number,
+  h: number,
+  c: Carimbo
+) {
+  const escala = w / 1600;
+  const pad = Math.round(22 * escala);
+  const linha1 = Math.round(34 * escala);
+  const linha2 = Math.round(22 * escala);
+  const altura = pad * 2 + linha1 + linha2 * 2 + Math.round(10 * escala);
+
+  const grad = ctx.createLinearGradient(0, h - altura * 1.6, 0, h);
+  grad.addColorStop(0, "rgba(0,0,0,0)");
+  grad.addColorStop(0.45, "rgba(0,0,0,0.55)");
+  grad.addColorStop(1, "rgba(0,0,0,0.82)");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, h - altura * 1.6, w, altura * 1.6);
+
+  const data = c.quando.toLocaleDateString("pt-BR", {
+    day: "2-digit", month: "2-digit", year: "numeric",
+  });
+  const hora = c.quando.toLocaleTimeString("pt-BR", {
+    hour: "2-digit", minute: "2-digit", second: "2-digit",
+  });
+
+  ctx.textBaseline = "alphabetic";
+  ctx.fillStyle = "#ffffff";
+  ctx.font = `700 ${linha1}px ui-monospace, "SF Mono", Menlo, monospace`;
+  ctx.fillText(`${data}  ${hora}`, pad, h - pad - linha2 * 2 - Math.round(8 * escala));
+
+  ctx.font = `500 ${linha2}px ui-monospace, "SF Mono", Menlo, monospace`;
+  ctx.fillStyle = "rgba(255,255,255,0.92)";
+
+  const local = [c.faceCode, c.endereco, c.cidade].filter(Boolean).join(" · ");
+  if (local) ctx.fillText(local, pad, h - pad - linha2 - Math.round(4 * escala));
+
+  const coord =
+    c.lat != null && c.lng != null
+      ? `${c.lat.toFixed(5)}, ${c.lng.toFixed(5)}`
+      : "sem coordenada";
+  ctx.fillStyle = "rgba(255,255,255,0.75)";
+  ctx.fillText([coord, c.pedido].filter(Boolean).join("  ·  "), pad, h - pad);
+
+  // marca discreta na direita, para a foto se identificar fora do sistema
+  ctx.font = `700 ${linha2}px ui-monospace, "SF Mono", Menlo, monospace`;
+  ctx.fillStyle = "rgba(255,255,255,0.55)";
+  const marca = "FLOWDOOR";
+  ctx.fillText(marca, w - pad - ctx.measureText(marca).width, h - pad);
+}
+
 export async function startCamera(video: HTMLVideoElement): Promise<MediaStream> {
   const stream = await navigator.mediaDevices.getUserMedia({
     video: {
@@ -75,7 +144,10 @@ function estimateSharpness(data: ImageData): number {
   return Math.max(0, Math.min(1, variance / 120));
 }
 
-export async function capture(video: HTMLVideoElement): Promise<Capture> {
+export async function capture(
+  video: HTMLVideoElement,
+  carimbo?: Carimbo
+): Promise<Capture> {
   const vw = video.videoWidth;
   const vh = video.videoHeight;
   if (!vw || !vh) throw new Error("Câmera ainda não está pronta.");
@@ -111,6 +183,9 @@ export async function capture(video: HTMLVideoElement): Promise<Capture> {
   const sharpness = estimateSharpness(
     sctx.getImageData(0, 0, sample.width, sample.height)
   );
+
+  // o carimbo entra depois da medição de nitidez, para não influenciá-la
+  if (carimbo) carimbar(ctx, outW, outH, carimbo);
 
   const blob = await new Promise<Blob | null>((resolve) =>
     canvas.toBlob(resolve, "image/jpeg", TARGET_QUALITY)

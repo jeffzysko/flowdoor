@@ -198,8 +198,8 @@ export default async function ProofPage({
           {snap.org?.name ?? "Flowdoor"} via Flowdoor.
         </p>
         <p className="mt-1">
-          Cada aplicação foi aberta por leitura do QR fixado no ponto, com
-          coordenada capturada no aparelho do aplicador no momento da chegada.
+          Cada aplicação registrou a coordenada do aparelho do aplicador no momento
+          da chegada, e a foto foi conferida contra a arte aprovada da campanha.
         </p>
       </footer>
     </main>

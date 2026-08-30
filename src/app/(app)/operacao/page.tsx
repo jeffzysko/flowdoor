@@ -34,7 +34,7 @@ export default async function OperacaoPage() {
       <PageHead
         eyebrow="Operação"
         title="Pedidos"
-        lead="Cada face reservada vira uma aplicação com QR, coordenada e foto."
+        lead="Cada face reservada vira uma aplicação com coordenada, horário e foto conferida."
         action={
           canSell(ctx.current.role) ? (
             <Link

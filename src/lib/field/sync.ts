@@ -10,7 +10,6 @@ import {
 
 /** Erros que não adiantam repetir: o servidor já decidiu. */
 const PERMANENT = [
-  "QR não confere",
   "não pertence a você",
   "já concluído",
   "evento não encontrado",
@@ -25,7 +24,6 @@ async function send(item: QueueItem): Promise<void> {
   if (item.action === "start") {
     const { error } = await supabase.rpc("field_start", {
       p_event: item.eventId,
-      p_qr: item.payload.qr,
       p_lat: item.payload.lat,
       p_lng: item.payload.lng,
       p_accuracy: item.payload.accuracy ?? null,

@@ -155,8 +155,8 @@ export function NovoPedido({
         </p>
         <h1 className="mt-2 font-mono text-3xl font-bold">{state.code}</h1>
         <p className="mt-2 text-ink-2">
-          As faces foram reservadas e cada uma virou uma aplicação com QR próprio
-          na agenda do aplicador.
+          As faces foram reservadas e cada uma entrou na fila do aplicador, uma
+          parada por vez.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link

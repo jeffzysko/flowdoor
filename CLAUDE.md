@@ -28,7 +28,16 @@ base nova, schema novo.
    consumer. Papel de plataforma vive em `platform_admins`, fora das orgs.
 3. **`field_events` é genérico.** Tipo: aplicação, vistoria, retirada, troca,
    manutenção, registro. Mesmo QR, mesmo GPS, mesma câmera.
-9. **Campo é fila, não lista.** O aplicador e o fotógrafo veem UMA parada por
+9. **Não existe QR nas estruturas.** Nunca existiu, e manter etiqueta em
+   centenas de pontos na rua não se sustenta. A prova de presença é a
+   **coordenada do aparelho na chegada**, conferida contra a coordenada do
+   ponto, mais a foto carimbada. A coluna `field_events.qr_token` continua lá
+   mas não é exigida por ninguém.
+10. **A foto sai carimbada** com data, hora, ponto e coordenada, desenhadas na
+   própria imagem em `src/lib/field/camera.ts`. O carimbo não é prova contra
+   fraude — quem prova é o registro do servidor. Ele existe porque a foto sai
+   do sistema por WhatsApp e PDF, e fora daqui precisa se explicar sozinha.
+11. **Campo é fila, não lista.** O aplicador e o fotógrafo veem UMA parada por
    vez (`my_next_stop`). A próxima só destrava quando a foto da atual é
    validada. Três conferências, ligáveis por empresa em
    `field_validation_settings`: local (raio em metros do ponto), horário

@@ -27,7 +27,6 @@ export interface QueueItem {
   attempts: number;
   lastError?: string;
   payload: {
-    qr?: string;
     lat: number | null;
     lng: number | null;
     accuracy?: number | null;

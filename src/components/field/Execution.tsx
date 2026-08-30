@@ -2,7 +2,14 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { capture, getPosition, startCamera, stopCamera, type Capture } from "@/lib/field/camera";
+import {
+  capture,
+  getPosition,
+  startCamera,
+  stopCamera,
+  type Capture,
+  type Carimbo,
+} from "@/lib/field/camera";
 import { enqueue, newKey } from "@/lib/field/queue";
 import { flushQueue } from "@/lib/field/sync";
 
@@ -13,26 +20,35 @@ interface Props {
   orgId: string;
   status: string;
   startedAt: string | null;
-  precisaQr?: boolean;
+  precisaChegada?: boolean;
+  carimbo?: Omit<Carimbo, "quando" | "lat" | "lng">;
 }
 
 // abaixo disso a foto costuma sair tremida demais para virar comprovante
 const NITIDEZ_MINIMA = 0.35;
 
-export function Execution({ eventId, orgId, status, startedAt, precisaQr = true }: Props) {
+export function Execution({
+  eventId,
+  orgId,
+  status,
+  startedAt,
+  precisaChegada = true,
+  carimbo,
+}: Props) {
   const router = useRouter();
   const [etapa, setEtapa] = useState<Etapa>(
     status === "concluido"
       ? "pronto"
       : status === "aguardando_validacao"
         ? "pronto"
-        : startedAt || !precisaQr
+        : startedAt || !precisaChegada
           ? "execucao"
           : "chegada"
   );
   const [erro, setErro] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
-  const [qr, setQr] = useState("");
+  const [aviso, setAviso] = useState<string | null>(null);
+  const [posicao, setPosicao] = useState<{ lat: number; lng: number } | null>(null);
   const [notas, setNotas] = useState("");
   const [foto, setFoto] = useState<Capture | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -48,12 +64,14 @@ export function Execution({ eventId, orgId, status, startedAt, precisaQr = true 
   }, [previewUrl]);
 
   // ---------------------------------------------------------- chegada
+  /**
+   * Não há QR nas estruturas, e manter etiqueta em centenas de pontos na rua
+   * não se sustenta. A chegada é provada pela coordenada do aparelho,
+   * conferida contra a coordenada cadastrada do ponto.
+   */
   const registrarChegada = useCallback(async () => {
     setErro(null);
-    if (!qr.trim()) {
-      setErro("Leia ou digite o código do QR fixado no ponto.");
-      return;
-    }
+    setAviso(null);
     setOcupado(true);
 
     try {
@@ -66,12 +84,11 @@ export function Execution({ eventId, orgId, status, startedAt, precisaQr = true 
         lat = pos.lat;
         lng = pos.lng;
         accuracy = pos.accuracy;
+        setPosicao({ lat, lng });
       } catch (e) {
-        // Sem GPS o registro ainda vale — mas o comprovante fica mais fraco,
-        // então avisamos em vez de bloquear o trabalho.
-        setErro(
+        setAviso(
           (e instanceof Error ? e.message : "Sem localização.") +
-            " A chegada foi registrada sem coordenada."
+            " A chegada foi registrada sem coordenada — a conferência vai apontar isso."
         );
       }
 
@@ -80,7 +97,7 @@ export function Execution({ eventId, orgId, status, startedAt, precisaQr = true 
         action: "start",
         eventId,
         orgId,
-        payload: { qr: qr.trim(), lat, lng, accuracy },
+        payload: { lat, lng, accuracy },
       });
 
       await flushQueue();
@@ -91,7 +108,7 @@ export function Execution({ eventId, orgId, status, startedAt, precisaQr = true 
     } finally {
       setOcupado(false);
     }
-  }, [qr, eventId, orgId, router]);
+  }, [eventId, orgId, router]);
 
   // ------------------------------------------------------------ câmera
   const abrirCamera = useCallback(async () => {
@@ -116,7 +133,13 @@ export function Execution({ eventId, orgId, status, startedAt, precisaQr = true 
     setErro(null);
     try {
       if (!videoRef.current) return;
-      const shot = await capture(videoRef.current);
+      const pos = posicao ?? (await getPosition(6000).catch(() => null));
+      const shot = await capture(videoRef.current, {
+        ...carimbo,
+        quando: new Date(),
+        lat: pos?.lat ?? null,
+        lng: pos?.lng ?? null,
+      });
       stopCamera(streamRef.current);
       streamRef.current = null;
 
@@ -127,7 +150,7 @@ export function Execution({ eventId, orgId, status, startedAt, precisaQr = true 
     } catch (e) {
       setErro(e instanceof Error ? e.message : "Falha ao capturar.");
     }
-  }, [previewUrl]);
+  }, [previewUrl, posicao, carimbo]);
 
   // ---------------------------------------------------------- conclusão
   const concluir = useCallback(async () => {
@@ -192,55 +215,45 @@ export function Execution({ eventId, orgId, status, startedAt, precisaQr = true 
   return (
     <section className="mt-8">
       {erro && (
-        <p
-          role="alert"
-          className="mb-4 border border-warn/30 bg-warn/5 px-4 py-3 text-sm text-warn"
-        >
+        <p role="alert" className="mb-4 border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger">
           {erro}
+        </p>
+      )}
+      {aviso && (
+        <p role="status" className="mb-4 border border-warn/30 bg-warn/5 px-4 py-3 text-sm text-warn">
+          {aviso}
         </p>
       )}
 
       {etapa === "chegada" && (
         <>
-          <h2 className="text-lg font-bold">1. Confirme que está no ponto</h2>
+          <h2 className="text-lg font-bold">1. Confirme que chegou</h2>
           <p className="mt-1 text-sm text-ink-2">
-            Leia o QR fixado na estrutura. A coordenada do aparelho é registrada
-            junto — é o que sustenta o comprovante.
+            A localização do seu aparelho é registrada agora e comparada com a
+            coordenada do ponto. É o que sustenta o comprovante do anunciante.
           </p>
-
-          <QrReader onRead={setQr} onError={setErro} />
-
-          <label className="mt-4 block">
-            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">
-              Código do QR
-            </span>
-            <input
-              value={qr}
-              onChange={(e) => setQr(e.target.value)}
-              inputMode="text"
-              autoCapitalize="none"
-              autoCorrect="off"
-              placeholder="cole ou digite se a leitura falhar"
-              className="mt-1 w-full border border-line bg-surface px-3 py-3 font-mono outline-none focus:border-accent"
-            />
-          </label>
 
           <button
             onClick={registrarChegada}
             disabled={ocupado}
-            className="mt-5 w-full bg-accent px-4 py-4 text-lg font-medium text-white disabled:opacity-50"
+            className="mt-6 w-full bg-accent px-4 py-5 text-lg font-medium text-white disabled:opacity-50"
           >
-            {ocupado ? "Registrando…" : "Registrar chegada"}
+            {ocupado ? "Registrando…" : "Cheguei no ponto"}
           </button>
+
+          <p className="mt-3 text-center text-xs text-ink-3">
+            Deixe o GPS ligado e espere alguns segundos ao ar livre para a
+            posição ficar precisa.
+          </p>
         </>
       )}
 
       {etapa === "execucao" && (
         <>
-          <h2 className="text-lg font-bold">2. Aplique a peça</h2>
+          <h2 className="text-lg font-bold">2. Faça o serviço e fotografe</h2>
           <p className="mt-1 text-sm text-ink-2">
-            Quando terminar, fotografe a face inteira. A moldura já vem na
-            proporção do outdoor.
+            Enquadre a face inteira. A moldura vem na proporção do outdoor, e a
+            foto sai carimbada com data, hora, ponto e coordenada.
           </p>
           <button
             onClick={abrirCamera}
@@ -344,101 +357,11 @@ export function Execution({ eventId, orgId, status, startedAt, precisaQr = true 
               disabled={ocupado}
               className="flex-[2] bg-accent px-4 py-4 text-lg font-medium text-white disabled:opacity-50"
             >
-              {ocupado ? "Enviando…" : "Concluir aplicação"}
+              {ocupado ? "Enviando…" : "Enviar para conferência"}
             </button>
           </div>
         </>
       )}
     </section>
-  );
-}
-
-/**
- * Leitura de QR pelo BarcodeDetector nativo quando existe. Sem biblioteca:
- * onde não houver, o campo manual assume — o aplicador nunca fica travado.
- */
-function QrReader({
-  onRead,
-  onError,
-}: {
-  onRead: (v: string) => void;
-  onError: (v: string) => void;
-}) {
-  const [suportado, setSuportado] = useState(false);
-  const [lendo, setLendo] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const raf = useRef<number | null>(null);
-
-  useEffect(() => {
-    setSuportado("BarcodeDetector" in globalThis);
-    return () => {
-      if (raf.current) cancelAnimationFrame(raf.current);
-      stopCamera(streamRef.current);
-    };
-  }, []);
-
-  const parar = useCallback(() => {
-    if (raf.current) cancelAnimationFrame(raf.current);
-    raf.current = null;
-    stopCamera(streamRef.current);
-    streamRef.current = null;
-    setLendo(false);
-  }, []);
-
-  const ler = useCallback(async () => {
-    setLendo(true);
-    try {
-      await new Promise((r) => setTimeout(r, 60));
-      if (!videoRef.current) return;
-      streamRef.current = await startCamera(videoRef.current);
-
-      // @ts-expect-error API nativa ainda sem tipos no lib.dom
-      const detector = new BarcodeDetector({ formats: ["qr_code"] });
-
-      const tick = async () => {
-        if (!videoRef.current || !streamRef.current) return;
-        try {
-          const found = await detector.detect(videoRef.current);
-          if (found?.length) {
-            onRead(String(found[0].rawValue ?? "").trim());
-            parar();
-            return;
-          }
-        } catch {
-          /* frame ruim, tenta o próximo */
-        }
-        raf.current = requestAnimationFrame(tick);
-      };
-      raf.current = requestAnimationFrame(tick);
-    } catch {
-      onError("Não consegui abrir a câmera para ler o QR. Digite o código.");
-      parar();
-    }
-  }, [onRead, onError, parar]);
-
-  if (!suportado) return null;
-
-  return (
-    <div className="mt-4">
-      {!lendo ? (
-        <button
-          onClick={ler}
-          className="w-full border border-accent bg-accent-soft px-4 py-3 font-medium text-accent"
-        >
-          Ler QR com a câmera
-        </button>
-      ) : (
-        <div className="relative overflow-hidden border border-line">
-          <video ref={videoRef} playsInline muted className="aspect-square w-full object-cover" />
-          <button
-            onClick={parar}
-            className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/70 px-4 py-2 font-mono text-xs text-white"
-          >
-            Parar leitura
-          </button>
-        </div>
-      )}
-    </div>
   );
 }

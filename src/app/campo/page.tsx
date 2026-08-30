@@ -14,7 +14,6 @@ type Parada = {
   id?: string;
   kind?: string;
   status?: string;
-  qr_token?: string;
   scheduled_for?: string | null;
   estimated_minutes?: number | null;
   rejected_reason?: string | null;
@@ -183,7 +182,13 @@ export default async function CampoPage() {
             orgId={orgId}
             status={p.status!}
             startedAt={p.status === "pendente" ? null : "iniciado"}
-            precisaQr={p.status === "pendente"}
+            precisaChegada={p.status === "pendente"}
+            carimbo={{
+              faceCode: p.face_code,
+              endereco: p.address,
+              cidade: p.city ? `${p.city}/${p.state}` : undefined,
+              pedido: p.order_code ?? undefined,
+            }}
           />
         </>
       )}
