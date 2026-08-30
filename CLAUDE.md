@@ -226,3 +226,42 @@ magic link **não saem por e-mail**. O caminho que funciona:
 - Auditoria por amostragem: uma fatia das aplicações roteada para uma segunda
   pessoa conferir em campo. Não é software, é processo — e é o único controle
   que muda comportamento em vez de só detectar.
+
+### Achados da auditoria de 30/08 — colunas que o esquema promete e o produto não cumpre
+
+Uma coluna com zero referências no código é uma promessa não cumprida. Estas
+são as que a auditoria encontrou, e nenhuma delas é óbvia olhando as telas:
+
+- **Financeiro não existe.** `orders.total_amount` e `faces.base_price` têm
+  zero referências. Um pedido não carrega valor. `sites.lease_monthly_cost` é
+  só exibido em `/ativos`. Os dois lados da margem estão no banco e não se
+  encontram.
+- **`org_relationships` tem 0 linhas, 0 telas, 0 referências.** Agência e
+  representação foram a decisão nº 2 da arquitetura, o RLS já respeita a
+  relação, e não há nenhum jeito de criar uma. Na prática o sistema é
+  single-tenant.
+- **Reserva com validade nunca foi ligada.** `bookings.kind = 'opcao'` e
+  `hold_expires_at` existem; nada cria uma opção.
+- **Nada roda sozinho.** `expire_stale_holds()` existe e nunca é chamada;
+  `pg_cron` não está instalado. Licença e contrato vencendo aparecem em
+  `/ativos` e não avisam ninguém.
+- **`artwork_approved_at` / `artwork_approved_by` nunca são escritos.** O
+  anunciante não aprova a arte em lugar nenhum.
+- **`proofs.expires_on` e `revoked_at` não têm tela** — comprovante publicado
+  vale para sempre. E `proof_views` grava a visita do anunciante com zero
+  referências de leitura: o dado existe e ninguém vê.
+- **`category_exclusivity_rules` está vazia e não é consultada por nada.**
+- **Disponibilidade fala bi-semana, pedido fala data solta.**
+  `/disponibilidade` lê `periods`; `NovoPedido` não menciona período.
+- **Nenhuma edição.** Ponto, face, pedido e anunciante só têm tela de criação.
+- **Zero testes.** Sem vitest, jest ou playwright; `package.json` tem `lint` e
+  `typecheck` e não tem `test`.
+
+### Risco fora do código
+
+Rastreamento de trabalhador: o sistema grava coordenada, foto, horário,
+relógio do aparelho e um score de comportamento, sem aviso, consentimento ou
+política de retenção em lugar nenhum. No Brasil isso encosta em monitoramento
+de empregado e na LGPD ao mesmo tempo — coordenada e imagem são dado pessoal, e
+o score é decisão automatizada sobre uma pessoa. Não é parecer jurídico; é
+sinalização para não descobrir na primeira venda para empresa de porte.
