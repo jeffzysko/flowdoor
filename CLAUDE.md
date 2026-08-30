@@ -146,7 +146,16 @@ base nova, schema novo.
    fila crescer.
    `pending_reviews(org)` monta a lista; `review_photo` decide; recusar exige
    texto, porque ele vira o `rejected_reason` que a pessoa lê na rua.
-15. **`create or replace` no Supabase reaplica os default privileges** do schema
+15. **Inativar é a regra; excluir é a exceção.** `bookings.face_id` e
+   `field_events.face_id` são ON DELETE CASCADE — apagar uma face levaria
+   junto, em silêncio, as reservas, as aplicações e as fotos, inclusive as de
+   um comprovante já entregue ao anunciante, que pararia de abrir. Dois
+   gatilhos (`faces_no_delete_if_used`, `sites_no_delete_if_used`) recusam a
+   exclusão de qualquer ponto ou face com reserva, aplicação ou item de
+   pedido. **A trava é o gatilho, não a tela**: a interface esconde o botão
+   quando sabe que vai ser recusado, mas alguém pode vender a face enquanto a
+   página está aberta.
+16. **`create or replace` no Supabase reaplica os default privileges** do schema
    `public`, que dão EXECUTE para `anon` e `authenticated`. Toda vez que uma RPC
    for recriada, refaça os `revoke ... from public, anon`. Conferir depois com
    `get_advisors` ou `has_function_privilege('anon', oid, 'execute')`.
@@ -216,7 +225,6 @@ magic link **não saem por e-mail**. O caminho que funciona:
   ja existem; falta SMTP configurado no Supabase para o e-mail sair).
 - Financeiro, bonificação e exclusividade de categoria (tabela existe, regra não).
 - Recuperação de senha pela interface.
-- Edição de ponto/face depois de criados.
 - Aprovação de arte pelo cliente final.
 - Ordem da rota por proximidade de GPS. Hoje a sequência é a que a operação
   montou (`position`); o GPS libera, não escolhe.
@@ -253,7 +261,9 @@ são as que a auditoria encontrou, e nenhuma delas é óbvia olhando as telas:
 - **`category_exclusivity_rules` está vazia e não é consultada por nada.**
 - **Disponibilidade fala bi-semana, pedido fala data solta.**
   `/disponibilidade` lê `periods`; `NovoPedido` não menciona período.
-- **Nenhuma edição.** Ponto, face, pedido e anunciante só têm tela de criação.
+- **Edição parcial.** Ponto e face já se editam em `/inventario/[id]`, com
+  criação de face avulsa, mudança de status e exclusão. **Pedido e anunciante
+  continuam só com tela de criação.**
 - **Zero testes.** Sem vitest, jest ou playwright; `package.json` tem `lint` e
   `typecheck` e não tem `test`.
 

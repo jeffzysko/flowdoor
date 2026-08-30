@@ -1,3 +1,5 @@
+import Link from "next/link";
+import type { Route } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionContext } from "@/lib/domain/session";
@@ -12,7 +14,7 @@ type Face = {
   id: string; code: string; kind: string; medium: string;
   orientation: string | null; width_m: number | null; height_m: number | null;
   status: string;
-  sites: { code: string; address: string; district: string | null; city: string; state: string } | null;
+  sites: { id: string; code: string; address: string; district: string | null; city: string; state: string } | null;
 };
 
 export default async function InventarioPage() {
@@ -22,7 +24,7 @@ export default async function InventarioPage() {
   const supabase = await createClient();
   const { data } = await supabase
     .from("faces")
-    .select("id, code, kind, medium, orientation, width_m, height_m, status, sites(code, address, district, city, state)")
+    .select("id, code, kind, medium, orientation, width_m, height_m, status, sites(id, code, address, district, city, state)")
     .eq("org_id", ctx.current.org_id)
     .order("code");
 
@@ -34,7 +36,7 @@ export default async function InventarioPage() {
       <PageHead
         eyebrow="Inventário"
         title="Pontos e faces"
-        lead="O ponto é a estrutura. A face é o lado que se vende."
+        lead="O ponto é a estrutura. A face é o lado que se vende. Clique no endereço para abrir, corrigir ou somar faces."
       />
 
       {pode && <NovoPonto orgId={ctx.current.org_id} />}
@@ -53,7 +55,16 @@ export default async function InventarioPage() {
               <td className="px-4 py-2.5 font-mono text-xs">{f.code}</td>
               <td className="px-4 py-2.5 font-mono text-xs text-ink-3">{f.sites?.code}</td>
               <td className="px-4 py-2.5">
-                {f.sites?.address}
+                {f.sites?.id ? (
+                  <Link
+                    href={`/inventario/${f.sites.id}` as Route}
+                    className="underline decoration-line underline-offset-4 hover:decoration-accent"
+                  >
+                    {f.sites.address}
+                  </Link>
+                ) : (
+                  f.sites?.address
+                )}
                 <span className="block text-xs text-ink-3">
                   {f.sites?.district ? `${f.sites.district} · ` : ""}
                   {f.sites?.city}/{f.sites?.state}
