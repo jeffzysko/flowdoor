@@ -558,6 +558,13 @@ export async function buscarCoordenadasEmLote(
     };
   }
 
+  // A busca devolver o MESMO ponto para referências diferentes é chute, não
+  // acerto — e chute com selo de 'exata' arma a trava e barra o aplicador no
+  // lugar certo. Na dúvida, não trava.
+  const { data: rebaixados } = await supabase.rpc("demote_duplicate_coordinates", {
+    p_org: orgId,
+  });
+
   const { count: faltam } = await supabase
     .from("sites")
     .select("id", { count: "exact", head: true })
@@ -566,9 +573,13 @@ export async function buscarCoordenadasEmLote(
 
   revalidatePath("/inventario");
 
+  const duplicados = Number(rebaixados ?? 0);
   const partes = [
-    `${exatas} ponto(s) com coordenada exata — esses já travam a chegada`,
+    `${Math.max(exatas - duplicados, 0)} ponto(s) com coordenada exata — esses já travam a chegada`,
     aproximadas ? `${aproximadas} aproximado(s), que travam depois que o campo confirmar` : null,
+    duplicados
+      ? `${duplicados} caíram na mesma coordenada de outro ponto e viraram estimados`
+      : null,
     falhas ? `${falhas} sem resultado` : null,
     faltam ? `Faltam ${faltam}: clique de novo.` : null,
   ].filter(Boolean);
