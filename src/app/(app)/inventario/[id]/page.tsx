@@ -6,6 +6,7 @@ import { canManageInventory } from "@/lib/domain/permissions";
 import { Chip, Empty, PageHead } from "@/components/ui";
 import { EditarPonto, type Ponto } from "./EditarPonto";
 import { Faces, type Face } from "./Faces";
+import { rotuloDoFormato } from "@/lib/domain/formatos";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Ponto" };
@@ -180,7 +181,7 @@ export default async function PontoPage({
             {faces.map((f) => (
               <li key={f.id} className="flex flex-wrap items-center gap-3 border border-line bg-surface px-4 py-3">
                 <span className="font-mono text-sm">{f.code}</span>
-                <Chip tone={f.medium === "digital" ? "bom" : "neutro"}>{f.kind}</Chip>
+                <Chip tone={f.medium === "digital" ? "bom" : "neutro"}>{rotuloDoFormato(f.kind)}</Chip>
                 <Chip tone={f.status === "ativa" ? "bom" : "aviso"}>{f.status}</Chip>
               </li>
             ))}

@@ -6,6 +6,7 @@ import { getSessionContext } from "@/lib/domain/session";
 import { PageHead, Empty, Table, Chip } from "@/components/ui";
 import { NovoPonto } from "./NovoPonto";
 import { Coordenadas } from "./Coordenadas";
+import { rotuloDoFormato } from "@/lib/domain/formatos";
 import { canManageInventory } from "@/lib/domain/permissions";
 
 export const dynamic = "force-dynamic";
@@ -87,7 +88,7 @@ export default async function InventarioPage() {
                 </span>
               </td>
               <td className="px-4 py-2.5">
-                <Chip tone={f.medium === "digital" ? "bom" : "neutro"}>{f.kind}</Chip>
+                <Chip tone={f.medium === "digital" ? "bom" : "neutro"}>{rotuloDoFormato(f.kind)}</Chip>
               </td>
               <td className="px-4 py-2.5 font-mono text-xs">
                 {f.width_m && f.height_m ? `${f.width_m}×${f.height_m}m` : "—"}

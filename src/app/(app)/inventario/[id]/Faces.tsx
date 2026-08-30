@@ -3,20 +3,11 @@
 import { useActionState, useState } from "react";
 import { atualizarFace, criarFace, excluirFace, type FormState } from "../actions";
 import { Chip } from "@/components/ui";
+import { FACE_KIND, FACE_KIND_LABEL , rotuloDoFormato } from "@/lib/domain/formatos";
 
 const inicial: FormState = { ok: false };
 
-const TIPOS: [string, string][] = [
-  ["outdoor", "Outdoor"],
-  ["frontlight", "Frontlight"],
-  ["backlight", "Backlight"],
-  ["painel_led", "Painel LED"],
-  ["empena", "Empena"],
-  ["mupi", "Mupi"],
-  ["banca", "Banca"],
-  ["totem", "Totem"],
-  ["outro", "Outro"],
-];
+const TIPOS: [string, string][] = FACE_KIND.map((k) => [k, FACE_KIND_LABEL[k]]);
 
 export interface Face {
   id: string;
@@ -96,7 +87,7 @@ function LinhaFace({ face, siteId }: { face: Face; siteId: string }) {
       <li className="flex flex-wrap items-center justify-between gap-3 border border-line bg-surface px-4 py-3">
         <div className="flex flex-wrap items-center gap-3">
           <span className="font-mono text-sm font-medium">{face.code}</span>
-          <Chip tone={face.medium === "digital" ? "bom" : "neutro"}>{face.kind}</Chip>
+          <Chip tone={face.medium === "digital" ? "bom" : "neutro"}>{rotuloDoFormato(face.kind)}</Chip>
           <Chip tone={face.status === "ativa" ? "bom" : "aviso"}>{face.status}</Chip>
           <span className="font-mono text-xs text-ink-3">
             {face.width_m && face.height_m ? `${face.width_m}×${face.height_m} m` : "sem medida"}

@@ -1,7 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { geocodificarPonto, ehCoordenada } from "@/lib/geo/geocode";
+import { geocodificarPonto, ehCoordenada, referenciaDe } from "@/lib/geo/geocode";
+import { FACE_KIND } from "@/lib/domain/formatos";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 
@@ -17,11 +18,6 @@ const vazio = (v: unknown) => (v === "" || v === null ? undefined : v);
 const numero = () => z.preprocess(vazio, z.coerce.number().optional());
 const inteiro = () => z.preprocess(vazio, z.coerce.number().int().positive().optional());
 const texto = () => z.preprocess(vazio, z.string().optional());
-
-const FACE_KIND = [
-  "outdoor", "frontlight", "backlight", "painel_led",
-  "empena", "mupi", "banca", "totem", "outro",
-] as const;
 
 /** Traduz o que o Postgres devolve para algo que se lê na tela. */
 function traduzir(err: { message: string; hint?: string | null }): string {
@@ -429,7 +425,7 @@ export async function buscarCoordenada(
     endereco: site.address,
     // A referência costuma estar nas observações do ponto, que é onde a
     // descrição do cliente cai na importação.
-    referencia: site.notes ?? null,
+    referencia: referenciaDe(site.notes),
     cidade: site.city,
     uf: site.state,
   });
@@ -518,7 +514,7 @@ export async function buscarCoordenadasEmLote(
 
       const r = await geocodificarPonto({
         endereco: p.address,
-        referencia: p.notes ?? null,
+        referencia: referenciaDe(p.notes),
         cidade: p.city,
         uf: p.state,
       });

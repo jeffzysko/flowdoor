@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { criarPonto, type FormState } from "./actions";
+import { FACE_KIND, FACE_KIND_LABEL } from "@/lib/domain/formatos";
 
 const inicial: FormState = { ok: false };
 
@@ -68,13 +69,11 @@ export function NovoPonto({ orgId }: { orgId: string }) {
             defaultValue="outdoor"
             className="mt-1 w-full border border-line bg-surface px-3 py-2.5 outline-none focus:border-accent"
           >
-            {["outdoor", "frontlight", "backlight", "painel_led", "empena", "mupi", "banca", "totem", "outro"].map(
-              (k) => (
-                <option key={k} value={k}>
-                  {k}
-                </option>
-              )
-            )}
+            {FACE_KIND.map((k) => (
+              <option key={k} value={k}>
+                {FACE_KIND_LABEL[k]}
+              </option>
+            ))}
           </select>
         </label>
 

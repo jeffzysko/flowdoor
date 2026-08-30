@@ -200,6 +200,20 @@ base nova, schema novo.
    mesma resposta para token inexistente e token queimado. Sem essa amarra,
    desligar a confirmação de e-mail deixaria entrar conta com endereço nunca
    verificado.
+24. **A busca de lugar recebe a referência, não a descrição.** O Places
+   responde alguma coisa para qualquer texto — mandar "Painel rodoviário.
+   Rodovia BR 277 - próx. Igreja Rondinha - sentido Curitiba" faz ele
+   responder sobre a BR-277 e ignorar a igreja. Foi assim que quatro painéis
+   distintos vieram na mesma coordenada e a Balança de São Luiz do Purunã foi
+   parar a 20 km de onde deveria. `referenciaDe()` extrai o ponto de
+   referência da descrição, e o resultado só vira `exata` se o nome do lugar
+   devolvido tiver palavra em comum com o que foi pedido. **Coordenada
+   repetida entre pontos diferentes é sinal de palpite**: cai para `estimada`
+   e volta para a fila.
+25. **Formatos de face num lugar só** (`src/lib/domain/formatos.ts`). A lista
+   estava repetida em três telas, e foi assim que top sight e painel
+   rodoviário ficaram de fora — o mercado trata os dois como categoria
+   própria, com preço e audiência próprios.
 23. **Quem responde pela plataforma enxerga todas as empresas.** A lista de
    empresas em `getSessionContext` não vem só de `org_members`: para o
    responsável pela plataforma ela inclui toda `organizations`, marcada com

@@ -82,15 +82,18 @@ async function porLugar(
     };
     const p = d.places?.[0];
     if (!p?.location) return { erro: "sem_resultado" };
+    const rotulo = p.displayName?.text ?? p.formattedAddress;
+
     return {
       lat: p.location.latitude,
       lng: p.location.longitude,
-      // Um estabelecimento encontrado pelo nome é o próprio lugar: o outdoor
-      // está ao lado dele, dentro de qualquer raio de chegada razoável.
-      precisao: "exata",
+      // Estabelecimento encontrado pelo nome é o próprio lugar: o outdoor está
+      // ao lado dele, dentro de qualquer raio de chegada razoável. Mas só vale
+      // como exata se o que voltou for mesmo o que foi pedido.
+      precisao: combina(termo, rotulo) ? "exata" : "aproximada",
       fonte: "google_places",
       consulta,
-      rotulo: p.displayName?.text ?? p.formattedAddress,
+      rotulo,
     };
   } catch (e) {
     console.error("places inacessivel", e instanceof Error ? e.message : e);
@@ -135,6 +138,67 @@ async function porEndereco(
     console.error("geocoding inacessivel", e instanceof Error ? e.message : e);
     return { erro: "rede" };
   }
+}
+
+/**
+ * Extrai o ponto de referência de dentro da descrição do cliente.
+ *
+ * Isso é o que separa acerto de palpite. Mandar a descrição inteira ao Places
+ * — "Painel rodoviário. Rodovia BR 277 - próx. Igreja Rondinha - sentido
+ * Curitiba / Campo Largo" — faz ele responder alguma coisa sobre a BR-277 e
+ * ignorar a igreja. Quatro painéis distintos vieram na mesma coordenada assim,
+ * e um deles a 20 km do lugar. Mandando só "Igreja Rondinha", ele acha a
+ * igreja.
+ */
+export function referenciaDe(descricao: string | null | undefined): string | null {
+  if (!descricao) return null;
+
+  // A referência vem depois de uma destas marcas, e vai até o próximo
+  // separador. "sentido" e "quadro" nunca fazem parte dela.
+  const m = descricao.match(
+    /(?:pr[óo]x(?:imo|\.)?(?:\s+(?:ao?|de|da|do))?|em frente (?:a|à|ao)|ao lado d[oa]|esquina (?:com|d[ao]))\s+([^-|/]{4,60})/i
+  );
+
+  // Nem toda descrição usa marca. "Rodovia BR 277 - Balança em São Luiz do
+  // Purunã - sentido Ponta Grossa" põe a referência solta no segundo trecho.
+  const cru =
+    m?.[1] ??
+    descricao
+      .split(" - ")
+      .slice(1)
+      .find((t) => !/^(sentido|quadro|face|lado)\b/i.test(t.trim()));
+
+  if (!cru) return null;
+
+  const bruto = cru
+    .replace(/\b(sentido|quadro|face|lado)\b.*$/i, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/[.,;]+$/, "");
+
+  // Referência curta demais não identifica nada; longa demais é frase.
+  return bruto.length >= 4 && bruto.split(" ").length <= 7 ? bruto : null;
+}
+
+/**
+ * O lugar que voltou tem a ver com o que foi pedido?
+ *
+ * O Places responde alguma coisa para quase qualquer texto. Sem esta
+ * conferência, "achou algo" virava "exata" — e foi assim que a Balança de São
+ * Luiz do Purunã foi parar no centro de Campo Largo.
+ */
+function combina(pedido: string, devolvido: string | undefined): boolean {
+  if (!devolvido) return false;
+  const limpa = (t: string) =>
+    t.toLowerCase()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .split(/[^a-z0-9]+/)
+      .filter((w) => w.length > 3);
+
+  const alvo = limpa(pedido);
+  if (alvo.length === 0) return false;
+  const veio = new Set(limpa(devolvido));
+  return alvo.some((w) => veio.has(w));
 }
 
 export function ehCoordenada(x: Coordenada | FalhaGeo): x is Coordenada {
