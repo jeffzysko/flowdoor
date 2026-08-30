@@ -200,6 +200,18 @@ base nova, schema novo.
    mesma resposta para token inexistente e token queimado. Sem essa amarra,
    desligar a confirmação de e-mail deixaria entrar conta com endereço nunca
    verificado.
+30. **Embed do PostgREST com duas chaves para a mesma tabela precisa
+   desempatar.** `field_events` aponta para `profiles` por `assignee_id` **e**
+   por `created_by`; pedir `profiles(full_name)` faz o PostgREST recusar a
+   consulta inteira com `PGRST201`. A forma certa é
+   `profiles!field_events_assignee_id_fkey(full_name)`. `orders` tem o mesmo
+   par de chaves e ainda não é consultado assim — vale lembrar antes de
+   escrever o próximo embed.
+31. **Consulta que falha não pode virar lista vazia.** O detalhe do pedido
+   descartava o `error` do Supabase e renderizava zero faces: um pedido
+   vendido aparecia como se a venda não tivesse acontecido. Onde a tela mostra
+   uma lista que pode ser legitimamente vazia, o erro precisa aparecer
+   separado do vazio.
 28. **A unidade de venda é a bi-semana.** `faces.base_price` é o valor de
    **14 dias**, não do mês nem do período do pedido — é como mídia exterior se
    vende no Brasil, e a tabela `periods` já modela isso (104 períodos de 14

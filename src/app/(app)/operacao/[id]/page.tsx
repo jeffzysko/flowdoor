@@ -40,22 +40,27 @@ export default async function PedidoPage({
 
   const supabase = await createClient();
 
-  const [{ data: pedido }, { data: eventos }, { data: proof }] = await Promise.all([
-    supabase
-      .from("orders")
-      .select("id, code, title, status, starts_on, ends_on, instructions, artwork_path, total_amount, advertisers(name, email, tax_id)")
-      .eq("id", id)
-      .single(),
-    supabase
-      .from("field_events")
-      .select(
-        "id, status, face_id, assignee_id, estimated_minutes, scheduled_for, started_at, finished_at, " +
-          "faces(code, sites(address, city)), profiles(full_name)"
-      )
-      .eq("order_id", id)
-      .order("scheduled_for", { ascending: true, nullsFirst: false }),
-    supabase.from("proofs").select("public_token, published_at").eq("order_id", id).maybeSingle(),
-  ]);
+  const [{ data: pedido }, { data: eventos, error: erroEventos }, { data: proof }] =
+    await Promise.all([
+      supabase
+        .from("orders")
+        .select("id, code, title, status, starts_on, ends_on, instructions, artwork_path, total_amount, advertisers(name, email, tax_id)")
+        .eq("id", id)
+        .single(),
+      supabase
+        .from("field_events")
+        .select(
+          "id, status, face_id, assignee_id, estimated_minutes, scheduled_for, started_at, finished_at, " +
+            // profiles precisa do nome da chave: field_events aponta para
+            // profiles por assignee_id E por created_by. Sem desempatar, o
+            // PostgREST recusa a consulta inteira (PGRST201) e a tela mostrava
+            // o pedido com zero faces, como se a venda nao tivesse acontecido.
+            "faces(code, sites(address, city)), profiles!field_events_assignee_id_fkey(full_name)"
+        )
+        .eq("order_id", id)
+        .order("scheduled_for", { ascending: true, nullsFirst: false }),
+      supabase.from("proofs").select("public_token, published_at").eq("order_id", id).maybeSingle(),
+    ]);
 
   if (!pedido) notFound();
 
@@ -170,6 +175,18 @@ export default async function PedidoPage({
 
       <section className="mt-8">
         <h2 className="text-xl font-bold tracking-tight">Aplicações</h2>
+
+        {/* Lista vazia por falha de consulta e lista vazia de verdade parecem
+            a mesma coisa na tela. Se a busca falhou, isso precisa aparecer. */}
+        {erroEventos && (
+          <p
+            role="alert"
+            className="mt-3 border border-danger/30 bg-danger/5 px-3 py-2 text-sm text-danger"
+          >
+            Não consegui carregar as aplicações deste pedido. As faces continuam
+            reservadas; é a leitura da tela que falhou. ({erroEventos.code})
+          </p>
+        )}
         <Table head={["Face", "Endereço", "Aplicador", "Agendada", "Chegada", "Conclusão", "Status"]}>
           {lista.map((e) => (
             <tr key={e.id} className="border-b border-line last:border-0">
