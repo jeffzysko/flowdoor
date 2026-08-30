@@ -170,7 +170,24 @@ base nova, schema novo.
    Quando o período anda, `scheduled_for` de cada aplicação anda o mesmo
    número de dias — senão mudar a campanha de semana deixaria a equipe
    agendada na semana antiga.
-17. **`create or replace` no Supabase reaplica os default privileges** do schema
+17. **Duas tarefas rodam sozinhas, no banco.** `pg_cron` está instalado e os
+   jobs vivem em `cron.job` — não em Vercel Cron, que no plano gratuito roda
+   uma vez por dia e cobraria uma chamada HTTP para um trabalho que é todo SQL.
+
+   - `flowdoor-avisos`, todo dia às 11h UTC (8h de Brasília): `gerar_alertas()`
+   - `flowdoor-expirar-opcoes`, de hora em hora: `expire_stale_holds()`
+
+   **Horário do cron é UTC.** Porto Alegre é UTC−3.
+
+   Sobre a tabela `alerts`: **rodar a tarefa dez vezes no mesmo dia não pode
+   encher o painel dez vezes** — o índice único parcial
+   `(org_id, kind, entity_id) where resolved_at is null and dismissed_at is null`
+   é o que garante isso, e os `insert ... on conflict` dependem dele.
+   `resolved_at` é a tarefa percebendo que o problema sumiu (licença renovada);
+   `dismissed_at` é uma pessoa decidindo que não importa, e fica registrado
+   quem decidiu. **Ninguém escreve na tabela pelo RLS**: não há policy de
+   insert nem de update — quem gera é a tarefa e quem dispensa é a RPC.
+18. **`create or replace` no Supabase reaplica os default privileges** do schema
    `public`, que dão EXECUTE para `anon` e `authenticated`. Toda vez que uma RPC
    for recriada, refaça os `revoke ... from public, anon`. Conferir depois com
    `get_advisors` ou `has_function_privilege('anon', oid, 'execute')`.
@@ -265,9 +282,7 @@ são as que a auditoria encontrou, e nenhuma delas é óbvia olhando as telas:
   single-tenant.
 - **Reserva com validade nunca foi ligada.** `bookings.kind = 'opcao'` e
   `hold_expires_at` existem; nada cria uma opção.
-- **Nada roda sozinho.** `expire_stale_holds()` existe e nunca é chamada;
-  `pg_cron` não está instalado. Licença e contrato vencendo aparecem em
-  `/ativos` e não avisam ninguém.
+- ~~Nada roda sozinho.~~ **Fechado.** `pg_cron` instalado, dois jobs ativos.
 - **`artwork_approved_at` / `artwork_approved_by` nunca são escritos.** O
   anunciante não aprova a arte em lugar nenhum.
 - **`proofs.expires_on` e `revoked_at` não têm tela** — comprovante publicado
