@@ -28,6 +28,16 @@ base nova, schema novo.
    consumer. Papel de plataforma vive em `platform_admins`, fora das orgs.
 3. **`field_events` é genérico.** Tipo: aplicação, vistoria, retirada, troca,
    manutenção, registro. Mesmo QR, mesmo GPS, mesma câmera.
+9. **Campo é fila, não lista.** O aplicador e o fotógrafo veem UMA parada por
+   vez (`my_next_stop`). A próxima só destrava quando a foto da atual é
+   validada. Três conferências, ligáveis por empresa em
+   `field_validation_settings`: local (raio em metros do ponto), horário
+   (janela em minutos) e campanha (IA compara a foto com a arte).
+   **Na dúvida a IA responde "incerto", nunca "falhou"** — reflexo, ângulo e
+   luz produzem falso negativo com facilidade, e falso negativo prende o
+   aplicador na rua. Incerto libera o campo e cai na fila de revisão, a menos
+   que `block_on_uncertain` esteja ligado. Reprovação devolve o evento para
+   `em_andamento` com o motivo: a pessoa ainda está no ponto e refaz a foto.
 4. **Imagens em Storage.** Buckets `artworks`, `field-photos`, `avatars`.
    Caminho sempre `<org_id>/...` — a primeira pasta é a fronteira do tenant.
    Nunca base64 em coluna.
@@ -82,6 +92,8 @@ magic link **não saem por e-mail**. O caminho que funciona:
 
 ## Ainda não existe
 
+- Tela de revisão das fotos marcadas como "revisao" (a RPC `review_photo` já existe).
+- Tela de configuração de `field_validation_settings` pela interface.
 - Importação de faces por CSV/XLSX.
 - Envio de e-mail de convite (a rota /auth/callback e a tela /definir-senha
   ja existem; falta SMTP configurado no Supabase para o e-mail sair).

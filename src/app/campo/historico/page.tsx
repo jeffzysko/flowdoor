@@ -21,7 +21,7 @@ export default async function HistoricoPage() {
     .from("field_events")
     .select("id, kind, finished_at, faces(code, sites(address, city)), orders(code)")
     .eq("assignee_id", ctx.userId)
-    .eq("status", "concluido")
+    .in("status", ["concluido", "aguardando_validacao"])
     .order("finished_at", { ascending: false })
     .limit(80);
 

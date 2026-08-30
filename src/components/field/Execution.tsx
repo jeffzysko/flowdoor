@@ -13,15 +13,22 @@ interface Props {
   orgId: string;
   status: string;
   startedAt: string | null;
+  precisaQr?: boolean;
 }
 
 // abaixo disso a foto costuma sair tremida demais para virar comprovante
 const NITIDEZ_MINIMA = 0.35;
 
-export function Execution({ eventId, orgId, status, startedAt }: Props) {
+export function Execution({ eventId, orgId, status, startedAt, precisaQr = true }: Props) {
   const router = useRouter();
   const [etapa, setEtapa] = useState<Etapa>(
-    status === "concluido" ? "pronto" : startedAt ? "execucao" : "chegada"
+    status === "concluido"
+      ? "pronto"
+      : status === "aguardando_validacao"
+        ? "pronto"
+        : startedAt || !precisaQr
+          ? "execucao"
+          : "chegada"
   );
   const [erro, setErro] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
@@ -151,7 +158,8 @@ export function Execution({ eventId, orgId, status, startedAt }: Props) {
 
       await flushQueue();
       setEtapa("pronto");
-      router.refresh();
+      // A próxima parada só chega depois que o servidor valida a foto.
+      setTimeout(() => router.refresh(), 1200);
     } catch (e) {
       setErro(e instanceof Error ? e.message : "Não foi possível concluir.");
     } finally {
@@ -164,17 +172,18 @@ export function Execution({ eventId, orgId, status, startedAt }: Props) {
     return (
       <section className="mt-8 border border-accent bg-accent-soft px-5 py-8 text-center">
         <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-accent">
-          Concluído
+          Enviado
         </p>
-        <h2 className="mt-2 text-2xl font-bold">Registro enviado.</h2>
+        <h2 className="mt-2 text-2xl font-bold">Foto em conferência.</h2>
         <p className="mt-2 text-ink-2">
-          A foto e o horário já estão no comprovante do cliente.
+          Estamos checando o local, o horário e se a peça é da campanha certa.
+          Passando, a próxima parada abre sozinha.
         </p>
         <a
           href="/campo"
           className="mt-6 inline-block bg-accent px-6 py-3 font-medium text-white"
         >
-          Próxima parada
+          Atualizar
         </a>
       </section>
     );

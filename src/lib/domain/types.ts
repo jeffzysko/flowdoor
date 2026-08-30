@@ -7,6 +7,7 @@ export type MemberRole =
   | "comercial"
   | "operacao"
   | "aplicador"
+  | "fotografo"
   | "financeiro"
   | "leitura";
 
@@ -21,7 +22,9 @@ export type FieldEventKind =
 export type FieldEventStatus =
   | "pendente"
   | "em_andamento"
+  | "aguardando_validacao"
   | "concluido"
+  | "reprovado"
   | "cancelado"
   | "falhou";
 export type OrderStatus =

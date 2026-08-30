@@ -49,7 +49,7 @@ async function send(item: QueueItem): Promise<void> {
     if (upErr) throw new Error(upErr.message);
   }
 
-  const { error } = await supabase.rpc("field_finish", {
+  const { data, error } = await supabase.rpc("field_finish", {
     p_event: item.eventId,
     p_photo_path: path,
     p_lat: item.payload.lat,
@@ -58,6 +58,22 @@ async function send(item: QueueItem): Promise<void> {
     p_idempotency_key: item.key,
   });
   if (error) throw new Error(error.message);
+
+  // Local e horário o banco já conferiu. Falta a comparação com a arte, que
+  // roda no servidor. Se a chamada falhar, a foto fica aguardando validação e
+  // a operação resolve na fila de revisão — o registro não se perde.
+  const r = data as { photo_id?: string; precisa_ia?: boolean } | null;
+  if (r?.photo_id) {
+    try {
+      await fetch("/api/validar-foto", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ photoId: r.photo_id }),
+      });
+    } catch {
+      /* fica para a revisão manual */
+    }
+  }
 }
 
 export interface FlushResult {

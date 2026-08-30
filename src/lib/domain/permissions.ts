@@ -37,7 +37,11 @@ export const NAV: Record<
     { href: "/ativos", label: "Contratos e licenças", icon: "shield" },
   ],
   aplicador: [
-    { href: "/campo", label: "Meu dia", icon: "route" },
+    { href: "/campo", label: "Minha parada", icon: "route" },
+    { href: "/campo/historico", label: "Histórico", icon: "clock" },
+  ],
+  fotografo: [
+    { href: "/campo", label: "Minha parada", icon: "route" },
     { href: "/campo/historico", label: "Histórico", icon: "clock" },
   ],
   financeiro: [
@@ -53,6 +57,7 @@ export const ROLE_LABEL: Record<MemberRole, string> = {
   comercial: "Comercial",
   operacao: "Operação",
   aplicador: "Aplicador",
+  fotografo: "Fotógrafo",
   financeiro: "Financeiro",
   leitura: "Leitura",
 };
@@ -62,4 +67,7 @@ export const canSell = (r: MemberRole) =>
 export const canManageInventory = (r: MemberRole) =>
   r === "owner" || r === "admin" || r === "operacao";
 export const canManageTeam = (r: MemberRole) => r === "owner" || r === "admin";
-export const isField = (r: MemberRole) => r === "aplicador";
+export const canReview = (r: MemberRole) =>
+  r === "owner" || r === "admin" || r === "operacao";
+export const isField = (r: MemberRole) =>
+  r === "aplicador" || r === "fotografo";
