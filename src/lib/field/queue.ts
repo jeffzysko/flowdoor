@@ -33,6 +33,11 @@ export interface QueueItem {
     notes?: string | null;
     /** Relógio do aparelho no disparo, ISO. O servidor usa só para comparar. */
     clientTime?: string | null;
+    /**
+     * Motivo declarado quando a pessoa passa a trava de proximidade por
+     * conta própria. Preenchido, a parada nunca aprova sozinha.
+     */
+    overrideReason?: string | null;
   };
   photo?: Blob;
   photoName?: string;

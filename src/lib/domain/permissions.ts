@@ -11,6 +11,7 @@ export const NAV: Record<
   owner: [
     { href: "/painel", label: "Visão geral", icon: "grid" },
     { href: "/operacao", label: "Operação", icon: "route" },
+    { href: "/revisao", label: "Revisão", icon: "check" },
     { href: "/inventario", label: "Inventário", icon: "billboard" },
     { href: "/clientes", label: "Anunciantes", icon: "users" },
     { href: "/equipe", label: "Equipe", icon: "team" },
@@ -19,6 +20,7 @@ export const NAV: Record<
   admin: [
     { href: "/painel", label: "Visão geral", icon: "grid" },
     { href: "/operacao", label: "Operação", icon: "route" },
+    { href: "/revisao", label: "Revisão", icon: "check" },
     { href: "/inventario", label: "Inventário", icon: "billboard" },
     { href: "/clientes", label: "Anunciantes", icon: "users" },
     { href: "/equipe", label: "Equipe", icon: "team" },
@@ -33,6 +35,7 @@ export const NAV: Record<
   operacao: [
     { href: "/painel", label: "Visão geral", icon: "grid" },
     { href: "/operacao", label: "Operação", icon: "route" },
+    { href: "/revisao", label: "Revisão", icon: "check" },
     { href: "/inventario", label: "Inventário", icon: "billboard" },
     { href: "/ativos", label: "Contratos e licenças", icon: "shield" },
   ],

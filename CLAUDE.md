@@ -118,6 +118,34 @@ base nova, schema novo.
    mostra "chegou" e o servidor recusa.
    `flushQueue` não lança — devolve `errors`. Quem chama **tem** que olhar,
    senão uma chegada recusada avança a tela do mesmo jeito.
+
+   Três válvulas impedem que a trava vire fila de suporte, e nenhuma pode ser
+   removida sem repor as outras:
+
+   - **Melhor leitura, não a última.** A primeira leitura do GPS vem com
+     precisão de centenas de metros e melhora em 15–40 s. `Execution.tsx`
+     guarda a janela de 30 s e usa a leitura de menor `accuracy`. Voltar a
+     usar a leitura corrente recusa quem está no lugar certo.
+   - **Permissão pedida no `/campo`, não no ponto.** `PermissaoLocalizacao`
+     pergunta quando a pessoa abre a fila e, se estiver negada, ensina o
+     caminho **no sistema operacional** dela — o conserto é fora do navegador.
+   - **Escape self-service com custo.** Depois de `override_after_seconds`
+     travada, a pessoa escolhe um motivo e segue. Em troca: a foto nasce com
+     `arrival_override`, `close_photo_validation` nunca aprova sozinha, e o
+     escape pesa 2 no score. Teto em `override_max_radius_m`: sem coordenada
+     nenhuma passa (aparelho que não fixa é o caso legítimo), com coordenada a
+     40 km não passa.
+
+   `faces.start_radius_m` conserta um ponto ruim — viaduto, marginal — sem
+   afrouxar a empresa inteira. Nulo herda de `field_validation_settings`.
+15. **A mesa de revisão é infraestrutura, não tela extra.** Deslocamento
+   implausível, janela estourada e chegada por escape **só sabem produzir
+   `revisao`**. Sem `/revisao` tratando essa fila, esses três sinais não são
+   controle nenhum, e o escape do campo vira passe livre. Se algum dia essa
+   tela sair do ar, a decisão certa é desligar `allow_override`, não deixar a
+   fila crescer.
+   `pending_reviews(org)` monta a lista; `review_photo` decide; recusar exige
+   texto, porque ele vira o `rejected_reason` que a pessoa lê na rua.
 15. **`create or replace` no Supabase reaplica os default privileges** do schema
    `public`, que dão EXECUTE para `anon` e `authenticated`. Toda vez que uma RPC
    for recriada, refaça os `revoke ... from public, anon`. Conferir depois com
@@ -176,16 +204,13 @@ magic link **não saem por e-mail**. O caminho que funciona:
 
 ## Ainda não existe
 
-- Tela de revisão das fotos marcadas como "revisao" (a RPC `review_photo` já
-  existe). É onde os sinais antifraude viram trabalho: sem ela, `revisao` é um
-  estado que ninguém olha.
-- Tela do score do aplicador (a RPC `operator_risk(org, user, dias)` já existe).
+- Tela do score do aplicador por si só (a RPC `operator_risk(org, user, dias)`
+  existe e o score já aparece em cada card da revisão, mas não há uma lista de
+  pessoas ordenada por risco).
 - Tela de configuração de `field_validation_settings` pela interface. São 18
   colunas hoje, todas ajustáveis só por SQL na mão.
-- Liberação manual de uma parada quando o GPS falha de verdade (garagem,
-  prédio alto, aparelho velho). Hoje a trava não tem escape: se o sinal não
-  fixar, a pessoa não registra chegada e a operação não tem botão para
-  destravar.
+- Liberação de uma parada **pela operação** (o escape hoje é self-service, do
+  lado de quem está na rua; não há botão do outro lado).
 - Importação de faces por CSV/XLSX.
 - Envio de e-mail de convite (a rota /auth/callback e a tela /definir-senha
   ja existem; falta SMTP configurado no Supabase para o e-mail sair).
@@ -193,6 +218,8 @@ magic link **não saem por e-mail**. O caminho que funciona:
 - Recuperação de senha pela interface.
 - Edição de ponto/face depois de criados.
 - Aprovação de arte pelo cliente final.
+- Ordem da rota por proximidade de GPS. Hoje a sequência é a que a operação
+  montou (`position`); o GPS libera, não escolhe.
 - Foto de referência do ponto, para a IA comparar o **entorno** e não só a peça.
   É o que fecha o vetor do GPS falsificado, e o único item da lista que um app
   de localização falsa não vence.

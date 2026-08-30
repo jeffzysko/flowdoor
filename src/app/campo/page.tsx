@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionContext } from "@/lib/domain/session";
 import { QueueBanner } from "@/components/field/QueueBanner";
+import { PermissaoLocalizacao } from "@/components/field/PermissaoLocalizacao";
 import { Execution } from "@/components/field/Execution";
 
 export const dynamic = "force-dynamic";
@@ -33,6 +34,9 @@ type Parada = {
   require_proximity?: boolean;
   start_radius_m?: number;
   accuracy_margin_max_m?: number;
+  allow_override?: boolean;
+  override_after_seconds?: number;
+  ja_escapou?: boolean;
 };
 
 const hora = (v?: string | null) =>
@@ -75,6 +79,7 @@ export default async function CampoPage() {
   return (
     <main className="field-shell mx-auto max-w-2xl px-4 pb-28 pt-6">
       <QueueBanner />
+      <PermissaoLocalizacao />
 
       <header className="flex items-start justify-between gap-4">
         <div>
@@ -201,6 +206,8 @@ export default async function CampoPage() {
             requireProximity={p.require_proximity ?? false}
             startRadiusM={p.start_radius_m ?? 250}
             accuracyMarginMaxM={p.accuracy_margin_max_m ?? 100}
+            allowOverride={p.allow_override ?? true}
+            overrideAfterSeconds={p.override_after_seconds ?? 45}
           />
         </>
       )}

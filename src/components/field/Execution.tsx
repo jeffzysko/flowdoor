@@ -12,7 +12,7 @@ import {
   type Position,
 } from "@/lib/field/camera";
 import { distanceMeters, formatDistance } from "@/lib/field/geo";
-import { enqueue, newKey } from "@/lib/field/queue";
+import { dequeue, enqueue, newKey } from "@/lib/field/queue";
 import { flushQueue } from "@/lib/field/sync";
 
 type Etapa = "chegada" | "execucao" | "foto" | "revisao" | "pronto";
@@ -31,10 +31,32 @@ interface Props {
   requireProximity?: boolean;
   startRadiusM?: number;
   accuracyMarginMaxM?: number;
+  /** Escape self-service quando o GPS não fixa. Custa revisão manual. */
+  allowOverride?: boolean;
+  overrideAfterSeconds?: number;
 }
 
 // abaixo disso a foto costuma sair tremida demais para virar comprovante
 const NITIDEZ_MINIMA = 0.35;
+
+/** Quanto tempo uma leitura de GPS continua valendo. */
+const JANELA_MS = 30_000;
+
+interface Leitura {
+  lat: number;
+  lng: number;
+  accuracy: number;
+  t: number;
+}
+
+type MotivoEscape = "sinal_fraco" | "obstrucao" | "aparelho_sem_gps" | "outro";
+
+const MOTIVOS: { valor: MotivoEscape; rotulo: string }[] = [
+  { valor: "sinal_fraco", rotulo: "O sinal está fraco aqui" },
+  { valor: "obstrucao", rotulo: "Prédio ou estrutura na frente" },
+  { valor: "aparelho_sem_gps", rotulo: "O aparelho não tem GPS" },
+  { valor: "outro", rotulo: "Outro motivo" },
+];
 
 export function Execution({
   eventId,
@@ -48,6 +70,8 @@ export function Execution({
   requireProximity = false,
   startRadiusM = 250,
   accuracyMarginMaxM = 100,
+  allowOverride = true,
+  overrideAfterSeconds = 45,
 }: Props) {
   const router = useRouter();
   const [etapa, setEtapa] = useState<Etapa>(
@@ -62,8 +86,11 @@ export function Execution({
   const [erro, setErro] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
   const [aviso, setAviso] = useState<string | null>(null);
-  const [posicao, setPosicao] = useState<Position | null>(null);
+  const [leituras, setLeituras] = useState<Leitura[]>([]);
+  const [segundos, setSegundos] = useState(0);
   const [geoNegado, setGeoNegado] = useState(false);
+  const [escapeAberto, setEscapeAberto] = useState(false);
+  const [motivoEscape, setMotivoEscape] = useState<MotivoEscape | null>(null);
   const [notas, setNotas] = useState("");
   const [foto, setFoto] = useState<Capture | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -79,9 +106,13 @@ export function Execution({
   }, [previewUrl]);
 
   /**
-   * Enquanto a pessoa está se aproximando, a posição fica sendo acompanhada.
-   * É o que permite mostrar "faltam 400 m" em vez de deixá-la apertar o botão
-   * e levar uma recusa do servidor sem entender por quê.
+   * A posição fica sendo acompanhada enquanto a pessoa se aproxima.
+   *
+   * O detalhe que importa: a primeira leitura do GPS quase sempre vem com
+   * precisão de centenas de metros e melhora sozinha em 15 a 40 segundos.
+   * Usar só a leitura mais recente faz a tela recusar quem está no lugar
+   * certo — e é isso que vira ligação para o suporte. Por isso guardamos a
+   * janela e usamos a MELHOR leitura dela.
    */
   useEffect(() => {
     if (etapa !== "chegada" || !navigator.geolocation) return;
@@ -89,17 +120,33 @@ export function Execution({
     const id = navigator.geolocation.watchPosition(
       (p) => {
         setGeoNegado(false);
-        setPosicao({
-          lat: p.coords.latitude,
-          lng: p.coords.longitude,
-          accuracy: p.coords.accuracy,
+        setLeituras((antes) => {
+          const agora = Date.now();
+          const nova: Leitura = {
+            lat: p.coords.latitude,
+            lng: p.coords.longitude,
+            accuracy: p.coords.accuracy,
+            t: agora,
+          };
+          return [...antes, nova].filter((l) => agora - l.t <= JANELA_MS);
         });
       },
       (err) => setGeoNegado(err.code === err.PERMISSION_DENIED),
       { enableHighAccuracy: true, maximumAge: 5_000, timeout: 20_000 }
     );
-    return () => navigator.geolocation.clearWatch(id);
+
+    const relogio = window.setInterval(() => setSegundos((s) => s + 1), 1000);
+
+    return () => {
+      navigator.geolocation.clearWatch(id);
+      window.clearInterval(relogio);
+    };
   }, [etapa]);
+
+  // A melhor da janela, não a última. Leitura velha demais já foi descartada.
+  const posicao: Position | null = leituras.length
+    ? leituras.reduce((a, b) => (b.accuracy < a.accuracy ? b : a))
+    : null;
 
   // A conta é a mesma do servidor. Se divergir, a tela mente.
   const distancia =
@@ -117,60 +164,73 @@ export function Execution({
     siteLng != null &&
     (distancia == null || distancia - margem > startRadiusM);
 
+  // O escape só aparece depois que a tela insistiu no GPS por tempo bastante.
+  // Oferecer antes disso ensina a pular a trava.
+  const podeEscapar =
+    travado && allowOverride && segundos >= overrideAfterSeconds;
+
   // ---------------------------------------------------------- chegada
   /**
    * Não há QR nas estruturas, e manter etiqueta em centenas de pontos na rua
    * não se sustenta. A chegada é provada pela coordenada do aparelho,
    * conferida contra a coordenada cadastrada do ponto.
    */
-  const registrarChegada = useCallback(async () => {
-    setErro(null);
-    setAviso(null);
-    setOcupado(true);
+  const registrarChegada = useCallback(
+    async (motivo?: MotivoEscape | null) => {
+      setErro(null);
+      setAviso(null);
+      setOcupado(true);
 
-    try {
-      let lat: number | null = null;
-      let lng: number | null = null;
-      let accuracy: number | null = null;
+      const key = newKey();
 
       try {
-        const pos = posicao ?? (await getPosition());
-        lat = pos.lat;
-        lng = pos.lng;
-        accuracy = pos.accuracy;
-        setPosicao(pos);
+        let lat: number | null = null;
+        let lng: number | null = null;
+        let accuracy: number | null = null;
+
+        try {
+          const pos = posicao ?? (await getPosition());
+          lat = pos.lat;
+          lng = pos.lng;
+          accuracy = pos.accuracy;
+        } catch (e) {
+          setAviso(
+            (e instanceof Error ? e.message : "Sem localização.") +
+              " A chegada vai sem coordenada — a conferência vai apontar isso."
+          );
+        }
+
+        await enqueue({
+          key,
+          action: "start",
+          eventId,
+          orgId,
+          payload: { lat, lng, accuracy, overrideReason: motivo ?? null },
+        });
+
+        // flushQueue não lança: a recusa do servidor volta aqui dentro. Sem
+        // olhar isto, uma chegada recusada avançaria a tela mesmo assim.
+        const r = await flushQueue();
+        if (r.errors.length) {
+          // Fora da fila em vez de reenvio em segundo plano: a pessoa está
+          // ali e vai apertar de novo. Fila fantasma confunde mais do que
+          // ajuda.
+          await dequeue(key);
+          setAviso(null);
+          setErro(r.errors[0]);
+          return;
+        }
+
+        setEtapa("execucao");
+        router.refresh();
       } catch (e) {
-        setAviso(
-          (e instanceof Error ? e.message : "Sem localização.") +
-            " A chegada foi registrada sem coordenada — a conferência vai apontar isso."
-        );
+        setErro(e instanceof Error ? e.message : "Não foi possível registrar a chegada.");
+      } finally {
+        setOcupado(false);
       }
-
-      await enqueue({
-        key: newKey(),
-        action: "start",
-        eventId,
-        orgId,
-        payload: { lat, lng, accuracy },
-      });
-
-      // flushQueue não lança: a recusa do servidor volta aqui dentro. Sem
-      // olhar isto, uma chegada recusada avançaria a tela mesmo assim.
-      const r = await flushQueue();
-      if (r.errors.length) {
-        setAviso(null);
-        setErro(r.errors[0]);
-        return;
-      }
-
-      setEtapa("execucao");
-      router.refresh();
-    } catch (e) {
-      setErro(e instanceof Error ? e.message : "Não foi possível registrar a chegada.");
-    } finally {
-      setOcupado(false);
-    }
-  }, [eventId, orgId, router, posicao]);
+    },
+    [eventId, orgId, router, posicao]
+  );
 
   // ------------------------------------------------------------ câmera
   const abrirCamera = useCallback(async () => {
@@ -308,9 +368,7 @@ export function Execution({
           {requireProximity && siteLat != null && siteLng != null && (
             <div
               className={`mt-5 border px-4 py-4 ${
-                travado
-                  ? "border-line bg-surface"
-                  : "border-good/40 bg-good/5"
+                travado ? "border-line bg-surface" : "border-good/40 bg-good/5"
               }`}
             >
               {geoNegado ? (
@@ -319,16 +377,22 @@ export function Execution({
                   para registrar a chegada — sem coordenada não há comprovante.
                 </p>
               ) : distancia == null ? (
-                <p className="font-mono text-sm text-ink-2">
-                  Procurando o sinal do GPS…
-                </p>
+                <>
+                  <p className="font-mono text-sm text-ink-2">
+                    Procurando o sinal do GPS… {segundos}s
+                  </p>
+                  <p className="mt-1 text-sm text-ink-3">
+                    A primeira leitura costuma levar de 15 a 40 segundos. Fique
+                    parado, ao ar livre, com o céu à vista.
+                  </p>
+                </>
               ) : (
                 <>
                   <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3">
                     Distância até o ponto
                   </p>
                   <p
-                    className={`mt-1 font-mono text-2xl font-bold ${
+                    className={`mt-1 font-mono text-3xl font-bold ${
                       travado ? "text-ink" : "text-good"
                     }`}
                   >
@@ -336,13 +400,18 @@ export function Execution({
                   </p>
                   <p className="mt-1 text-sm text-ink-2">
                     {travado
-                      ? `Aproxime-se para menos de ${formatDistance(startRadiusM)} do ponto. O botão libera sozinho.`
+                      ? `Aproxime-se para menos de ${formatDistance(
+                          startRadiusM
+                        )}. O botão libera sozinho.`
                       : "Você está no ponto. Pode registrar a chegada."}
                   </p>
-                  {posicao?.accuracy != null && posicao.accuracy > 60 && (
+
+                  {posicao && (
                     <p className="mt-2 font-mono text-xs text-ink-3">
-                      Precisão do sinal: ±{Math.round(posicao.accuracy)} m. Ao ar
-                      livre e parado por alguns segundos ela melhora.
+                      Precisão do sinal: ±{Math.round(posicao.accuracy)} m
+                      {travado && posicao.accuracy > 60
+                        ? ` · ainda melhorando (${segundos}s)`
+                        : ""}
                     </p>
                   )}
                 </>
@@ -351,7 +420,7 @@ export function Execution({
           )}
 
           <button
-            onClick={registrarChegada}
+            onClick={() => registrarChegada(null)}
             disabled={ocupado || travado}
             className="mt-5 w-full bg-accent px-4 py-5 text-lg font-medium text-white disabled:cursor-not-allowed disabled:opacity-40"
           >
@@ -361,6 +430,74 @@ export function Execution({
                 ? "Fora do ponto"
                 : "Cheguei no ponto"}
           </button>
+
+          {/*
+            O escape existe para o caso real de GPS que não fixa: garagem,
+            prédio alto, aparelho velho. Aparece tarde de propósito — oferecer
+            cedo ensina a pular a trava — e cobra o preço de ir para revisão
+            manual, dito na cara antes de a pessoa escolher.
+          */}
+          {podeEscapar && !escapeAberto && (
+            <button
+              onClick={() => setEscapeAberto(true)}
+              className="mt-4 w-full text-center font-mono text-xs text-ink-3 underline underline-offset-4"
+            >
+              O GPS não está pegando aqui
+            </button>
+          )}
+
+          {podeEscapar && escapeAberto && (
+            <section className="mt-4 border border-warn/40 bg-warn/5 px-4 py-4">
+              <h3 className="text-sm font-bold">Registrar sem confirmar por GPS</h3>
+              <p className="mt-1 text-sm text-ink-2">
+                Dá para seguir, mas esta parada não vai ser aprovada sozinha:
+                ela vai para conferência manual da operação, e o motivo fica
+                registrado no seu nome.
+              </p>
+
+              <div className="mt-3 space-y-2">
+                {MOTIVOS.map((m) => (
+                  <label
+                    key={m.valor}
+                    className={`flex cursor-pointer items-center gap-3 border px-3 py-2.5 text-sm ${
+                      motivoEscape === m.valor
+                        ? "border-accent bg-accent-soft"
+                        : "border-line bg-surface"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="motivo-escape"
+                      value={m.valor}
+                      checked={motivoEscape === m.valor}
+                      onChange={() => setMotivoEscape(m.valor)}
+                      className="accent-accent"
+                    />
+                    {m.rotulo}
+                  </label>
+                ))}
+              </div>
+
+              <div className="mt-4 flex gap-3">
+                <button
+                  onClick={() => {
+                    setEscapeAberto(false);
+                    setMotivoEscape(null);
+                  }}
+                  className="flex-1 border border-line bg-surface px-4 py-3 font-medium"
+                >
+                  Voltar a tentar
+                </button>
+                <button
+                  onClick={() => registrarChegada(motivoEscape)}
+                  disabled={ocupado || !motivoEscape}
+                  className="flex-[2] bg-warn px-4 py-3 font-medium text-white disabled:opacity-40"
+                >
+                  {ocupado ? "Registrando…" : "Registrar assim mesmo"}
+                </button>
+              </div>
+            </section>
+          )}
 
           <p className="mt-3 text-center text-xs text-ink-3">
             Deixe o GPS ligado e espere alguns segundos ao ar livre para a

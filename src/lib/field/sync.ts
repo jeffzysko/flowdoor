@@ -18,6 +18,8 @@ const PERMANENT = [
   "ja concluido",
   // Fora de ordem na fila: insistir não resolve, a parada não é essa.
   "nao e a sua parada de agora",
+  // Longe demais até para o escape: repetir não aproxima ninguém.
+  "longe demais para justificar",
 ];
 
 const isPermanent = (m: string) =>
@@ -33,6 +35,7 @@ async function send(item: QueueItem): Promise<void> {
       p_lng: item.payload.lng,
       p_accuracy: item.payload.accuracy ?? null,
       p_idempotency_key: item.key,
+      p_override_reason: item.payload.overrideReason ?? null,
     });
     if (error) throw new Error(error.message);
     return;
