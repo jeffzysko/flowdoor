@@ -1,31 +1,47 @@
-# Migrations
+# Migrações
 
-Projeto Supabase `ipcjrlgrxvqdwpofuzuz` (sa-east-1).
+Estes arquivos são o banco. Aplicados na ordem do nome, num Postgres vazio,
+reconstroem o esquema inteiro do Flowdoor: tabelas, enums, políticas de RLS,
+RPCs, triggers, buckets de Storage e grants.
 
-| # | Nome | O que traz | Em arquivo? |
-|---|------|------------|-------------|
-| 1 | `init_core` | profiles, platform_admins, organizations, org_members, org_relationships, funções de contexto, RLS | sim |
-| 2 | `inventory` | sites (pontos), faces, periods, bookings com trava de sobreposição | sim |
-| 3 | `commercial` | advertisers, orders, order_items, numeração, exclusividade de categoria | sim |
-| 4 | `field_and_proof` | field_events, fotos, fila offline, proofs, convites com token hasheado, audit_log | sim |
-| 5 | `rpcs` | bootstrap, convites, pedido transacional, field_start / field_finish | **não** |
-| 6 | `proof_storage_periods` | publish_proof, get_public_proof, buckets, calendário 2026-2029 | **não** |
-| 7 | `harden_grants` | fecha funções internas para anon e trigger functions para todos | **não** |
-| 8 | `rename_order_prefix_flowdoor` | prefixo do pedido vira `FLW-` | **não** |
+## Como isto foi montado
 
-## Pendência conhecida
+As migrações foram aplicadas ao projeto Supabase pela API, não por arquivo, e
+por um tempo existiram só lá dentro — o repositório tinha quatro arquivos
+escritos à mão, com versões que nem batiam com as do servidor. Um projeto
+apagado levaria junto tudo que não estava no git.
 
-As migrations 5 a 8 foram aplicadas direto no banco e **ainda não estão em
-arquivo**. O arquivo 3 guarda o prefixo antigo `FTD-`, corrigido depois pela 8.
+Os arquivos aqui foram extraídos de `supabase_migrations.schema_migrations`,
+que guarda o SQL exato de cada aplicação, e conferidos por md5 contra o
+registro do servidor: **23 de 23 idênticos**. O nome de cada arquivo é a
+versão registrada lá, então o histórico local e o remoto falam a mesma língua.
 
-Enquanto isso não for resolvido, **este diretório não reconstrói o banco do
-zero**. Para materializar tudo a partir do estado real:
+Ficaram de fora as entradas `tmp_*`, que são testes de fumaça e sondagens de
+RLS feitos durante o desenvolvimento. Uma delas chega a desligar as
+conferências de local, horário e campanha — um banco novo não pode nascer
+assim.
 
-```bash
-supabase link --project-ref ipcjrlgrxvqdwpofuzuz
-supabase db pull            # gera o arquivo com o schema atual completo
+## Regra daqui para frente
+
+Toda mudança de esquema nasce como arquivo aqui, com o mesmo nome de versão
+que for registrado no servidor. Se alguma for aplicada direto pela API, exporte
+depois e confira o md5:
+
+```sql
+select version || '_' || name as arquivo,
+       md5(array_to_string(statements, E'\n')) as md5
+from supabase_migrations.schema_migrations
+where name not like 'tmp\_%'
+order by version;
 ```
 
-Depois disso, apagar os arquivos 1-4 e ficar só com o consolidado, ou manter os
-quatro e adicionar os que faltam — o importante é que `supabase db push` num
-projeto vazio produza exatamente o schema de produção.
+O md5 do arquivo é calculado sem a quebra de linha final, que o registro do
+servidor não tem.
+
+## O que não está aqui
+
+- **Dados de demonstração** ficam em `../seed/`. Não são migração: um ambiente
+  novo não deve nascer com a "Outdoor Sul" e oito outdoors em Porto Alegre.
+- **Segredos.** Nenhuma chave, token ou senha aparece nestes arquivos.
+- **`auth.users`.** O primeiro usuário é criado pelo Supabase Auth, e vira
+  responsável pela plataforma pela RPC `bootstrap_platform_admin()`.

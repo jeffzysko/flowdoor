@@ -1,25 +1,13 @@
--- =====================================================================
--- Flowtdoor — núcleo: identidade, organizações e vínculos entre elas
--- =====================================================================
--- Decisões estruturais que este arquivo implementa:
---   1. Multi-party, não multi-tenant simples: uma organização tem um TIPO
---      (exibidora, agência, representação) e organizações se RELACIONAM.
---   2. Papel de plataforma vive fora das organizações (platform_admins).
---   3. Toda leitura passa por funções SECURITY DEFINER estáveis, para que
---      as policies não façam subqueries recursivas em org_members.
-
 create extension if not exists "pgcrypto";
 create extension if not exists "btree_gist";
 create extension if not exists "citext";
 
--- ---------------------------------------------------------------- tipos
 create type org_kind    as enum ('exibidora', 'agencia', 'representacao');
 create type org_status  as enum ('implantacao', 'ativa', 'suspensa', 'encerrada');
 create type member_role as enum ('owner', 'admin', 'comercial', 'operacao', 'aplicador', 'financeiro', 'leitura');
 create type rel_kind    as enum ('agencia', 'representacao');
 create type rel_status  as enum ('pendente', 'ativa', 'suspensa', 'encerrada');
 
--- ------------------------------------------------------------- profiles
 create table profiles (
   id          uuid primary key references auth.users(id) on delete cascade,
   full_name   text not null,
@@ -31,17 +19,11 @@ create table profiles (
   updated_at  timestamptz not null default now()
 );
 
-comment on table profiles is 'Espelho de auth.users com dados de exibição. avatar_path aponta para Storage, nunca base64.';
-
--- -------------------------------------------------------- platform_admins
 create table platform_admins (
   user_id    uuid primary key references profiles(id) on delete cascade,
   created_at timestamptz not null default now()
 );
 
-comment on table platform_admins is 'Operadores da plataforma Flowtdoor. Fora da hierarquia de organizações de propósito.';
-
--- --------------------------------------------------------- organizations
 create table organizations (
   id          uuid primary key default gen_random_uuid(),
   kind        org_kind   not null,
@@ -60,7 +42,6 @@ create table organizations (
 
 create index organizations_kind_idx on organizations(kind) where status = 'ativa';
 
--- ----------------------------------------------------------- org_members
 create table org_members (
   id         uuid primary key default gen_random_uuid(),
   org_id     uuid not null references organizations(id) on delete cascade,
@@ -74,16 +55,12 @@ create table org_members (
 create index org_members_user_idx on org_members(user_id) where active;
 create index org_members_org_idx  on org_members(org_id)  where active;
 
--- --------------------------------------------------- org_relationships
--- provider = quem tem o inventário (exibidora)
--- consumer = quem consome (agência ou representação)
 create table org_relationships (
   id              uuid primary key default gen_random_uuid(),
   provider_org_id uuid not null references organizations(id) on delete cascade,
   consumer_org_id uuid not null references organizations(id) on delete cascade,
   kind            rel_kind   not null,
   status          rel_status not null default 'pendente',
-  -- escopo: null = todo o inventário do provider; caso contrário lista de site_ids
   scope_site_ids  uuid[],
   can_book        boolean not null default false,
   can_see_prices  boolean not null default false,
@@ -96,26 +73,16 @@ create table org_relationships (
 create index org_rel_consumer_idx on org_relationships(consumer_org_id) where status = 'ativa';
 create index org_rel_provider_idx on org_relationships(provider_org_id) where status = 'ativa';
 
--- =====================================================================
--- Funções de contexto — base de TODAS as policies
--- =====================================================================
-
-create or replace function auth_uid() returns uuid
-language sql stable as $$ select auth.uid() $$;
-
 create or replace function is_platform_admin() returns boolean
 language sql stable security definer set search_path = public as $$
   select exists (select 1 from platform_admins where user_id = auth.uid())
 $$;
 
--- Organizações onde o usuário é membro ativo
 create or replace function my_org_ids() returns setof uuid
 language sql stable security definer set search_path = public as $$
   select org_id from org_members where user_id = auth.uid() and active
 $$;
 
--- Organizações cujo inventário o usuário pode LER:
--- as próprias + as de quem lhe deu acesso via relacionamento ativo
 create or replace function readable_org_ids() returns setof uuid
 language sql stable security definer set search_path = public as $$
   select org_id from org_members where user_id = auth.uid() and active
@@ -141,17 +108,12 @@ language sql stable security definer set search_path = public as $$
   )
 $$;
 
--- =====================================================================
--- RLS
--- =====================================================================
-
 alter table profiles          enable row level security;
 alter table platform_admins   enable row level security;
 alter table organizations     enable row level security;
 alter table org_members       enable row level security;
 alter table org_relationships enable row level security;
 
--- profiles: eu vejo a mim e a quem divide organização comigo
 create policy profiles_select on profiles for select using (
   id = auth.uid()
   or is_platform_admin()
@@ -165,11 +127,9 @@ create policy profiles_select on profiles for select using (
 create policy profiles_update_self on profiles for update
   using (id = auth.uid()) with check (id = auth.uid());
 
--- platform_admins: só a própria plataforma enxerga
 create policy platform_admins_select on platform_admins for select
   using (is_platform_admin() or user_id = auth.uid());
 
--- organizations
 create policy organizations_select on organizations for select using (
   is_platform_admin() or id in (select readable_org_ids())
 );
@@ -179,7 +139,6 @@ create policy organizations_update on organizations for update
 create policy organizations_insert on organizations for insert
   with check (is_platform_admin());
 
--- org_members
 create policy org_members_select on org_members for select using (
   is_platform_admin() or user_id = auth.uid() or is_org_member(org_id)
 );
@@ -187,7 +146,6 @@ create policy org_members_write on org_members for all
   using (is_platform_admin() or has_org_role(org_id, array['owner','admin']::member_role[]))
   with check (is_platform_admin() or has_org_role(org_id, array['owner','admin']::member_role[]));
 
--- org_relationships: os dois lados leem; só o provider concede
 create policy org_rel_select on org_relationships for select using (
   is_platform_admin() or is_org_member(provider_org_id) or is_org_member(consumer_org_id)
 );
@@ -195,9 +153,6 @@ create policy org_rel_write on org_relationships for all
   using (is_platform_admin() or has_org_role(provider_org_id, array['owner','admin']::member_role[]))
   with check (is_platform_admin() or has_org_role(provider_org_id, array['owner','admin']::member_role[]));
 
--- =====================================================================
--- Novo usuário -> profile automático
--- =====================================================================
 create or replace function handle_new_user() returns trigger
 language plpgsql security definer set search_path = public as $$
 begin
@@ -216,11 +171,8 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function handle_new_user();
 
--- =====================================================================
--- updated_at
--- =====================================================================
 create or replace function touch_updated_at() returns trigger
-language plpgsql as $$
+language plpgsql security invoker set search_path = public as $$
 begin new.updated_at = now(); return new; end;
 $$;
 
