@@ -1,5 +1,5 @@
 import { NavegacaoApp, type EmpresaItem } from "./NavegacaoApp";
-import { NAV_GRUPOS, ROLE_LABEL, canManageTeam } from "@/lib/domain/permissions";
+import { navDaSessao, ROLE_LABEL, canManageTeam } from "@/lib/domain/permissions";
 import { logoDaEmpresa } from "@/lib/domain/organizacao";
 import { createClient } from "@/lib/supabase/server";
 import type { Aviso } from "@/lib/domain/avisos";
@@ -58,7 +58,11 @@ export async function CascaApp({
   return (
     <NavegacaoApp
       contexto={contexto}
-      grupos={ctx.current ? NAV_GRUPOS[ctx.current.role] : []}
+      grupos={
+        ctx.current
+          ? navDaSessao(ctx.current.role, ctx.current.organizations.kind)
+          : []
+      }
       nome={ctx.fullName}
       email={ctx.email}
       avatarUrl={ctx.avatarUrl}

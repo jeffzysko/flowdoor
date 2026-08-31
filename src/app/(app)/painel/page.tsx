@@ -9,6 +9,7 @@ import Link from "next/link";
 import { canSell, canReview } from "@/lib/domain/permissions";
 import { Avisos, type Aviso } from "./Avisos";
 import { rotulo } from "@/lib/domain/rotulos";
+import { reais, reaisCurto } from "@/lib/domain/dinheiro";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Visão geral" };
@@ -21,8 +22,12 @@ export default async function PainelPage() {
 
   const org = ctx.current.org_id;
   const supabase = await createClient();
-  const [faces, sites, advertisers, abertos, emConferencia, avisos, pedidos] =
-    await Promise.all([
+  const hoje = new Date().toISOString().slice(0, 10);
+
+  const [
+    faces, sites, advertisers, abertos, emConferencia, avisos, pedidos,
+    hojeNaRua, opcoesAbertas, opcoesVencendo, periodoAtual,
+  ] = await Promise.all([
       supabase.from("faces").select("id", { count: "exact", head: true })
         .eq("org_id", org).eq("status", "ativa"),
       supabase.from("sites").select("id", { count: "exact", head: true })
@@ -46,7 +51,42 @@ export default async function PainelPage() {
         .eq("org_id", org)
         .order("created_at", { ascending: false })
         .limit(8),
+      // Três filas, três destinos diferentes. Antes os três cards do meio
+      // resumiam a própria página e mandavam todos para o mesmo lugar.
+      supabase.from("field_events").select("id", { count: "exact", head: true })
+        .eq("org_id", org).in("status", ["pendente", "em_andamento"])
+        .gte("scheduled_for", `${hoje}T00:00:00`)
+        .lte("scheduled_for", `${hoje}T23:59:59`),
+      supabase.from("holds").select("id", { count: "exact", head: true })
+        .eq("org_id", org).eq("status", "aberta"),
+      supabase.from("holds").select("id", { count: "exact", head: true })
+        .eq("org_id", org).eq("status", "aberta")
+        .lte("expires_at", new Date(Date.now() + 48 * 3600e3).toISOString()),
+      supabase.from("periods").select("id, seq, starts_on, ends_on")
+        .lte("starts_on", hoje).gte("ends_on", hoje).maybeSingle(),
     ]);
+
+  // Ocupação da bi-semana corrente: o número que um dono de outdoor olha
+  // antes de qualquer outro, e que não aparecia em lugar nenhum do painel.
+  const periodo = periodoAtual.data as
+    | { id: string; seq: number; starts_on: string; ends_on: string }
+    | null;
+
+  const { data: ocupadasAgora } = periodo
+    ? await supabase
+        .from("bookings")
+        .select("face_id, price")
+        .eq("org_id", org)
+        .eq("status", "ativa")
+        .neq("kind", "opcao")
+        .overlaps("span", `[${periodo.starts_on},${periodo.ends_on}]`)
+    : { data: [] };
+
+  const reservasAgora = (ocupadasAgora ?? []) as { face_id: string; price: number | string | null }[];
+  const facesOcupadas = new Set(reservasAgora.map((b) => b.face_id)).size;
+  const totalFaces = faces.count ?? 0;
+  const ocupacao = totalFaces > 0 ? Math.round((facesOcupadas / totalFaces) * 100) : 0;
+  const valorNaRua = reservasAgora.reduce((s2, b) => s2 + Number(b.price ?? 0), 0);
 
   type Pedido = {
     id: string; code: string; status: string; starts_on: string;
@@ -124,61 +164,84 @@ export default async function PainelPage() {
         }
       />
 
+      {/* ----------------------------------------------- filas de hoje
+          Três perguntas diferentes, três destinos diferentes. Antes eram três
+          cards que resumiam a própria página — o de avisos repetia a seção de
+          avisos, o de pedidos repetia a tabela de pedidos, e os três botões
+          levavam para /operacao. Resumo só ajuda quando não dá para ver tudo
+          de uma vez; aqui dava. */}
       <section className="fd-cards-lg mt-6">
         <CardDestaque
-          marcador="Próxima ação"
-          titulo={proxima.titulo}
-          lead={proxima.texto}
-          acao={
-            <Link href={proxima.href} className="fd-btn fd-btn-ghost">
-              {proxima.botao}
-            </Link>
-          }
-        />
-        <CardDestaque
-          marcador="Avisos"
+          marcador="Na rua hoje"
           titulo={
-            lista_avisos.length === 0
-              ? "Nada vencendo agora."
-              : `${lista_avisos.length} aviso${lista_avisos.length > 1 ? "s" : ""} aberto${lista_avisos.length > 1 ? "s" : ""}.`
+            (hojeNaRua.count ?? 0) === 0
+              ? "Nada agendado para hoje."
+              : `${hojeNaRua.count} aplicação${(hojeNaRua.count ?? 0) > 1 ? "ões" : ""}`
           }
           lead={
-            urgentes
-              ? `${urgentes} exige${urgentes > 1 ? "m" : ""} atenção hoje.`
-              : "Licença, contrato de terreno e foto parada em conferência entram aqui sozinhos."
+            (hojeNaRua.count ?? 0) === 0
+              ? "A agenda de campo está limpa. As aplicações do período aparecem aqui no dia."
+              : "Equipe na rua agora. Cada parada vira foto, e a foto vira comprovante."
           }
-          acao={
-            lista_avisos.length > 0 ? (
-              <a href="#avisos" className="fd-link fd-link-sm">
-                Ver os avisos
-              </a>
-            ) : undefined
-          }
+          href={"/operacao" as Route}
+          acao={<span className="fd-link fd-link-sm">Ver a agenda</span>}
         />
         <CardDestaque
-          marcador="Pedidos"
-          titulo={`${lista.length === 8 ? "8+" : lista.length} recente${lista.length === 1 ? "" : "s"}`}
-          lead="O pedido reserva a face, calcula o valor e gera a agenda do aplicador."
-          href={"/operacao" as Route}
-          acao={<span className="fd-link fd-link-sm">Ver a operação</span>}
+          marcador="Esperando você"
+          titulo={
+            (emConferencia.count ?? 0) === 0
+              ? "Nenhuma foto na fila."
+              : `${emConferencia.count} foto${(emConferencia.count ?? 0) > 1 ? "s" : ""}`
+          }
+          lead={
+            (emConferencia.count ?? 0) === 0
+              ? "Quando o aplicador enviar, a foto entra aqui para conferência."
+              : "Enquanto a foto não passa, o comprovante do anunciante não fecha."
+          }
+          href={"/revisao" as Route}
+          acao={<span className="fd-link fd-link-sm">Abrir conferência</span>}
+        />
+        <CardDestaque
+          marcador="Dinheiro em aberto"
+          titulo={
+            (opcoesAbertas.count ?? 0) === 0
+              ? "Nenhuma opção aberta."
+              : `${opcoesAbertas.count} opção${(opcoesAbertas.count ?? 0) > 1 ? "ões" : ""}`
+          }
+          lead={
+            (opcoesVencendo.count ?? 0) > 0
+              ? `${opcoesVencendo.count} vence${(opcoesVencendo.count ?? 0) > 1 ? "m" : ""} em 48 horas. Opção que vence sem telefonema é venda perdida em silêncio.`
+              : "Faces seguradas para cliente que ainda não fechou."
+          }
+          href={"/opcoes" as Route}
+          acao={<span className="fd-link fd-link-sm">Ver as opções</span>}
         />
       </section>
 
+      {/* --------------------------------------------- porte da operação
+          Escala e ocupação — o que não muda de hora em hora. Avisos e
+          aplicações abertas saíram daqui: são fila, não porte, e já têm o
+          lugar delas acima. */}
       <section className="fd-cards mt-4">
         <Stat label="Pontos" value={sites.count ?? 0} hint="Estruturas ativas" href="/inventario" />
-        <Stat label="Faces" value={faces.count ?? 0} hint="Inventário disponível" href="/disponibilidade" />
+        <Stat label="Faces" value={totalFaces} hint="Inventário ativo" href="/disponibilidade" />
+        <Stat
+          label="Ocupação"
+          value={`${ocupacao}%`}
+          hint={
+            periodo
+              ? `${facesOcupadas} de ${totalFaces} faces vendidas`
+              : "sem bi-semana corrente"
+          }
+          href="/disponibilidade"
+        />
+        <Stat
+          label="Na rua agora"
+          value={reaisCurto(valorNaRua)}
+          hint={`${reais(valorNaRua)} reservados nesta bi-semana`}
+          href="/operacao"
+        />
         <Stat label="Anunciantes" value={advertisers.count ?? 0} hint="Clientes finais" href="/clientes" />
-        <Stat
-          label="Avisos"
-          value={lista_avisos.length}
-          hint={urgentes ? `${urgentes} urgente${urgentes > 1 ? "s" : ""}` : "nada urgente"}
-        />
-        <Stat
-          label="Aplicações abertas"
-          value={abertos.count ?? 0}
-          hint="Na rua ou agendadas"
-          href="/revisao"
-        />
       </section>
 
       <section id="avisos" className="mt-10 scroll-mt-24">

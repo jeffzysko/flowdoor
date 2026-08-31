@@ -316,6 +316,33 @@ base nova, schema novo.
    com timeout curto, e nunca impede o cadastro manual. O que ela traz entra
    só em campo vazio — o que o vendedor digitou vale mais que a Receita.
    Situação cadastral diferente de ATIVA aparece como aviso, não como bloqueio.
+68. **O painel responde cada pergunta uma vez só.** A versão anterior dizia
+   quatro coisas e mostrava cada uma duas ou três vezes: "aplicações abertas"
+   no herói e no indicador; avisos no card, no indicador e na seção; "Ver a
+   operação" em três botões para o mesmo lugar; pedidos no card e na tabela
+   logo abaixo. Os três cards do meio eram um resumo da própria página — e
+   resumo só ajuda quando não dá para ver tudo de uma vez. Agora são três
+   filas com três destinos diferentes (rua hoje, foto na fila, opção
+   vencendo), e a faixa de indicadores virou porte da operação, com ocupação
+   da bi-semana corrente e valor reservado no lugar dos dois números
+   repetidos.
+69. **`reaisCurto()` para indicador, `reais()` para documento.** "R$
+   58.400,00" quebra em duas linhas num KPI e desalinha a faixa inteira, e
+   ninguém lê o centavo de um número de resumo. Em tabela, linha de pedido e
+   comprovante, o centavo continua obrigatório.
+70. **O menu depende do papel E do tipo de empresa.** Agência não tem ponto,
+   não tem equipe de campo e não confere foto: o trilho da exibidora seria
+   oito telas vazias. `navDaSessao(papel, tipo)` decide, e o portal do
+   parceiro tem dois destinos — disponibilidade e as opções dele.
+71. **`faces.base_price` sai por função para o parceiro.** RLS resolve linha,
+   não coluna: a policy libera a face inteira ou nada, então `can_see_prices`
+   não teria como valer. `partner_faces()` apaga o preço quando a permissão
+   não existe.
+72. **A disponibilidade mostra doze colunas e um ano de dados.** "Meu cliente
+   quer abril" é a pergunta que a agência faz por telefone, e a grade não
+   respondia — começava sempre em hoje. O seletor de mês move a janela; o
+   filtro "só com bi-semana livre" passa a olhar a janela visível, senão
+   esconderia face livre justamente no mês que a pessoa abriu.
 63. **`readable_org_ids()` voltou a ser "as minhas organizações".** Desde a
    primeira migração ela unia as minhas com as **provedoras de qualquer
    relacionamento ativo** — e essa função aparece na policy de select de
@@ -592,9 +619,8 @@ são as que a auditoria encontrou, e nenhuma delas é óbvia olhando as telas:
   encontram.
 - ~~`org_relationships` tem 0 linhas, 0 telas, 0 referências.~~ **Fechado.**
   `/parceiros` convida, lista, suspende e encerra; `/parceiro/[token]` abre a
-  conta do parceiro. Falta o portal do parceiro — a tela onde ele consulta a
-  disponibilidade e monta a opção. O banco já tem tudo:
-  `partner_availability` e `partner_create_hold`.
+  conta do parceiro; `/portal` e `/portal/opcoes` são o outro lado do balcão,
+  onde a agência consulta por bi-semana, monta a lista e pede a opção.
 - ~~Reserva com validade nunca foi ligada.~~ **Fechado.** `holds` + `/opcoes`,
   com confirmação, prorrogação, cancelamento com motivo, expiração de hora em
   hora, aviso no sino e troca de faces sem trocar o número.

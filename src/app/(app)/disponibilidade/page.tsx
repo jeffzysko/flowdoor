@@ -38,7 +38,11 @@ export default async function DisponibilidadePage() {
       .eq("status", "ativa")
       .order("code")
       .limit(300),
-    supabase.from("periods").select("id, seq, starts_on, ends_on").eq("year", ano).order("seq"),
+    supabase
+      .from("periods")
+      .select("id, seq, starts_on, ends_on")
+      .in("year", [ano, ano + 1])
+      .order("starts_on"),
     supabase
       .from("bookings")
       .select("face_id, span, kind")
@@ -53,9 +57,12 @@ export default async function DisponibilidadePage() {
   const reservas = (bookings ?? []) as Booking[];
 
   const hoje = new Date().toISOString().slice(0, 10);
+  // Um ano inteiro à frente vai para a tela; a janela de doze colunas é
+  // escolhida no cliente. Sem isso, "quero ver março" obrigava a rolar uma
+  // grade que nem existia.
   const periodos: PeriodoCal[] = listaPeriodos
     .filter((p) => p.ends_on >= hoje)
-    .slice(0, 12)
+    .slice(0, 26)
     .map((p) => ({ id: p.id, seq: p.seq, inicio: p.starts_on, fim: p.ends_on }));
 
   // A ocupação é resolvida aqui, uma vez por face: no cliente isso viraria
@@ -108,7 +115,7 @@ export default async function DisponibilidadePage() {
       <PageHead
         eyebrow="Comercial"
         title="Disponibilidade"
-        lead="Bi-semanas do ano corrente, uma coluna por período. Cada face aceita uma reserva por bi-semana — opção aberta aparece em mostarda e continua vendável."
+        lead="Uma coluna por bi-semana. Cada face aceita uma reserva por período — opção aberta aparece em mostarda e continua vendável."
       />
 
       {paraCalendario.length === 0 || periodos.length === 0 ? (

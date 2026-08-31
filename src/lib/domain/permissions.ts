@@ -103,6 +103,37 @@ export const NAV_GRUPOS: Record<MemberRole, GrupoNav[]> = {
 // pode encerrar a empresa, não quais telas cada um abre.
 NAV_GRUPOS.admin = NAV_GRUPOS.owner;
 
+/**
+ * O menu do parceiro.
+ *
+ * Agência e representação não operam inventário: não têm ponto, não têm
+ * equipe de campo, não conferem foto. Mostrar o menu da exibidora para elas
+ * seria oferecer oito telas vazias. Elas consultam e pedem — e é isso que o
+ * trilho oferece.
+ */
+export const NAV_PARCEIRO: GrupoNav[] = [
+  {
+    titulo: "Vender",
+    itens: [
+      { href: "/portal", label: "Disponibilidade", icon: "calendar" },
+      { href: "/portal/opcoes", label: "Minhas opções", icon: "clock" },
+    ],
+  },
+  {
+    titulo: "Cadastros",
+    itens: [{ href: "/equipe", label: "Equipe", icon: "team" }],
+  },
+];
+
+/** O trilho depende do papel E do tipo de empresa, não só do papel. */
+export function navDaSessao(role: MemberRole, tipoDeEmpresa: string): GrupoNav[] {
+  if (tipoDeEmpresa === "exibidora") return NAV_GRUPOS[role] ?? [];
+  return NAV_PARCEIRO.map((g) => ({
+    ...g,
+    itens: g.itens.filter((i) => i.href !== "/equipe" || canManageTeam(role)),
+  })).filter((g) => g.itens.length > 0);
+}
+
 /** Lista achatada, para quando só interessa o conjunto de destinos. */
 export const NAV: Record<MemberRole, ItemNav[]> = Object.fromEntries(
   (Object.keys(NAV_GRUPOS) as MemberRole[]).map((r) => [

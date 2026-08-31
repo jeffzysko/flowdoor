@@ -1,30 +1,14 @@
-import Link from "next/link";
-import type { Route } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionContext } from "@/lib/domain/session";
-import { PageHead, Empty, Table, Chip, LinhaTitulo } from "@/components/ui";
+import { PageHead, Empty } from "@/components/ui";
 import { NovoPonto } from "./NovoPonto";
 import { Coordenadas } from "./Coordenadas";
-import { rotuloDoFormato } from "@/lib/domain/formatos";
-import { situacaoDoLocal, LOCAL_CURTO, LOCAL_TOM, LOCAL_EXPLICACAO } from "@/lib/domain/localizacao";
 import { canManageInventory } from "@/lib/domain/permissions";
-import { rotulo } from "@/lib/domain/rotulos";
-import { reais } from "@/lib/domain/dinheiro";
+import { ListaInventario, type FaceInv } from "./ListaInventario";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Inventário" };
-
-type Face = {
-  id: string; code: string; kind: string; medium: string; base_price: number | null;
-  orientation: string | null; width_m: number | null; height_m: number | null;
-  status: string;
-  sites: {
-    id: string; code: string; address: string; district: string | null;
-    city: string; state: string;
-    latitude: number | null; geo_precision: string;
-  } | null;
-};
 
 export default async function InventarioPage() {
   const ctx = await getSessionContext();
@@ -37,7 +21,7 @@ export default async function InventarioPage() {
     .eq("org_id", ctx.current.org_id)
     .order("code");
 
-  const faces = (data ?? []) as unknown as Face[];
+  const faces = (data ?? []) as unknown as FaceInv[];
   const pode = canManageInventory(ctx.current.role);
 
   const [{ count: semLocal }, { count: parciais }, { count: conferem }] =
@@ -77,55 +61,9 @@ export default async function InventarioPage() {
           </Empty>
         </div>
       ) : (
-        <Table head={["Face", "Ponto", "Endereço", "Local", "Tipo", "Medida", "Bi-semana", "Status"]}>
-          {faces.map((f) => (
-            <tr key={f.id}>
-              <td className="tabular-nums">{f.code}</td>
-              <td className="tabular-nums text-ink-3">{f.sites?.code}</td>
-              <td>
-                {f.sites?.id ? (
-                  <LinhaTitulo href={`/inventario/${f.sites.id}` as Route}>
-                    {f.sites.address}
-                  </LinhaTitulo>
-                ) : (
-                  f.sites?.address
-                )}
-                <span className="block text-xs text-ink-3">
-                  {f.sites?.district ? `${f.sites.district} · ` : ""}
-                  {f.sites?.city}/{f.sites?.state}
-                </span>
-              </td>
-              <td>
-                {(() => {
-                  const sit = situacaoDoLocal(
-                    f.sites?.geo_precision,
-                    f.sites?.latitude != null
-                  );
-                  return (
-                    // O title carrega a explicação: a coluna precisa caber, mas
-                    // "parcial" sozinho não diz o que fazer a respeito.
-                    <span title={LOCAL_EXPLICACAO[sit]}>
-                      <Chip tone={LOCAL_TOM[sit]}>{LOCAL_CURTO[sit]}</Chip>
-                    </span>
-                  );
-                })()}
-              </td>
-              <td>
-                <Chip tone={f.medium === "digital" ? "bom" : "neutro"}>{rotuloDoFormato(f.kind)}</Chip>
-              </td>
-              <td className="tabular-nums">
-                {f.width_m && f.height_m ? `${f.width_m}×${f.height_m}m` : "—"}
-              </td>
-              <td className="text-right tabular-nums">
-                {reais(f.base_price)}
-              </td>
-              <td>
-                <Chip tone={f.status === "ativa" ? "bom" : "aviso"}>{rotulo("face_status", f.status)}</Chip>
-              </td>
-            </tr>
-          ))}
-        </Table>
+        <ListaInventario faces={faces} />
       )}
+
     </>
   );
 }

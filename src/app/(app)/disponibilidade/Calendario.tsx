@@ -19,6 +19,17 @@ export type FaceCal = {
 
 export type PeriodoCal = { id: string; seq: number; inicio: string; fim: string };
 
+const MESES = [
+  "janeiro", "fevereiro", "março", "abril", "maio", "junho",
+  "julho", "agosto", "setembro", "outubro", "novembro", "dezembro",
+];
+
+/** "março/2027" — chave e rótulo do seletor de mês, na mesma função. */
+function mesDe(iso: string) {
+  const [a, m] = iso.split("-").map(Number);
+  return { chave: `${a}-${String(m).padStart(2, "0")}`, texto: `${MESES[m - 1]} de ${a}` };
+}
+
 const dia = (v: string) =>
   new Date(v + "T12:00:00").toLocaleDateString("pt-BR", {
     day: "2-digit",
@@ -53,13 +64,44 @@ export function Calendario({
   const [cidade, setCidade] = useState("");
   const [tipo, setTipo] = useState("");
   const [soLivres, setSoLivres] = useState(false);
+  const [mes, setMes] = useState("");
+
+  // Doze colunas cabem na tela; o resto do ano fica atrás do seletor de mês.
+  // "Meu cliente quer abril" é a pergunta que a agência faz por telefone, e
+  // era a que a grade não respondia.
+  const meses = useMemo(() => {
+    const vistos = new Map<string, string>();
+    for (const p of periodos) {
+      const { chave, texto } = mesDe(p.inicio);
+      if (!vistos.has(chave)) vistos.set(chave, texto);
+    }
+    return [...vistos.entries()];
+  }, [periodos]);
+
+  const inicio = useMemo(() => {
+    if (!mes) return 0;
+    const i = periodos.findIndex((p) => mesDe(p.inicio).chave === mes);
+    return i < 0 ? 0 : i;
+  }, [mes, periodos]);
+
+  const janela = useMemo(
+    () => periodos.slice(inicio, inicio + 12),
+    [periodos, inicio]
+  );
 
   const visiveis = useMemo(() => {
     const t = busca.trim().toLowerCase();
     return faces.filter((f) => {
       if (cidade && f.cidade !== cidade) return false;
       if (tipo && f.kind !== tipo) return false;
-      if (soLivres && f.ocupadas.length === periodos.length) return false;
+      // "Só com bi-semana livre" olha o que está na tela: filtrar pelo ano
+      // inteiro esconderia face livre justamente no mês que a pessoa abriu.
+      if (soLivres) {
+        const livreNaJanela = janela.some(
+          (_, k) => !f.ocupadas.includes(inicio + k)
+        );
+        if (!livreNaJanela) return false;
+      }
       if (!t) return true;
       // O formato entra na busca por texto também: quem digita "led" quer o
       // painel de LED, não precisa saber que existe um seletor à direita.
@@ -67,23 +109,23 @@ export function Calendario({
         .toLowerCase()
         .includes(t);
     });
-  }, [faces, busca, cidade, tipo, soLivres, periodos.length]);
+  }, [faces, busca, cidade, tipo, soLivres, janela, inicio]);
 
-  const livresNoTotal = faces.reduce(
-    (s, f) => s + (periodos.length - f.ocupadas.length),
+  const livresNaJanela = faces.reduce(
+    (s, f) => s + janela.filter((_, k) => !f.ocupadas.includes(inicio + k)).length,
     0
   );
 
   return (
     <>
       <div className="fd-card mt-6">
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_auto_auto_auto] xl:items-end">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_auto_auto_auto_auto] xl:items-end">
           <label className="block">
             <span className="fd-label">Buscar face</span>
             <input
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
-              placeholder="Código, rua ou cidade"
+              placeholder="Código, rua ou bairro"
               className="fd-input"
             />
           </label>
@@ -98,6 +140,21 @@ export function Calendario({
               {cidades.map((c) => (
                 <option key={c} value={c}>
                   {c}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="block">
+            <span className="fd-label">A partir de</span>
+            <select
+              value={mes}
+              onChange={(e) => setMes(e.target.value)}
+              className="fd-input"
+            >
+              <option value="">Hoje</option>
+              {meses.map(([chave, texto]) => (
+                <option key={chave} value={chave}>
+                  {texto}
                 </option>
               ))}
             </select>
@@ -142,8 +199,8 @@ export function Calendario({
             Reservado — não aceita segunda reserva
           </span>
           <span className="ml-auto tabular-nums">
-            {visiveis.length} de {faces.length} faces · {livresNoTotal} bi-semanas
-            livres
+            {visiveis.length} de {faces.length} faces · {livresNaJanela} bi-semanas
+            livres nestas {janela.length} colunas
           </span>
         </div>
       </div>
@@ -162,7 +219,7 @@ export function Calendario({
                 <th className="sticky left-0 z-10 bg-surface pb-3 text-left">
                   <span className="fd-label">Face</span>
                 </th>
-                {periodos.map((p) => (
+                {janela.map((p) => (
                   <th key={p.id} className="px-1 pb-3 text-center">
                     <span className="block text-sm font-bold tabular-nums">
                       {p.seq}
@@ -188,7 +245,8 @@ export function Calendario({
                         {rotuloDoFormato(f.kind)} · {f.cidade}
                       </span>
                     </td>
-                    {periodos.map((p, i) => {
+                    {janela.map((p, k) => {
+                      const i = inicio + k;
                       const taken = ocupadas.has(i);
                       const emOpcao = !taken && opcoes.has(i);
                       const estado = taken

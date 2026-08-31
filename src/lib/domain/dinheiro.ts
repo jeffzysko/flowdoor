@@ -55,3 +55,21 @@ export function paraNumero(v: string): number | null {
   const n = Number(normal);
   return Number.isFinite(n) ? n : null;
 }
+
+/**
+ * Dinheiro em indicador grande: "R$ 58,4 mil".
+ *
+ * `reais()` continua sendo a forma certa em tabela, linha de pedido e
+ * comprovante — lá o centavo importa. Num KPI, "R$ 58.400,00" quebra em duas
+ * linhas e desalinha o cartão inteiro, e ninguém lê o centavo de um número de
+ * resumo mesmo.
+ */
+export function reaisCurto(v: number | null | undefined): string {
+  const n = Number(v ?? 0);
+  if (!isFinite(n) || n === 0) return "R$ 0";
+  if (Math.abs(n) >= 1_000_000)
+    return `R$ ${(n / 1_000_000).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} mi`;
+  if (Math.abs(n) >= 1_000)
+    return `R$ ${(n / 1_000).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} mil`;
+  return `R$ ${n.toLocaleString("pt-BR", { maximumFractionDigits: 0 })}`;
+}
