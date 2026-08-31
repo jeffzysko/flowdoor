@@ -316,6 +316,35 @@ base nova, schema novo.
    com timeout curto, e nunca impede o cadastro manual. O que ela traz entra
    só em campo vazio — o que o vendedor digitou vale mais que a Receita.
    Situação cadastral diferente de ATIVA aparece como aviso, não como bloqueio.
+63. **`readable_org_ids()` voltou a ser "as minhas organizações".** Desde a
+   primeira migração ela unia as minhas com as **provedoras de qualquer
+   relacionamento ativo** — e essa função aparece na policy de select de
+   sites, faces, bookings, orders, order_items, field_events, alerts, holds,
+   proofs e organizations. No minuto em que o primeiro relacionamento virasse
+   `ativa`, a agência leria o livro inteiro da exibidora: todos os pedidos,
+   todos os preços negociados com todos os anunciantes, todas as fotos de
+   campo. `can_see_prices` e `scope_site_ids` estavam na tabela e não eram
+   consultados por ninguém. Não houve vazamento porque a tabela tinha zero
+   linhas; a porta fechou antes de alguém passar. Parceiro agora entra por
+   cláusula explícita em cada tabela que ele precisa mesmo ver.
+64. **Parceiro não lê `bookings`.** A linha carrega preço negociado e aponta
+   para o pedido de outro anunciante — é a tabela mais sensível do sistema
+   comercial. A disponibilidade que ele precisa sai de `partner_availability`,
+   que devolve face, período ocupado e o tipo, e mais nada.
+65. **Convite de parceiro é tabela própria, não `invitations`.** Aceitar não
+   coloca ninguém dentro da exibidora: cria (ou liga) a organização do
+   parceiro e abre o relacionamento entre as duas. Enfiar isso em
+   `invitations` daria um `role` que não quer dizer nada e um `org_id`
+   ambíguo.
+66. **A agência que já tem conta liga a parceria nela.** Sem isso, a agência
+   que atende três exibidoras acabaria com três contas iguais, uma por
+   convite. Quem aceita precisa ser titular ou administrador da empresa
+   escolhida — senão um convite por e-mail viraria um jeito de pendurar
+   relacionamento na empresa de outra pessoa.
+67. **O parceiro monta a opção; quem põe preço é a exibidora.** A linha nasce
+   sem valor e o comercial precifica ao confirmar. Deixar a agência digitar o
+   preço seria deixá-la fechar desconto no lugar do dono da placa. E o
+   anunciante do pedido mora na exibidora, não na agência: é ela que fatura.
 57. **Exclui-se o que nunca aconteceu; o resto se cancela ou se arquiva.** A
    regra que já valia para inventário passa a valer para pedido, anunciante e
    equipe. Cancelar e excluir respondem perguntas diferentes: pedido cancelado
@@ -561,10 +590,11 @@ são as que a auditoria encontrou, e nenhuma delas é óbvia olhando as telas:
   zero referências. Um pedido não carrega valor. `sites.lease_monthly_cost` é
   só exibido em `/ativos`. Os dois lados da margem estão no banco e não se
   encontram.
-- **`org_relationships` tem 0 linhas, 0 telas, 0 referências.** Agência e
-  representação foram a decisão nº 2 da arquitetura, o RLS já respeita a
-  relação, e não há nenhum jeito de criar uma. Na prática o sistema é
-  single-tenant.
+- ~~`org_relationships` tem 0 linhas, 0 telas, 0 referências.~~ **Fechado.**
+  `/parceiros` convida, lista, suspende e encerra; `/parceiro/[token]` abre a
+  conta do parceiro. Falta o portal do parceiro — a tela onde ele consulta a
+  disponibilidade e monta a opção. O banco já tem tudo:
+  `partner_availability` e `partner_create_hold`.
 - ~~Reserva com validade nunca foi ligada.~~ **Fechado.** `holds` + `/opcoes`,
   com confirmação, prorrogação, cancelamento com motivo, expiração de hora em
   hora, aviso no sino e troca de faces sem trocar o número.

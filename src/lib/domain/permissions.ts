@@ -37,6 +37,7 @@ export const NAV_GRUPOS: Record<MemberRole, GrupoNav[]> = {
       itens: [
         { href: "/clientes", label: "Anunciantes", icon: "users" },
         { href: "/equipe", label: "Equipe", icon: "team" },
+        { href: "/parceiros", label: "Parceiros", icon: "building" },
       ],
     },
   ],
