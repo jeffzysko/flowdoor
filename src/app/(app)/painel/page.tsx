@@ -19,6 +19,7 @@ const d = (v: string) => new Date(v + "T12:00:00").toLocaleDateString("pt-BR");
 export default async function PainelPage() {
   const ctx = await getSessionContext();
   if (!ctx?.current) redirect("/entrar");
+  if (ctx.current.organizations.kind !== "exibidora") redirect("/portal" as never);
 
   const org = ctx.current.org_id;
   const supabase = await createClient();

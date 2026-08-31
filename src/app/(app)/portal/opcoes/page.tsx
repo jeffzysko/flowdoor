@@ -19,6 +19,7 @@ type Opcao = {
   status: "aberta" | "convertida" | "expirada" | "cancelada";
   closed_reason: string | null;
   exibidora: { name: string } | null;
+  pedido: { code: string } | null;
   bookings: { status: string }[] | null;
 };
 
@@ -47,7 +48,7 @@ export default async function MinhasOpcoesPage() {
   const { data } = await supabase
     .from("holds")
     .select(
-      "id, code, title, starts_on, ends_on, expires_at, status, closed_reason, exibidora:organizations!holds_org_id_fkey(name), bookings(status)"
+      "id, code, title, starts_on, ends_on, expires_at, status, closed_reason, exibidora:organizations!holds_org_id_fkey(name), pedido:orders(code), bookings(status)"
     )
     .eq("agency_org_id", ctx.current.org_id)
     .order("expires_at", { ascending: false })
@@ -127,6 +128,11 @@ export default async function MinhasOpcoesPage() {
                 </td>
                 <td>
                   <Chip tone={TOM[o.status]}>{ROTULO[o.status]}</Chip>
+                  {o.pedido && (
+                    <span className="mt-1 block text-xs text-ink-3 tabular-nums">
+                      virou o pedido {o.pedido.code}
+                    </span>
+                  )}
                   {o.closed_reason && (
                     <span className="mt-1 block text-xs text-ink-3">{o.closed_reason}</span>
                   )}

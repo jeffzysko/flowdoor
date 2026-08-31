@@ -25,7 +25,8 @@ type Opcao = {
   status: "aberta" | "convertida" | "expirada" | "cancelada";
   order_id: string | null;
   closed_reason: string | null;
-  advertisers: { name: string } | null;
+  advertisers: { name: string; tax_id: string | null } | null;
+  agencia: { name: string } | null;
   bookings: Reserva[] | null;
 };
 
@@ -61,7 +62,7 @@ export default async function OpcoesPage() {
     supabase
     .from("holds")
     .select(
-      "id, code, title, starts_on, ends_on, expires_at, status, order_id, closed_reason, advertisers(name), bookings(face_id, price, status)"
+      "id, code, title, starts_on, ends_on, expires_at, status, order_id, closed_reason, advertisers(name, tax_id), agencia:organizations!holds_agency_org_id_fkey(name), bookings(face_id, price, status)"
     )
     .eq("org_id", ctx.current.org_id)
     .order("expires_at", { ascending: true })
@@ -112,7 +113,8 @@ export default async function OpcoesPage() {
         Opção não bloqueia a face: duas podem existir sobre a mesma placa no
         mesmo período, e quem confirmar primeiro leva. É na confirmação que a
         reserva vira firme — se outro pedido pegou a face antes, o sistema
-        recusa e avisa.
+        recusa e avisa. Opção pedida por parceiro chega sem preço: o valor é o
+        que você puser ao confirmar.
       </p>
 
       {abertas.length === 0 ? (
@@ -134,12 +136,30 @@ export default async function OpcoesPage() {
                   <b className="fd-table-link no-underline tabular-nums">{o.code}</b>
                   {o.title && <span className="block text-xs text-ink-3">{o.title}</span>}
                 </td>
-                <td>{o.advertisers?.name ?? "—"}</td>
+                <td>
+                  {o.advertisers?.name ?? "—"}
+                  {o.agencia && (
+                    <span className="block text-xs text-ink-3">
+                      pedido por {o.agencia.name}
+                    </span>
+                  )}
+                  {!o.advertisers?.tax_id && (
+                    <span className="mt-1 block">
+                      <Chip tone="aviso">cadastro sem CNPJ</Chip>
+                    </span>
+                  )}
+                </td>
                 <td className="tabular-nums">
                   {dataBR(o.starts_on)} → {dataBR(o.ends_on)}
                 </td>
                 <td className="tabular-nums">{faces}</td>
-                <td className="tabular-nums">{total > 0 ? reais(total) : "—"}</td>
+                <td className="tabular-nums">
+                  {total > 0 ? (
+                    reais(total)
+                  ) : (
+                    <span className="text-ink-3">a precificar</span>
+                  )}
+                </td>
                 <td>
                   <Chip tone={perto ? "aviso" : "neutro"}>{quantoFalta(o.expires_at)}</Chip>
                   <span className="mt-1 block text-xs text-ink-3 tabular-nums">

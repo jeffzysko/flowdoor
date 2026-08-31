@@ -25,6 +25,7 @@ export const ROTULO_AVISO: Record<string, string> = {
   aplicacao_atrasada: "rota",
   foto_parada: "conferência",
   opcao_vencendo: "opção",
+  opcao_de_parceiro: "parceiro",
 };
 
 /**

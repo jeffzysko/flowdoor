@@ -316,6 +316,23 @@ base nova, schema novo.
    com timeout curto, e nunca impede o cadastro manual. O que ela traz entra
    só em campo vazio — o que o vendedor digitou vale mais que a Receita.
    Situação cadastral diferente de ATIVA aparece como aviso, não como bloqueio.
+73. **A venda continua sendo da agência depois de fechada.** `holds` guardava
+   `agency_org_id`, `orders` tem a coluna desde a primeira migração e a policy
+   de `orders` já deixava a agência ler os pedidos dela — mas `confirm_hold`
+   chamava `create_order_with_items` e ninguém copiava o campo. No segundo em
+   que a exibidora confirmava, a agência perdia de vista a própria venda.
+74. **Pedido de parceiro chega no sino, não só na lista.** Opção pedida por
+   agência entrava em `/opcoes` como qualquer outra: sem ninguém abrir a tela,
+   o pedido esperava até vencer. Pedido de parceiro que ninguém vê é a função
+   inteira falhando sem barulho.
+75. **O anunciante criado pelo parceiro nasce pela metade, e a tela diz
+   isso.** A agência não tem por que saber o CNPJ do cliente dela na hora do
+   pedido — mas a exibidora precisa enxergar o cadastro incompleto antes de
+   faturar, não depois.
+76. **Agência nunca cai no painel da exibidora.** O `/` mandava todo mundo
+   para `/painel`; para uma agência isso era uma visão geral zerada e um botão
+   para cadastrar pontos que ela não tem. O destino inicial passa a depender do
+   tipo de empresa.
 68. **O painel responde cada pergunta uma vez só.** A versão anterior dizia
    quatro coisas e mostrava cada uma duas ou três vezes: "aplicações abertas"
    no herói e no indicador; avisos no card, no indicador e na seção; "Ver a
