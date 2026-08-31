@@ -97,6 +97,8 @@ export function ConvidarParceiro({
               <span className="text-ink-2">
                 Sem isto, ele vê a disponibilidade e pede orçamento. Não expõe
                 preço negociado de nenhum outro cliente em nenhum dos casos.
+                Depois de conectado dá para embutir comissão na tabela que ele
+                enxerga, na lista acima.
               </span>
             </span>
           </label>

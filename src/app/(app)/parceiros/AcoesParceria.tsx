@@ -10,17 +10,20 @@ export function AcoesParceria({
   status,
   canBook,
   canSeePrices,
+  priceFactor,
 }: {
   relId: string;
   nome: string;
   status: "pendente" | "ativa" | "suspensa" | "encerrada";
   canBook: boolean;
   canSeePrices: boolean;
+  priceFactor: number;
 }) {
   const router = useRouter();
   const [ocupado, executar] = useTransition();
   const [erro, setErro] = useState<string | null>(null);
   const [encerrando, setEncerrando] = useState(false);
+  const [fator, setFator] = useState(String(priceFactor).replace(".", ","));
 
   function rodar(fn: () => Promise<{ ok: boolean; message?: string }>) {
     setErro(null);
@@ -103,6 +106,33 @@ export function AcoesParceria({
           </button>
         )}
       </div>
+
+      {canSeePrices && !encerrada && (
+        <div className="mt-2 flex flex-wrap items-center justify-end gap-2 text-xs">
+          <label className="flex items-center gap-2">
+            <span className="text-ink-3">tabela ×</span>
+            <input
+              value={fator}
+              onChange={(e) => setFator(e.target.value)}
+              onBlur={() => {
+                const n = Number(fator.replace(",", "."));
+                if (!isFinite(n) || n === priceFactor) return;
+                rodar(() => atualizarParceria(relId, { price_factor: n }));
+              }}
+              inputMode="decimal"
+              aria-label={`Fator de tabela de ${nome}`}
+              className="fd-input w-[72px] px-2 py-1 text-right tabular-nums"
+            />
+          </label>
+          <span className="text-ink-3">
+            {priceFactor === 1
+              ? "mesma tabela"
+              : priceFactor > 1
+                ? `${Math.round((priceFactor - 1) * 100)}% embutido`
+                : `${Math.round((1 - priceFactor) * 100)}% de desconto`}
+          </span>
+        </div>
+      )}
 
       {encerrando && (
         <div className="fd-inset mt-3 text-left">

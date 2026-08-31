@@ -2,7 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient, createClient } from "@/lib/supabase/server";
+import { enviarEmail } from "@/lib/email/enviar";
+import { emailDeComprovante } from "@/lib/email/comprovante";
 
 const linha = z.object({
   face_id: z.string().uuid(),
@@ -110,9 +112,75 @@ export async function publicarComprovante(
 
   const { token } = data as { proof_id: string; token: string };
   const base = process.env.NEXT_PUBLIC_SITE_URL ?? "";
+  const url = `${base}/comprovante/${encodeURIComponent(token)}`;
 
   revalidatePath(`/operacao/${orderId}`);
-  return { ok: true, url: `${base}/comprovante/${encodeURIComponent(token)}` };
+  // Falha de e-mail não desfaz publicação: o comprovante já existe e o link
+  // já está na tela de quem publicou.
+  await avisarAgencia(orderId, url).catch(() => {});
+
+  return { ok: true, url };
+}
+
+/**
+ * Manda o comprovante para a agência que vendeu, quando houver uma.
+ *
+ * Service role porque a sessão é a da EXIBIDORA: pelo RLS ela não lê
+ * `org_members` nem `profiles` da agência, e não deve — os endereços da
+ * equipe de outra empresa não são dado dela. A leitura fica no servidor, para
+ * um pedido que esta pessoa acabou de publicar, e nenhum endereço volta para
+ * o navegador.
+ */
+async function avisarAgencia(orderId: string, url: string): Promise<void> {
+  const supabase = await createClient();
+  const { data: pedido } = await supabase
+    .from("orders")
+    .select("code, starts_on, ends_on, agency_org_id, org_id, advertisers(name)")
+    .eq("id", orderId)
+    .maybeSingle();
+
+  const p = pedido as unknown as
+    | {
+        code: string; starts_on: string; ends_on: string;
+        agency_org_id: string | null; org_id: string;
+        advertisers: { name: string } | null;
+      }
+    | null;
+
+  if (!p?.agency_org_id) return;
+
+  const admin = createAdminClient();
+  const [{ data: membros }, { data: exibidora }] = await Promise.all([
+    admin
+      .from("org_members")
+      .select("profiles(email)")
+      .eq("org_id", p.agency_org_id)
+      .eq("active", true)
+      .in("role", ["owner", "admin", "comercial"]),
+    admin.from("organizations").select("name").eq("id", p.org_id).maybeSingle(),
+  ]);
+
+  const destinos = [
+    ...new Set(
+      ((membros ?? []) as unknown as { profiles: { email: string | null } | null }[])
+        .map((m) => m.profiles?.email)
+        .filter((e): e is string => Boolean(e))
+    ),
+  ];
+  if (destinos.length === 0) return;
+
+  const br = (d: string) => d.split("-").reverse().join("/");
+  const { assunto, html, texto } = emailDeComprovante({
+    link: url,
+    exibidora: exibidora?.name ?? "A exibidora",
+    codigo: p.code,
+    anunciante: p.advertisers?.name ?? "a campanha",
+    periodo: `${br(p.starts_on)} a ${br(p.ends_on)}`,
+  });
+
+  await Promise.all(
+    destinos.map((para) => enviarEmail({ para, assunto, html, texto }))
+  );
 }
 
 // ========================================================= editar pedido

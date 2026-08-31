@@ -316,6 +316,28 @@ base nova, schema novo.
    com timeout curto, e nunca impede o cadastro manual. O que ela traz entra
    só em campo vazio — o que o vendedor digitou vale mais que a Receita.
    Situação cadastral diferente de ATIVA aparece como aviso, não como bloqueio.
+77. **A agência acompanha a campanha por função, nunca por policy em
+   `field_events`.** Aquela tabela carrega coordenada de chegada, precisão do
+   GPS, identificador do aplicador e nota de comportamento — rastreamento de
+   trabalhador. A agência precisa saber que a face foi aplicada no dia 12; não
+   precisa saber onde o aplicador estava às 9h14. `partner_order_progress()`
+   devolve face, endereço, data e situação, e mais nada.
+78. **O comprovante só chega à agência depois de publicado.** Link de
+   rascunho na mão de terceiro é documento vazando antes da hora — e é a
+   exibidora que decide quando o documento existe.
+79. **Um fator, não uma segunda tabela.** `org_relationships.price_factor`
+   multiplica a tabela do exibidor no que o parceiro enxerga: 1,2 embute 20%
+   de comissão da representação, 0,85 dá desconto de agência. Uma tabela
+   paralela por parceiro seria um segundo cadastro de preço para manter
+   sincronizado com o primeiro, e é assim que se descobre que os dois
+   divergiram há três meses.
+80. **Os dois e-mails entre empresas passam por service role, no servidor.**
+   Avisar a exibidora de que chegou opção, e avisar a agência de que saiu
+   comprovante, exigem ler `org_members` e `profiles` da OUTRA empresa — o RLS
+   recusa, e faz bem: endereço da equipe alheia não é dado de quem está na
+   sessão. A leitura fica no servidor, para um registro que a pessoa acabou de
+   criar, e nenhum endereço volta para o navegador. Falha de e-mail nunca
+   derruba a operação: o registro já existe e a tela já mostra.
 73. **A venda continua sendo da agência depois de fechada.** `holds` guardava
    `agency_org_id`, `orders` tem a coluna desde a primeira migração e a policy
    de `orders` já deixava a agência ler os pedidos dela — mas `confirm_hold`

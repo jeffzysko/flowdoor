@@ -145,8 +145,18 @@ export async function atualizarParceria(
     status?: "ativa" | "suspensa" | "encerrada";
     can_book?: boolean;
     can_see_prices?: boolean;
+    price_factor?: number;
   }
 ): Promise<ParceiroState> {
+  if (
+    mudanca.price_factor !== undefined &&
+    (!isFinite(mudanca.price_factor) ||
+      mudanca.price_factor <= 0 ||
+      mudanca.price_factor > 5)
+  ) {
+    return { ok: false, message: "O fator precisa ficar entre 0,01 e 5." };
+  }
+
   const supabase = await createClient();
   const { error } = await supabase
     .from("org_relationships")

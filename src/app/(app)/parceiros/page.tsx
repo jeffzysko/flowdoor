@@ -16,6 +16,7 @@ type Parceria = {
   can_book: boolean;
   can_see_prices: boolean;
   scope_site_ids: string[] | null;
+  price_factor: number;
   created_at: string;
   consumidora: { name: string; kind: string } | null;
 };
@@ -52,7 +53,7 @@ export default async function ParceirosPage() {
     supabase
       .from("org_relationships")
       .select(
-        "id, kind, status, can_book, can_see_prices, scope_site_ids, created_at, consumidora:organizations!org_relationships_consumer_org_id_fkey(name, kind)"
+        "id, kind, status, can_book, can_see_prices, scope_site_ids, price_factor, created_at, consumidora:organizations!org_relationships_consumer_org_id_fkey(name, kind)"
       )
       .eq("provider_org_id", org)
       .order("created_at", { ascending: false }),
@@ -125,6 +126,11 @@ export default async function ParceirosPage() {
                 {[p.can_see_prices ? "ver preços" : null, p.can_book ? "reservar" : null]
                   .filter(Boolean)
                   .join(" · ") || "só disponibilidade"}
+                {p.can_see_prices && Number(p.price_factor) !== 1 && (
+                  <span className="block text-xs text-ink-3 tabular-nums">
+                    tabela × {String(p.price_factor).replace(".", ",")}
+                  </span>
+                )}
               </td>
               <td>
                 <Chip tone={TOM_SITUACAO[p.status]}>{p.status}</Chip>
@@ -136,6 +142,7 @@ export default async function ParceirosPage() {
                   status={p.status}
                   canBook={p.can_book}
                   canSeePrices={p.can_see_prices}
+                  priceFactor={Number(p.price_factor ?? 1)}
                 />
               </td>
             </tr>

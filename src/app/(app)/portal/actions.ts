@@ -2,7 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient, createClient } from "@/lib/supabase/server";
+import { enviarEmail } from "@/lib/email/enviar";
+import { emailDeOpcaoDeParceiro } from "@/lib/email/opcaoDeParceiro";
+import { dataHoraBR } from "@/lib/domain/opcoes";
 
 export type PortalState = { ok: boolean; message?: string; code?: string };
 
@@ -68,7 +71,68 @@ export async function pedirOpcao(input: unknown): Promise<PortalState> {
   const r = data as { code: string };
   revalidatePath("/portal");
   revalidatePath("/portal/opcoes");
+
+  // O e-mail é o segundo canal do mesmo aviso. Se falhar, a opção já existe
+  // e o sino já mostra — por isso nada aqui derruba o retorno de sucesso.
+  await avisarExibidora(v, r.code).catch(() => {});
+
   return { ok: true, code: r.code };
+}
+
+/**
+ * Avisa quem responde pela exibidora.
+ *
+ * Precisa do service role porque a sessão é a do PARCEIRO: pelo RLS ele não
+ * lê `org_members` nem `profiles` da exibidora, e não deve mesmo — os
+ * endereços de e-mail de outra empresa não são dado dele. A leitura acontece
+ * só aqui no servidor, para uma opção que este usuário acabou de criar, e
+ * nenhum endereço volta para o navegador.
+ */
+async function avisarExibidora(
+  v: z.infer<typeof pedido>,
+  codigo: string
+): Promise<void> {
+  const admin = createAdminClient();
+
+  const [{ data: membros }, { data: exibidora }, { data: agencia }] =
+    await Promise.all([
+      admin
+        .from("org_members")
+        .select("profiles(email)")
+        .eq("org_id", v.providerId)
+        .eq("active", true)
+        .in("role", ["owner", "admin", "comercial"]),
+      admin.from("organizations").select("name").eq("id", v.providerId).maybeSingle(),
+      admin.from("organizations").select("name").eq("id", v.agencyId).maybeSingle(),
+    ]);
+
+  const destinos = [
+    ...new Set(
+      ((membros ?? []) as unknown as { profiles: { email: string | null } | null }[])
+        .map((m) => m.profiles?.email)
+        .filter((e): e is string => Boolean(e))
+    ),
+  ];
+  if (destinos.length === 0) return;
+
+  const base = process.env.NEXT_PUBLIC_SITE_URL ?? "";
+  const br = (d: string) => d.split("-").reverse().join("/");
+
+  const { assunto, html, texto } = emailDeOpcaoDeParceiro({
+    link: `${base}/opcoes`,
+    exibidora: exibidora?.name ?? "sua empresa",
+    agencia: agencia?.name ?? "Um parceiro",
+    anunciante: v.advertiserName,
+    codigo,
+    faces: v.faces.length,
+    periodo: `${br(v.startsOn)} a ${br(v.endsOn)}`,
+    venceEm: dataHoraBR(v.expiresAt),
+    recado: v.notes?.trim() || null,
+  });
+
+  await Promise.all(
+    destinos.map((para) => enviarEmail({ para, assunto, html, texto }))
+  );
 }
 
 export async function desistirDaOpcao(

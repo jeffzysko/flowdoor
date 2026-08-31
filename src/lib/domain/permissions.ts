@@ -117,6 +117,7 @@ export const NAV_PARCEIRO: GrupoNav[] = [
     itens: [
       { href: "/portal", label: "Disponibilidade", icon: "calendar" },
       { href: "/portal/opcoes", label: "Minhas opções", icon: "clock" },
+      { href: "/portal/campanhas", label: "Minhas campanhas", icon: "route" },
     ],
   },
   {
