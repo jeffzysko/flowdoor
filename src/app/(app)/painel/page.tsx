@@ -21,7 +21,7 @@ export default async function PainelPage() {
 
   const org = ctx.current.org_id;
   const supabase = await createClient();
-  const [faces, sites, advertisers, abertos, avisos, pedidos] =
+  const [faces, sites, advertisers, abertos, emConferencia, avisos, pedidos] =
     await Promise.all([
       supabase.from("faces").select("id", { count: "exact", head: true })
         .eq("org_id", org).eq("status", "ativa"),
@@ -31,6 +31,8 @@ export default async function PainelPage() {
         .eq("org_id", org),
       supabase.from("field_events").select("id", { count: "exact", head: true })
         .eq("org_id", org).in("status", ["pendente", "em_andamento"]),
+      supabase.from("field_events").select("id", { count: "exact", head: true })
+        .eq("org_id", org).eq("status", "aguardando_validacao"),
       supabase.from("alerts")
         .select("id, kind, level, entity, entity_id, title, detail, due_on")
         .eq("org_id", org)
@@ -59,6 +61,10 @@ export default async function PainelPage() {
   // A visão geral sempre termina dizendo o que fazer em seguida. O texto muda
   // com o estado: sem base, "cadastre"; com base e sem pedido, "venda"; com
   // pedido na rua, "confira". É o traço de UX mais forte do produto.
+  // O número grande do hero e o botão ao lado precisam falar da mesma coisa.
+  // Antes o indicador dizia "aplicações abertas" e o botão dizia "abrir
+  // conferência" — dois assuntos diferentes lado a lado, cada um puxando para
+  // um lugar.
   const proxima =
     (sites.count ?? 0) === 0
       ? {
@@ -67,6 +73,7 @@ export default async function PainelPage() {
             "Cadastre os pontos e as faces para liberar a criação de pedidos.",
           href: "/inventario" as Route,
           botao: "Cadastrar pontos",
+          kpi: { label: "Pontos cadastrados", value: sites.count ?? 0 },
         }
       : (advertisers.count ?? 0) === 0
         ? {
@@ -74,6 +81,7 @@ export default async function PainelPage() {
             texto: "Sem cliente final não há pedido — é ele que paga a campanha.",
             href: "/clientes" as Route,
             botao: "Cadastrar anunciante",
+            kpi: { label: "Anunciantes", value: advertisers.count ?? 0 },
           }
         : lista.length === 0
           ? {
@@ -82,14 +90,25 @@ export default async function PainelPage() {
                 "O pedido reserva a face, calcula o valor e gera a agenda do aplicador.",
               href: "/operacao/novo" as Route,
               botao: "Criar pedido",
+              kpi: { label: "Faces no inventário", value: faces.count ?? 0 },
             }
-          : {
-              titulo: "Acompanhe o que está na rua.",
-              texto:
-                "Fotos aguardando conferência viram comprovante para o cliente final.",
-              href: "/revisao" as Route,
-              botao: "Abrir conferência",
-            };
+          : (emConferencia.count ?? 0) > 0
+            ? {
+                titulo: "Tem foto esperando você.",
+                texto:
+                  "Enquanto a foto não passa, o comprovante do anunciante não fecha.",
+                href: "/revisao" as Route,
+                botao: "Abrir conferência",
+                kpi: { label: "Fotos em conferência", value: emConferencia.count ?? 0 },
+              }
+            : {
+                titulo: "Acompanhe o que está na rua.",
+                texto:
+                  "As aplicações agendadas viram foto, e a foto vira comprovante.",
+                href: "/operacao" as Route,
+                botao: "Ver a operação",
+                kpi: { label: "Aplicações abertas", value: abertos.count ?? 0 },
+              };
 
   return (
     <>
@@ -97,7 +116,7 @@ export default async function PainelPage() {
         eyebrow={ctx.current.organizations.name}
         title="Visão geral"
         lead="A operação de hoje, e o que vence antes de você lembrar. Pedidos, inventário e as fotos que ainda precisam de conferência."
-        kpi={{ label: "Aplicações abertas", value: abertos.count ?? 0 }}
+        kpi={proxima.kpi}
         acao={
           <Link href={proxima.href} className="fd-btn">
             {proxima.botao}

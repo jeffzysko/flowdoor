@@ -35,15 +35,19 @@ type Linha = {
 
 const MAX_ARTE = 25 * 1024 * 1024;
 
-const novaLinha = (): Linha => ({
+const novaLinha = (face_id: string): Linha => ({
   key: crypto.randomUUID(),
-  face_id: "",
+  face_id,
   assignee_id: "",
   data: "",
   hora: "09:00",
   minutos: 60,
   preco: "",
 });
+
+/** Endereço legível de uma face, para cabeçalho e busca. */
+const enderecoDa = (f: Face | undefined) =>
+  [f?.sites?.address, f?.sites?.district, f?.sites?.city].filter(Boolean).join(" · ");
 
 export function NovoPedido({
   orgId,
@@ -63,7 +67,8 @@ export function NovoPedido({
   const [instrucoes, setInstrucoes] = useState("");
   const [arte, setArte] = useState<File | null>(null);
   const [busca, setBusca] = useState("");
-  const [linhas, setLinhas] = useState<Linha[]>([novaLinha()]);
+  const [linhas, setLinhas] = useState<Linha[]>([]);
+  const [padrao, setPadrao] = useState({ assignee_id: "", data: "", hora: "09:00" });
   const [state, setState] = useState<PedidoState>({ ok: false });
   const [enviando, startTransition] = useTransition();
   const [subindoArte, setSubindoArte] = useState(false);
@@ -97,6 +102,31 @@ export function NovoPedido({
         .some((v) => String(v).toLowerCase().includes(q))
     );
   }, [busca, faces]);
+
+  /** Clicar na face inclui; clicar de novo tira. O agendamento vai junto. */
+  function alternar(faceId: string) {
+    setLinhas((atual) =>
+      atual.some((l) => l.face_id === faceId)
+        ? atual.filter((l) => l.face_id !== faceId)
+        : [...atual, novaLinha(faceId)]
+    );
+  }
+
+  /**
+   * Uma equipe costuma sair num dia só. Preencher trinta vezes o mesmo
+   * aplicador e a mesma data é o tipo de trabalho que o sistema deve fazer.
+   * Só preenche o que está vazio — o que já foi ajustado à mão fica.
+   */
+  function aplicarPadrao() {
+    setLinhas((atual) =>
+      atual.map((l) => ({
+        ...l,
+        assignee_id: l.assignee_id || padrao.assignee_id,
+        data: l.data || padrao.data,
+        hora: padrao.hora || l.hora,
+      }))
+    );
+  }
 
   function atualizar(key: string, campo: keyof Linha, valor: string | number) {
     setLinhas((atual) =>
@@ -298,134 +328,230 @@ export function NovoPedido({
         </div>
       </fieldset>
 
-      {/* ------------------------------------------------------- faces */}
-      <fieldset className="fd-card mt-6 fd-read">
-        <legend className="fd-overline">
-          Faces e aplicações
-        </legend>
+      {/* -------------------------------------------------------- faces
+          Escolher primeiro, agendar depois. Antes era um <select> com todas as
+          faces dentro de cada linha vazia: para achar uma placa você precisava
+          já saber o código dela. Agora a lista fica aberta, filtra enquanto
+          digita, e o agendamento só existe para a face que já entrou. */}
+      <fieldset className="fd-card mt-6">
+        <legend className="fd-overline">Faces e aplicações</legend>
+        <p className="fd-hint fd-prose">
+          Clique na face para incluir no pedido. Cada face incluída vira uma
+          reserva no período e uma parada na fila do aplicador.
+        </p>
 
-        <input
-          value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-          placeholder="Filtrar faces por código, rua, bairro, cidade ou sentido"
-          className="fd-input"
-        />
+        <div className="mt-5 grid gap-6 xl:grid-cols-[minmax(320px,400px)_minmax(0,1fr)] xl:items-start">
+          {/* ------------------------------------------- catálogo de faces */}
+          <div>
+            <label className="block">
+              <Rotulo>Buscar face</Rotulo>
+              <input
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                placeholder="Código, rua, bairro, cidade ou sentido"
+                className="fd-input"
+              />
+            </label>
 
-        <ul className="mt-5 space-y-4">
-          {linhas.map((l, i) => {
-            const disponiveis = filtradas.filter(
-              (f) => !escolhidas.has(f.id) || f.id === l.face_id
-            );
-            return (
-              <li key={l.key} className="fd-btn fd-btn-ghost">
-                <div className="mb-3 flex items-center justify-between">
-                  <span className="fd-label">
-                    Face {i + 1}
-                  </span>
-                  {linhas.length > 1 && (
+            <p className="fd-hint">
+              {filtradas.length} de {faces.length} faces
+              {escolhidas.size > 0 ? ` · ${escolhidas.size} no pedido` : ""}
+            </p>
+
+            <div className="fd-escolha mt-3">
+              {filtradas.length === 0 ? (
+                <p className="p-4 text-sm text-ink-3">
+                  Nenhuma face bate com essa busca.
+                </p>
+              ) : (
+                filtradas.map((f) => {
+                  const dentro = escolhidas.has(f.id);
+                  return (
                     <button
+                      key={f.id}
                       type="button"
-                      onClick={() =>
-                        setLinhas((a) => a.filter((x) => x.key !== l.key))
-                      }
-                      className="fd-link fd-link-sm fd-link-danger"
+                      className="fd-opcao"
+                      aria-pressed={dentro}
+                      onClick={() => alternar(f.id)}
                     >
-                      Remover
-                    </button>
-                  )}
-                </div>
-
-                <div className="grid gap-3 lg:grid-cols-[2fr_1.1fr_1fr_0.8fr_0.9fr_1fr]">
-                  <label className="block">
-                    <Rotulo>Face</Rotulo>
-                    <select
-                      value={l.face_id}
-                      onChange={(e) => atualizar(l.key, "face_id", e.target.value)}
-                      className="fd-input"
-                    >
-                      <option value="">Selecione…</option>
-                      {disponiveis.map((f) => (
-                        <option key={f.id} value={f.id}>
-                          {f.code} · {f.sites?.address} · {f.sites?.city}
+                      <span className="fd-marca" aria-hidden="true">
+                        ✓
+                      </span>
+                      <span className="fd-opcao-txt">
+                        <b className="tabular-nums">{f.code}</b>
+                        {f.medium === "digital" && (
+                          <span className="fd-tag fd-tag-brand ml-2">LED</span>
+                        )}
+                        <span className="fd-opcao-sub">
+                          {enderecoDa(f)}
                           {f.orientation ? ` · ${f.orientation}` : ""}
-                          {f.medium === "digital" ? " · LED" : ""}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                        </span>
+                      </span>
+                      <span className="text-xs text-ink-3 tabular-nums">
+                        {f.base_price !== null ? reais(f.base_price) : "sem tabela"}
+                      </span>
+                    </button>
+                  );
+                })
+              )}
+            </div>
+            <p className="fd-hint">
+              O valor ao lado é a tabela por bi-semana, antes do período.
+            </p>
+          </div>
 
-                  <label className="block">
-                    <Rotulo>Aplicador</Rotulo>
-                    <select
-                      value={l.assignee_id}
-                      onChange={(e) => atualizar(l.key, "assignee_id", e.target.value)}
-                      className="fd-input"
-                    >
-                      <option value="">Selecione…</option>
-                      {aplicadores.map((a) => (
-                        <option key={a.id} value={a.id}>
-                          {a.nome}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+          {/* -------------------------------------------- agendamento */}
+          <div>
+            {linhas.length === 0 ? (
+              <div className="fd-empty">
+                <p className="fd-h4">Nenhuma face no pedido ainda.</p>
+                <p className="mt-1 text-sm text-ink-2 fd-prose">
+                  Escolha ao lado. Para cada face você diz quem aplica, quando, e
+                  o valor — se for diferente da tabela.
+                </p>
+              </div>
+            ) : (
+              <>
+                {linhas.length > 1 && (
+                  <div className="fd-inset mb-4">
+                    <span className="fd-label">Definir para todas</span>
+                    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,.8fr)_auto]">
+                      <select
+                        value={padrao.assignee_id}
+                        onChange={(e) =>
+                          setPadrao((a) => ({ ...a, assignee_id: e.target.value }))
+                        }
+                        aria-label="Aplicador para todas"
+                        className="fd-input"
+                      >
+                        <option value="">Aplicador…</option>
+                        {aplicadores.map((a) => (
+                          <option key={a.id} value={a.id}>
+                            {a.nome}
+                          </option>
+                        ))}
+                      </select>
+                      <input
+                        type="date"
+                        value={padrao.data}
+                        onChange={(e) => setPadrao((a) => ({ ...a, data: e.target.value }))}
+                        aria-label="Data para todas"
+                        className="fd-input"
+                      />
+                      <input
+                        type="time"
+                        value={padrao.hora}
+                        onChange={(e) => setPadrao((a) => ({ ...a, hora: e.target.value }))}
+                        aria-label="Hora para todas"
+                        className="fd-input"
+                      />
+                      <button
+                        type="button"
+                        onClick={aplicarPadrao}
+                        className="fd-btn fd-btn-ghost fd-btn-sm"
+                      >
+                        Preencher
+                      </button>
+                    </div>
+                    <p className="fd-hint">
+                      Preenche só o que estiver em branco. O que você já ajustou
+                      fica como está.
+                    </p>
+                  </div>
+                )}
 
-                  <label className="block">
-                    <Rotulo>Data</Rotulo>
-                    <input
-                      type="date"
-                      value={l.data}
-                      onChange={(e) => atualizar(l.key, "data", e.target.value)}
-                      className="fd-input"
-                    />
-                  </label>
+                {linhas.map((l) => {
+                  const face = porId.get(l.face_id);
+                  const tabela = valorDeTabela(face?.base_price, inicio, fim);
+                  const negociado = paraNumero(l.preco);
+                  return (
+                    <div key={l.key} className="fd-linha">
+                      <div className="fd-linha-cab">
+                        <div className="min-w-0">
+                          <b className="tabular-nums">{face?.code ?? "face"}</b>
+                          {face?.medium === "digital" && (
+                            <span className="fd-tag fd-tag-brand ml-2">LED</span>
+                          )}
+                          <span className="block truncate text-xs text-ink-3">
+                            {enderecoDa(face)}
+                            {face?.orientation ? ` · ${face.orientation}` : ""}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => alternar(l.face_id)}
+                          className="fd-link fd-link-sm fd-link-danger shrink-0"
+                        >
+                          Remover
+                        </button>
+                      </div>
 
-                  <label className="block">
-                    <Rotulo>Hora</Rotulo>
-                    <input
-                      type="time"
-                      value={l.hora}
-                      onChange={(e) => atualizar(l.key, "hora", e.target.value)}
-                      className="fd-input"
-                    />
-                  </label>
+                      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(140px,1.2fr)_minmax(150px,1fr)_minmax(112px,.7fr)_minmax(112px,.8fr)_minmax(132px,1.1fr)]">
+                        <label className="block">
+                          <Rotulo>Aplicador</Rotulo>
+                          <select
+                            value={l.assignee_id}
+                            onChange={(e) => atualizar(l.key, "assignee_id", e.target.value)}
+                            className="fd-input"
+                          >
+                            <option value="">Selecione…</option>
+                            {aplicadores.map((a) => (
+                              <option key={a.id} value={a.id}>
+                                {a.nome}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
 
-                  <label className="block">
-                    <Rotulo>Duração</Rotulo>
-                    <select
-                      value={l.minutos}
-                      onChange={(e) =>
-                        atualizar(l.key, "minutos", Number(e.target.value))
-                      }
-                      className="fd-input"
-                    >
-                      <option value={30}>30 min</option>
-                      <option value={60}>1 hora</option>
-                      <option value={90}>1h30</option>
-                      <option value={120}>2 horas</option>
-                    </select>
-                  </label>
+                        <label className="block">
+                          <Rotulo>Data</Rotulo>
+                          <input
+                            type="date"
+                            value={l.data}
+                            onChange={(e) => atualizar(l.key, "data", e.target.value)}
+                            className="fd-input"
+                          />
+                        </label>
 
-                  {(() => {
-                    const face = porId.get(l.face_id);
-                    const tabela = valorDeTabela(face?.base_price, inicio, fim);
-                    const negociado = paraNumero(l.preco);
-                    return (
-                      <label className="block">
-                        <Rotulo>Valor</Rotulo>
-                        <input
-                          inputMode="decimal"
-                          value={l.preco}
-                          onChange={(e) => atualizar(l.key, "preco", e.target.value)}
-                          // Em branco vale a tabela: o vendedor só digita quando
-                          // negocia. Zero digitado é zero de verdade.
-                          placeholder={tabela !== null ? reais(tabela) : "sem tabela"}
-                          className="fd-input text-right"
-                        />
-                        <span className="fd-label mt-1 block text-right">
-                          {!l.face_id
-                            ? "escolha a face"
-                            : tabela === null
+                        <label className="block">
+                          <Rotulo>Hora</Rotulo>
+                          <input
+                            type="time"
+                            value={l.hora}
+                            onChange={(e) => atualizar(l.key, "hora", e.target.value)}
+                            className="fd-input"
+                          />
+                        </label>
+
+                        <label className="block">
+                          <Rotulo>Duração</Rotulo>
+                          <select
+                            value={l.minutos}
+                            onChange={(e) =>
+                              atualizar(l.key, "minutos", Number(e.target.value))
+                            }
+                            className="fd-input"
+                          >
+                            <option value={30}>30 min</option>
+                            <option value={60}>1 hora</option>
+                            <option value={90}>1h30</option>
+                            <option value={120}>2 horas</option>
+                          </select>
+                        </label>
+
+                        <label className="block">
+                          <Rotulo>Valor</Rotulo>
+                          <input
+                            inputMode="decimal"
+                            value={l.preco}
+                            onChange={(e) => atualizar(l.key, "preco", e.target.value)}
+                            // Em branco vale a tabela: o vendedor só digita quando
+                            // negocia. Zero digitado é zero de verdade.
+                            placeholder={tabela !== null ? reais(tabela) : "sem tabela"}
+                            className="fd-input text-right tabular-nums"
+                          />
+                          <span className="mt-1 block text-right text-xs text-ink-3">
+                            {tabela === null
                               ? "face sem preço de tabela"
                               : negociado === null
                                 ? "valor de tabela"
@@ -434,36 +560,30 @@ export function NovoPedido({
                                   : negociado > tabela
                                     ? `acréscimo de ${reais(negociado - tabela)}`
                                     : "igual à tabela"}
-                        </span>
-                      </label>
-                    );
-                  })()}
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+                  );
+                })}
+              </>
+            )}
+          </div>
+        </div>
 
-        <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
-          <button
-            type="button"
-            onClick={() => setLinhas((a) => [...a, novaLinha()])}
-            className="fd-btn fd-btn-ghost"
-          >
-            + Adicionar outra face
-          </button>
-
+        <div className="mt-6 flex flex-wrap items-end justify-between gap-4 border-t border-line pt-5">
+          <p className="text-sm text-ink-2">
+            {periodos > 0
+              ? `${escolhidas.size} face(s) · ${periodos} bi-semana(s)`
+              : "Informe o período da campanha para calcular o valor."}
+          </p>
           <div className="text-right">
-            <p className="fd-label">
-              {periodos > 0
-                ? `${escolhidas.size} face(s) · ${periodos} bi-semana(s)`
-                : "informe o período da campanha"}
-            </p>
+            <span className="fd-label">Total do pedido</span>
             <p className="fd-h3 tabular-nums">{reais(total)}</p>
             {semPreco && (
               <p className="mt-1 text-xs text-warn fd-prose">
-                Há face sem preço de tabela. Digite o valor dela, ou o pedido
-                sai sem contar essa linha.
+                Há face sem preço de tabela. Digite o valor dela, ou o pedido sai
+                sem contar essa linha.
               </p>
             )}
           </div>

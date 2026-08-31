@@ -340,6 +340,10 @@ button, [role="button"] { touch-action: manipulation; }
     background: var(--fd-surface-000); border-radius: var(--fd-radius-xl);
     padding: var(--fd-space-6); box-shadow: var(--fd-shadow-md);
   }
+  /* <legend> nativo é desenhado sobre a borda: num card sem borda ele escapa
+     para fora do cartão. O float devolve a legenda para dentro do padding. */
+  .fd-card > legend { float: left; width: 100%; padding: 0; }
+  .fd-card > legend + * { clear: both; }
   /* Só levanta o que é clicável. Movimento sem destino ensina a ignorar
      movimento — é o achado C-4 da auditoria. */
   .fd-card.is-interactive {
@@ -609,6 +613,66 @@ button, [role="button"] { touch-action: manipulation; }
   .fd-seg-item[aria-current="page"] {
     background: var(--fd-surface-000); color: var(--fd-orange-700);
     box-shadow: var(--fd-shadow-xs);
+  }
+
+  /* Mesmo desenho do segmentado, mas em <button>: escolha que não navega.
+     aria-pressed é o estado certo aqui — aria-current="page" mente. */
+  .fd-seg-item { border: 0; background: transparent; cursor: pointer; font-family: inherit; }
+  .fd-seg-item[aria-pressed="true"] {
+    background: var(--fd-surface-000); color: var(--fd-orange-700);
+    box-shadow: var(--fd-shadow-xs);
+  }
+
+  /* ---- escolha em lista --------------------------------------------------
+     Um <select> com trezentas faces não é escolha, é loteria. A lista fica
+     visível, filtra enquanto digita e mostra o que já entrou. */
+  .fd-escolha {
+    max-height: 320px; overflow-y: auto;
+    border: 1px solid var(--fd-line-200); border-radius: var(--fd-radius-lg);
+    background: var(--fd-surface-000);
+  }
+  .fd-opcao {
+    display: grid; grid-template-columns: 20px minmax(0, 1fr) auto;
+    align-items: center; gap: var(--fd-space-3);
+    width: 100%; padding: var(--fd-space-3) var(--fd-space-4);
+    border: 0; background: transparent; text-align: left;
+    font: inherit; color: var(--fd-ink-900); cursor: pointer;
+    transition: background var(--fd-duration-base) ease;
+  }
+  .fd-opcao + .fd-opcao { border-top: 1px solid var(--fd-line-200); }
+  .fd-opcao:hover { background: var(--fd-surface-100); }
+  .fd-opcao:focus-visible { outline: 0; box-shadow: var(--fd-ring-focus); }
+  .fd-opcao[aria-pressed="true"] { background: var(--fd-orange-050); }
+  .fd-opcao-txt { min-width: 0; }
+  .fd-opcao-sub {
+    display: block; font-size: var(--fd-text-caption); color: var(--fd-ink-500);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .fd-marca {
+    display: grid; place-items: center; width: 20px; height: 20px;
+    border: 1px solid var(--fd-line-300); border-radius: var(--fd-radius-sm);
+    background: var(--fd-surface-000); color: transparent;
+    font-size: var(--fd-text-caption); font-weight: var(--fd-weight-bold);
+    line-height: 1;
+  }
+  .fd-opcao[aria-pressed="true"] .fd-marca {
+    background: var(--fd-orange-500); border-color: var(--fd-orange-500);
+    color: var(--fd-ink-900);
+  }
+
+  /* ---- linha de trabalho: uma face, um agendamento ----------------------- */
+  .fd-linha {
+    border: 1px solid var(--fd-line-200); border-radius: var(--fd-radius-lg);
+    background: var(--fd-surface-050); padding: var(--fd-space-4);
+  }
+  .fd-linha + .fd-linha { margin-top: var(--fd-space-3); }
+  .fd-linha-cab {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: var(--fd-space-3); margin-bottom: var(--fd-space-4);
+  }
+  .fd-erro-campo {
+    margin-top: var(--fd-space-2); font-size: var(--fd-text-caption);
+    font-weight: var(--fd-weight-bold); color: var(--fd-danger-text);
   }
 
   /* ---- identidade do usuário -------------------------------------------- */

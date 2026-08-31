@@ -8,3 +8,6 @@ out/
 *.tsbuildinfo
 next-env.d.ts
 .DS_Store
+
+# CLI local do Supabase: ref do projeto e url do pooler não vão para o repositório
+supabase/.temp/

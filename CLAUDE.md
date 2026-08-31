@@ -298,6 +298,30 @@ base nova, schema novo.
    no momento da publicação; trocar a marca depois não muda documento já
    emitido — para isso existe republicar. Registro que muda sozinho depois de
    entregue não é registro.
+47. **Pessoa física ou jurídica é a primeira pergunta do cadastro, não um
+   campo no meio.** Tudo depois disso muda: máscara, dígito verificador,
+   existência de razão social e a possibilidade de puxar da Receita. Perguntar
+   no meio obrigaria a apagar o que já foi digitado. Trocar o tipo limpa o
+   documento de propósito — CPF remascarado como CNPJ é lixo com cara de dado.
+48. **Documento e telefone se guardam só com dígitos.** A máscara é da tela,
+   nunca do banco. `(41) 99999-0000` e `41999990000` guardados como texto
+   diferente são a mesma pessoa cadastrada duas vezes, e isso só aparece meses
+   depois, na hora de cobrar.
+49. **Categoria de anunciante é vocabulário fechado (17 opções).** Não é
+   preciosismo: a regra de exclusividade compara categorias. Com texto livre,
+   "supermercado", "Supermercados" e "mercado" viram três categorias e a regra
+   não pega concorrente nenhum.
+50. **A consulta de CNPJ preenche, não decide.** Roda no servidor (no
+   navegador dependeria de CORS de terceiro e do bloqueador do vendedor),
+   com timeout curto, e nunca impede o cadastro manual. O que ela traz entra
+   só em campo vazio — o que o vendedor digitou vale mais que a Receita.
+   Situação cadastral diferente de ATIVA aparece como aviso, não como bloqueio.
+51. **Escolher face é lista aberta; `<select>` com trezentas faces é
+   loteria.** Para achar uma placa no `<select>` você precisava já saber o
+   código dela. Agora o catálogo fica visível, filtra enquanto digita, e o
+   agendamento só existe para a face que já entrou no pedido — não há mais
+   linha vazia esperando escolha. "Definir para todas" preenche só o que está
+   em branco, porque equipe sai num dia só e o que foi ajustado à mão fica.
 44. **Perfil e empresa se editam pelo próprio dono.** `salvarPerfil` não
    recebe id: o alvo é sempre `auth.uid()`, porque um id no formulário seria
    um parâmetro oferecido para alguém tentar. `salvarEmpresa` tira o `org_id`

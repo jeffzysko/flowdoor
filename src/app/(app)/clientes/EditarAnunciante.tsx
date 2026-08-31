@@ -2,12 +2,16 @@
 
 import { useActionState, useState } from "react";
 import { atualizarAnunciante, type ClienteState } from "./actions";
+import { FormAnunciante, type TipoPessoa, type ValoresAnunciante } from "./FormAnunciante";
+import { formataDocumento, formataTelefone } from "@/lib/domain/documentos";
 
 const inicial: ClienteState = { ok: false };
 
 export interface Anunciante {
   id: string;
+  person_type: TipoPessoa | null;
   name: string;
+  legal_name: string | null;
   tax_id: string | null;
   email: string | null;
   phone: string | null;
@@ -16,77 +20,97 @@ export interface Anunciante {
   notes: string | null;
 }
 
-export function EditarAnunciante({ a }: { a: Anunciante }) {
+/** O banco guarda só dígitos; a tela mostra com máscara. */
+export function paraFormulario(a: Anunciante): ValoresAnunciante {
+  const tipo: TipoPessoa = a.person_type ?? "juridica";
+  return {
+    personType: tipo,
+    name: a.name,
+    legalName: a.legal_name ?? "",
+    taxId: a.tax_id ? formataDocumento(a.tax_id, tipo) : "",
+    email: a.email ?? "",
+    phone: a.phone ? formataTelefone(a.phone) : "",
+    contactName: a.contact_name ?? "",
+    category: a.category ?? "",
+    notes: a.notes ?? "",
+  };
+}
+
+/**
+ * Linha da tabela mais o formulário que abre abaixo dela.
+ *
+ * O formulário não cabe numa célula — são onze campos. Abrir na linha inteira
+ * mantém o contexto (você vê quem está editando) sem o custo de um modal.
+ */
+export function LinhaAnunciante({
+  a,
+  pode,
+  colunas,
+}: {
+  a: Anunciante;
+  pode: boolean;
+  colunas: number;
+}) {
   const [aberto, setAberto] = useState(false);
   const [state, action, pendente] = useActionState(atualizarAnunciante, inicial);
 
-  if (!aberto) {
-    return (
-      <div className="flex items-center gap-3">
-        {state.ok && state.message && (
-          <span className="text-xs text-good">{state.message}</span>
-        )}
-        <button onClick={() => setAberto(true)} className="fd-btn fd-btn-ghost fd-btn-sm">
-          Editar
-        </button>
-      </div>
-    );
-  }
+  if (state.ok && aberto) setAberto(false);
+
+  const v = paraFormulario(a);
+  const contato = [a.contact_name, a.email, v.phone].filter(Boolean).join(" · ");
 
   return (
-    <form action={action} className="fd-card w-full fd-read">
-      <input type="hidden" name="id" value={a.id} />
+    <>
+      <tr>
+        <td>
+          <b className="fd-table-link no-underline">{a.name}</b>
+          {a.legal_name && a.legal_name !== a.name && (
+            <span className="block text-xs text-ink-3">{a.legal_name}</span>
+          )}
+        </td>
+        <td>
+          <span className="fd-tag fd-tag-neutral">
+            {a.person_type === "fisica" ? "PF" : "PJ"}
+          </span>
+        </td>
+        <td className="tabular-nums">{v.taxId || "—"}</td>
+        <td>{contato || "sem contato cadastrado"}</td>
+        <td>{a.category ?? "—"}</td>
+        <td className="text-right">
+          {pode && (
+            <div className="flex items-center justify-end gap-3">
+              {state.ok && state.message && (
+                <span className="text-xs text-good">{state.message}</span>
+              )}
+              <button
+                onClick={() => setAberto((x) => !x)}
+                aria-expanded={aberto}
+                className="fd-btn fd-btn-ghost fd-btn-sm"
+              >
+                {aberto ? "Fechar" : "Editar"}
+              </button>
+            </div>
+          )}
+        </td>
+      </tr>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <F name="name" label="Nome" defaultValue={a.name} required />
-        <F name="taxId" label="CPF / CNPJ" defaultValue={a.tax_id ?? ""} />
-        <F name="category" label="Categoria" defaultValue={a.category ?? ""} placeholder="varejo, saúde, automotivo" />
-        <F name="contactName" label="Pessoa de contato" defaultValue={a.contact_name ?? ""} />
-        <F name="email" label="E-mail" type="email" defaultValue={a.email ?? ""} />
-        <F name="phone" label="Telefone" defaultValue={a.phone ?? ""} />
-      </div>
-
-      <label className="mt-3 block">
-        <span className="fd-label">
-          Observações
-        </span>
-        <textarea
-          name="notes"
-          rows={2}
-          defaultValue={a.notes ?? ""}
-          className="fd-input"
-        />
-      </label>
-
-      {state.message && !state.ok && (
-        <p role="alert" className="fd-alert fd-alert-error mt-3">
-          {state.message}
-        </p>
+      {aberto && (
+        <tr>
+          <td colSpan={colunas}>
+            <FormAnunciante
+              inicial={v}
+              state={state}
+              action={action}
+              pendente={pendente}
+              rotuloEnviar="Salvar"
+              classe="fd-inset"
+              onCancelar={() => setAberto(false)}
+            >
+              <input type="hidden" name="id" value={a.id} />
+            </FormAnunciante>
+          </td>
+        </tr>
       )}
-
-      <div className="mt-4 flex gap-3">
-        <button type="submit" disabled={pendente} className="fd-btn fd-btn-sm">
-          {pendente ? "Salvando…" : "Salvar"}
-        </button>
-        <button type="button" onClick={() => setAberto(false)} className="fd-link fd-link-sm">
-          Cancelar
-        </button>
-      </div>
-    </form>
-  );
-}
-
-function F({
-  name, label, ...rest
-}: { name: string; label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
-  return (
-    <label className="block">
-      <span className="fd-label">{label}</span>
-      <input
-        {...rest}
-        name={name}
-        className="fd-input"
-      />
-    </label>
+    </>
   );
 }

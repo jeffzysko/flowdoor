@@ -3,41 +3,84 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
-
-const schema = z.object({
-  orgId: z.string().uuid(),
-  name: z.string().min(2, "Informe o nome do anunciante"),
-  taxId: z.string().optional(),
-  email: z.string().email("E-mail inválido").optional().or(z.literal("")),
-  phone: z.string().optional(),
-  contactName: z.string().optional(),
-  category: z.string().optional(),
-});
+import { consultarCnpj, type RespostaCnpj } from "@/lib/integracoes/cnpj";
+import {
+  digitos,
+  validaDocumento,
+  validaEmail,
+  validaTelefone,
+} from "@/lib/domain/documentos";
 
 export type ClienteState = { ok: boolean; message?: string; id?: string };
+
+/**
+ * O mesmo formato para criar e editar.
+ *
+ * A validação repete a do navegador de propósito: a do cliente é conforto, a
+ * daqui é a que vale. Documento e telefone chegam com máscara e são guardados
+ * só com dígitos — comparar "(41) 99999-0000" com "41999990000" é o tipo de
+ * duplicata que só aparece meses depois.
+ */
+const base = z.object({
+  personType: z.enum(["fisica", "juridica"]),
+  name: z.string().trim().min(2, "Informe o nome do anunciante."),
+  legalName: z.string().trim().optional(),
+  taxId: z.string().trim().optional(),
+  email: z.string().trim().optional(),
+  phone: z.string().trim().optional(),
+  contactName: z.string().trim().optional(),
+  category: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
+});
+
+type Campos = z.infer<typeof base>;
+
+/** Regras que dependem de mais de um campo. */
+function conferir(v: Campos): string | null {
+  const doc = digitos(v.taxId ?? "");
+  if (doc && !validaDocumento(doc, v.personType)) {
+    return v.personType === "fisica"
+      ? "CPF inválido. Confira os números."
+      : "CNPJ inválido. Confira os números.";
+  }
+  if (v.email && !validaEmail(v.email)) return "E-mail inválido.";
+  if (v.phone && !validaTelefone(v.phone)) {
+    return "Telefone inválido. Use DDD + número.";
+  }
+  return null;
+}
+
+function paraBanco(v: Campos) {
+  return {
+    person_type: v.personType,
+    name: v.name,
+    legal_name: v.personType === "juridica" ? v.legalName || null : null,
+    tax_id: digitos(v.taxId ?? "") || null,
+    email: v.email || null,
+    phone: digitos(v.phone ?? "") || null,
+    contact_name: v.contactName || null,
+    category: v.category || null,
+    notes: v.notes || null,
+  };
+}
 
 export async function criarAnunciante(
   _prev: ClienteState,
   formData: FormData
 ): Promise<ClienteState> {
-  const parsed = schema.safeParse(Object.fromEntries(formData));
+  const parsed = base.extend({ orgId: z.string().uuid() }).safeParse(
+    Object.fromEntries(formData)
+  );
   if (!parsed.success) {
     return { ok: false, message: parsed.error.issues[0]?.message ?? "Dados inválidos." };
   }
-  const v = parsed.data;
-  const supabase = await createClient();
+  const erro = conferir(parsed.data);
+  if (erro) return { ok: false, message: erro };
 
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("advertisers")
-    .insert({
-      org_id: v.orgId,
-      name: v.name,
-      tax_id: v.taxId?.replace(/\D/g, "") || null,
-      email: v.email || null,
-      phone: v.phone || null,
-      contact_name: v.contactName || null,
-      category: v.category || null,
-    })
+    .insert({ org_id: parsed.data.orgId, ...paraBanco(parsed.data) })
     .select("id")
     .single();
 
@@ -52,44 +95,27 @@ export async function criarAnunciante(
 
   revalidatePath("/clientes");
   revalidatePath("/operacao/novo");
-  return { ok: true, message: `${v.name} cadastrado.`, id: data.id };
+  return { ok: true, message: `${parsed.data.name} cadastrado.`, id: data.id };
 }
-
-// ==================================================== atualizar anunciante
-const edicao = z.object({
-  id: z.string().uuid(),
-  name: z.string().min(2, "Informe o nome do anunciante"),
-  taxId: z.string().optional(),
-  email: z.string().email("E-mail inválido").optional().or(z.literal("")),
-  phone: z.string().optional(),
-  contactName: z.string().optional(),
-  category: z.string().optional(),
-  notes: z.string().optional(),
-});
 
 export async function atualizarAnunciante(
   _prev: ClienteState,
   formData: FormData
 ): Promise<ClienteState> {
-  const parsed = edicao.safeParse(Object.fromEntries(formData));
+  const parsed = base.extend({ id: z.string().uuid() }).safeParse(
+    Object.fromEntries(formData)
+  );
   if (!parsed.success) {
     return { ok: false, message: parsed.error.issues[0]?.message ?? "Dados inválidos." };
   }
-  const v = parsed.data;
-  const supabase = await createClient();
+  const erro = conferir(parsed.data);
+  if (erro) return { ok: false, message: erro };
 
+  const supabase = await createClient();
   const { error } = await supabase
     .from("advertisers")
-    .update({
-      name: v.name,
-      tax_id: v.taxId?.replace(/\D/g, "") || null,
-      email: v.email || null,
-      phone: v.phone || null,
-      contact_name: v.contactName || null,
-      category: v.category || null,
-      notes: v.notes || null,
-    })
-    .eq("id", v.id);
+    .update(paraBanco(parsed.data))
+    .eq("id", parsed.data.id);
 
   if (error) {
     return {
@@ -103,4 +129,9 @@ export async function atualizarAnunciante(
   revalidatePath("/clientes");
   revalidatePath("/operacao");
   return { ok: true, message: "Anunciante atualizado." };
+}
+
+/** Ponte para o formulário: a consulta vive no servidor. */
+export async function buscarCnpj(cnpj: string): Promise<RespostaCnpj> {
+  return consultarCnpj(cnpj);
 }
