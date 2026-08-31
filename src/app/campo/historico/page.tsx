@@ -31,7 +31,7 @@ export default async function HistoricoPage() {
 
   return (
     <div className="field-shell">
-      <CampoHeader nome={ctx.fullName} />
+      <CampoHeader nome={ctx.fullName} avatarUrl={ctx.avatarUrl} />
 
       <main className="fd-field pb-16 pt-4">
       <Hero

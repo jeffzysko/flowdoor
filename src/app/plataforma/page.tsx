@@ -4,7 +4,7 @@ import { getSessionContext } from "@/lib/domain/session";
 import { PageHead, Empty, Table, Chip } from "@/components/ui";
 import Link from "next/link";
 import { Bootstrap } from "./Bootstrap";
-import { AppHeader } from "@/components/AppHeader";
+import { CascaApp } from "@/components/CascaApp";
 import { rotulo } from "@/lib/domain/rotulos";
 
 export const dynamic = "force-dynamic";
@@ -59,9 +59,7 @@ export default async function PlataformaPage() {
   const orgs = (data ?? []) as Org[];
 
   return (
-    <div className="min-h-dvh">
-      <AppHeader ctx={ctx} contexto="plataforma" />
-      <main className="fd-shell py-10">
+    <CascaApp ctx={ctx} contexto="plataforma">
       <PageHead
         eyebrow="Flowdoor"
         title="Organizações"
@@ -96,7 +94,6 @@ export default async function PlataformaPage() {
           ))}
         </Table>
       )}
-      </main>
-    </div>
+    </CascaApp>
   );
 }

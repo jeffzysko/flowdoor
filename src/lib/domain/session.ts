@@ -30,7 +30,11 @@ export async function getSessionContext(
 
   const [{ data: profile }, { data: memberships }, { data: isAdmin }] =
     await Promise.all([
-      supabase.from("profiles").select("full_name").eq("id", user.id).single(),
+      supabase
+        .from("profiles")
+        .select("full_name, nickname, avatar_path")
+        .eq("id", user.id)
+        .single(),
       supabase
         .from("org_members")
         .select("org_id, role, organizations(id, name, kind, status, plan)")
@@ -65,6 +69,16 @@ export async function getSessionContext(
     );
   }
 
+  // O bucket de avatar é privado: a foto só chega à tela por URL assinada.
+  let avatarUrl: string | null = null;
+  const caminhoAvatar = (profile as { avatar_path?: string | null } | null)?.avatar_path;
+  if (caminhoAvatar) {
+    const { data: assinada } = await supabase.storage
+      .from("avatars")
+      .createSignedUrl(caminhoAvatar, 60 * 60);
+    avatarUrl = assinada?.signedUrl ?? null;
+  }
+
   const escolhida = preferredOrgId ?? (await cookies()).get(COOKIE_ORG)?.value;
   const current =
     list.find((m) => m.org_id === escolhida) ?? list[0] ?? null;
@@ -72,6 +86,8 @@ export async function getSessionContext(
   return {
     userId: user.id,
     fullName: profile?.full_name ?? user.email ?? "",
+    email: user.email ?? "",
+    avatarUrl,
     isPlatformAdmin: Boolean(isAdmin),
     memberships: list,
     current,

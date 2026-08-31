@@ -261,9 +261,29 @@ base nova, schema novo.
    `.fd-cards-lg`). Grade com número fixo de colunas produz card órfão
    esticado na última linha e quebra dentro de container estreito, porque o
    ponto de quebra olha a janela e não o espaço disponível.
-41. **Abaixo de 1024 o trilho de navegação desce para a segunda linha.**
-   Marca, trilho e identidade não cabem numa linha só em tablet — espremer os
-   três corta o trilho no meio. Na segunda linha ele rola de ponta a ponta.
+41. **A navegação do escritório é um trilho vertical agrupado; a do campo,
+   duas pastilhas.** São públicos diferentes: no escritório são até nove
+   destinos e a pessoa está sentada; na rua são dois e a pessoa está de pé,
+   com uma mão. O trilho agrupa por assunto (Hoje · Operação · Inventário ·
+   Cadastros · Plataforma) porque uma fileira de nove links sem hierarquia
+   faz "Visão geral" pesar igual a "Contratos e licenças". Abaixo de 1024 o
+   trilho vira gaveta, com a mesma lista — não existem dois menus para
+   aprender.
+42. **O trilho não rola inteiro: rola só o miolo.** Com `overflow` no elemento
+   todo, o menu do rodapé (empresa e conta) abre dentro da área que rola e é
+   cortado. Cabeçalho e rodapé ficam fixos; a lista de destinos rola entre os
+   dois.
+43. **Identidade mora no pé do trilho, não no meio dos destinos.** A empresa
+   em que se está e a conta de quem está não são lugares para ir: são
+   contexto. O bloco da empresa vira seletor quando a pessoa alcança mais de
+   uma; o da conta abre perfil, dados da empresa e saída.
+44. **Perfil e empresa se editam pelo próprio dono.** `salvarPerfil` não
+   recebe id: o alvo é sempre `auth.uid()`, porque um id no formulário seria
+   um parâmetro oferecido para alguém tentar. `salvarEmpresa` tira o `org_id`
+   da sessão pelo mesmo motivo, e confere o papel antes de escrever — não
+   para autorizar (o RLS já faz), mas para a tela responder com uma frase em
+   vez de um erro cru do banco. E-mail não se edita por aí: trocar e-mail é
+   fluxo de autenticação, com confirmação no endereço novo.
 28. **A unidade de venda é a bi-semana.** `faces.base_price` é o valor de
    **14 dias**, não do mês nem do período do pedido — é como mídia exterior se
    vende no Brasil, e a tabela `periods` já modela isso (104 períodos de 14

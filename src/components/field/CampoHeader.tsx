@@ -1,6 +1,6 @@
 import { Logo } from "@/components/Logo";
 import { NavPrincipal } from "@/components/NavPrincipal";
-import { iniciaisDe } from "@/components/AppHeader";
+import { Avatar } from "@/components/Avatar";
 
 const ITENS = [
   { href: "/campo", label: "Meu dia" },
@@ -9,10 +9,16 @@ const ITENS = [
 
 /**
  * Barra do aplicador. Duas telas só — daí o trilho de duas pastilhas, que
- * funciona com o polegar e não some no sol. Sair fica visível: em celular
- * hover não existe.
+ * funciona com o polegar e não some no sol. Aqui não entra o trilho vertical
+ * do escritório: quem usa isto está de pé, com uma mão, na rua.
  */
-export function CampoHeader({ nome }: { nome: string }) {
+export function CampoHeader({
+  nome,
+  avatarUrl,
+}: {
+  nome: string;
+  avatarUrl?: string | null;
+}) {
   return (
     <header className="sticky top-0 z-30 bg-paper/85 backdrop-blur">
       <div className="fd-field flex flex-wrap items-center gap-x-3 gap-y-3 py-3">
@@ -21,7 +27,7 @@ export function CampoHeader({ nome }: { nome: string }) {
           <NavPrincipal itens={ITENS} />
         </div>
         <div className="ml-auto flex items-center gap-2 sm:ml-0">
-          <span className="fd-avatar">{iniciaisDe(nome)}</span>
+          <Avatar nome={nome} url={avatarUrl} tamanho={34} />
           <form action="/auth/sair" method="post">
             <button className="fd-link fd-link-sm">Sair</button>
           </form>

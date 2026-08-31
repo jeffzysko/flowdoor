@@ -69,6 +69,11 @@ export interface Membership {
 export interface SessionContext {
   userId: string;
   fullName: string;
+  /** Como a pessoa entra. Só leitura na interface: trocar e-mail é fluxo de
+   *  autenticação, não edição de perfil. */
+  email: string;
+  /** URL assinada da foto, quando existe. O bucket é privado. */
+  avatarUrl: string | null;
   isPlatformAdmin: boolean;
   memberships: Membership[];
   current: Membership | null;

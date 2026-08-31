@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getSessionContext } from "@/lib/domain/session";
 import { isField } from "@/lib/domain/permissions";
-import { AppHeader } from "@/components/AppHeader";
+import { CascaApp } from "@/components/CascaApp";
 
 export default async function AppLayout({
   children,
@@ -14,9 +14,8 @@ export default async function AppLayout({
   if (isField(ctx.current.role)) redirect("/campo");
 
   return (
-    <div className="min-h-dvh">
-      <AppHeader ctx={ctx} contexto="empresa" />
-      <main className="fd-shell py-10">{children}</main>
-    </div>
+    <CascaApp ctx={ctx} contexto="empresa">
+      {children}
+    </CascaApp>
   );
 }
