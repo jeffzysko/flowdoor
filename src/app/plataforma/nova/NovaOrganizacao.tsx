@@ -45,7 +45,7 @@ export function NovaOrganizacao() {
   return (
     <form action={action} className="mt-5">
       <h1 className="fd-h2">Nova empresa</h1>
-      <p className="mt-1 text-ink-2">
+      <p className="mt-1 text-ink-2 fd-prose">
         Exibidora tem inventário e equipe de campo. Agência e representação
         consomem inventário de terceiros.
       </p>

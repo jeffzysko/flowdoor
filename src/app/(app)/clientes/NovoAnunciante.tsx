@@ -26,7 +26,7 @@ export function NovoAnunciante({ orgId }: { orgId: string }) {
   }
 
   return (
-    <form action={action} className="fd-card mt-6 max-w-[920px]">
+    <form action={action} className="fd-card mt-6 fd-read">
       <input type="hidden" name="orgId" value={orgId} />
       <h2 className="fd-h4">Novo anunciante</h2>
       <p className="mt-1 text-sm text-ink-2">
@@ -47,7 +47,7 @@ export function NovoAnunciante({ orgId }: { orgId: string }) {
         />
       </div>
 
-      <p className="mt-2 text-xs text-ink-3">
+      <p className="mt-2 text-xs text-ink-3 fd-prose">
         A categoria alimenta a regra de exclusividade — evita colocar duas marcas
         concorrentes em pontos vizinhos.
       </p>

@@ -92,7 +92,7 @@ export default async function ProofPage({
   const done = snap.items.filter((i) => i.event?.status === "concluido").length;
 
   return (
-    <main className="mx-auto max-w-4xl px-5 py-10 sm:px-8">
+    <main className="fd-doc py-12">
       <header className="border-b border-line pb-6">
         <p className="fd-label">
           Comprovante de veiculação

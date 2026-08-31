@@ -43,7 +43,7 @@ export default function DefinirSenhaPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-6 py-16">
+    <main className="fd-auth flex min-h-dvh flex-col justify-center py-16">
       <div className="fd-card">
       <Logo className="w-[132px]" />
       <h1 className="fd-h2 mt-6">Defina sua senha</h1>

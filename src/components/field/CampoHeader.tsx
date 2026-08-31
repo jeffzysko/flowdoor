@@ -15,10 +15,12 @@ const ITENS = [
 export function CampoHeader({ nome }: { nome: string }) {
   return (
     <header className="sticky top-0 z-30 bg-paper/85 backdrop-blur">
-      <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3">
+      <div className="fd-field flex flex-wrap items-center gap-x-3 gap-y-3 py-3">
         <Logo className="w-[104px]" />
-        <NavPrincipal itens={ITENS} />
-        <div className="flex items-center gap-2">
+        <div className="order-3 w-full overflow-x-auto sm:order-none sm:w-auto sm:flex-1 sm:px-2">
+          <NavPrincipal itens={ITENS} />
+        </div>
+        <div className="ml-auto flex items-center gap-2 sm:ml-0">
           <span className="fd-avatar">{iniciaisDe(nome)}</span>
           <form action="/auth/sair" method="post">
             <button className="fd-link fd-link-sm">Sair</button>

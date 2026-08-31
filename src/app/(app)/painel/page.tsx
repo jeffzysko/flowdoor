@@ -105,7 +105,7 @@ export default async function PainelPage() {
         }
       />
 
-      <section className="mt-6 grid gap-4 lg:grid-cols-3">
+      <section className="fd-cards-lg mt-6">
         <CardDestaque
           marcador="Próxima ação"
           titulo={proxima.titulo}
@@ -128,6 +128,13 @@ export default async function PainelPage() {
               ? `${urgentes} exige${urgentes > 1 ? "m" : ""} atenção hoje.`
               : "Licença, contrato de terreno e foto parada em conferência entram aqui sozinhos."
           }
+          acao={
+            lista_avisos.length > 0 ? (
+              <a href="#avisos" className="fd-link fd-link-sm">
+                Ver os avisos
+              </a>
+            ) : undefined
+          }
         />
         <CardDestaque
           marcador="Pedidos"
@@ -138,7 +145,7 @@ export default async function PainelPage() {
         />
       </section>
 
-      <section className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <section className="fd-cards mt-4">
         <Stat label="Pontos" value={sites.count ?? 0} hint="Estruturas ativas" href="/inventario" />
         <Stat label="Faces" value={faces.count ?? 0} hint="Inventário disponível" href="/disponibilidade" />
         <Stat label="Anunciantes" value={advertisers.count ?? 0} hint="Clientes finais" href="/clientes" />
@@ -155,9 +162,9 @@ export default async function PainelPage() {
         />
       </section>
 
-      <section className="mt-10">
+      <section id="avisos" className="mt-10 scroll-mt-24">
         <h2 className="fd-h4">Avisos</h2>
-        <p className="mt-1 max-w-2xl text-ink-2">
+        <p className="fd-prose mt-2 text-ink-2">
           Gerados todo dia às 8h por uma tarefa que roda sozinha no banco.
           Licença vencida vira multa e ponto lacrado; contrato de terreno
           vencido vira estrutura removida; foto parada em conferência é uma

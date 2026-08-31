@@ -92,6 +92,18 @@
   --fd-space-8: 32px;  --fd-space-10: 40px; --fd-space-12: 48px;
   --fd-space-16: 64px;
 
+  /* ---- larguras · a régua horizontal do produto -------------------------
+     O app antigo trabalhava numa coluna centrada de ~1000px, não de ponta a
+     ponta da tela. Texto com 1400px de linha ninguém lê, e card largo com
+     três palavras dentro parece vazio. Cada contexto tem a sua medida. */
+  --fd-w-shell: 1240px;   /* barra e conteúdo do app */
+  --fd-w-read:   920px;   /* prosa, formulário, bloco de leitura */
+  --fd-w-doc:    860px;   /* documento público: comprovante */
+  --fd-w-field:  720px;   /* app de campo: uma coluna, feito para o polegar */
+  --fd-w-modal:  780px;
+  --fd-w-auth:   460px;   /* caixa de acesso */
+  --fd-gutter: clamp(16px, 4vw, 40px);
+
   /* ---- raio ------------------------------------------------------------- */
   --fd-radius-sm: 8px;    --fd-radius-md: 12px;   --fd-radius-lg: 16px;
   --fd-radius-xl: 24px;   --fd-radius-2xl: 32px;  --fd-radius-pill: 999px;
@@ -337,11 +349,6 @@ button, [role="button"] { touch-action: manipulation; }
   .fd-card.is-interactive:hover {
     transform: translateY(-2px); box-shadow: var(--fd-shadow-lg);
   }
-  /* Superfície menor: linha de lista, bloco de formulário, painel lateral. */
-  .fd-panel {
-    background: var(--fd-surface-000); border-radius: var(--fd-radius-lg);
-    padding: var(--fd-space-5); box-shadow: var(--fd-shadow-sm);
-  }
   /* Lista com divisores. A superfície é a lista inteira; a linha só tem
      padding — card por linha vira uma escada de sombras. */
   .fd-list {
@@ -419,7 +426,9 @@ button, [role="button"] { touch-action: manipulation; }
   /* ---- tabela ----------------------------------------------------------- */
   /* Sem zebra e sem moldura: só a linha de topo separando. O sublinhado
      laranja no título da linha marca o que abre detalhe. */
-  .fd-table { width: 100%; border-collapse: collapse; }
+  /* Abaixo desta largura a tabela rola dentro do card em vez de quebrar
+     "R$ 18.400,00" em duas linhas. */
+  .fd-table { width: 100%; min-width: 560px; border-collapse: collapse; }
   .fd-table th {
     padding: var(--fd-space-3) var(--fd-space-4) var(--fd-space-3) 0; text-align: left;
     font-size: var(--fd-text-overline); font-weight: var(--fd-weight-bold);
@@ -432,6 +441,7 @@ button, [role="button"] { touch-action: manipulation; }
     font-size: var(--fd-text-sm); color: var(--fd-ink-900); vertical-align: top;
   }
   .fd-table th:last-child, .fd-table td:last-child { padding-right: 0; }
+  .fd-table td.tabular-nums { white-space: nowrap; }
   .fd-table td small { display: block; margin-top: var(--fd-space-1); color: var(--fd-ink-500); }
   .fd-table-link {
     display: inline-block; color: inherit; font-weight: var(--fd-weight-bold);
@@ -449,7 +459,7 @@ button, [role="button"] { touch-action: manipulation; }
 
   /* ---- modal ------------------------------------------------------------ */
   .fd-modal {
-    position: relative; width: min(780px, 100%);
+    position: relative; width: min(var(--fd-w-modal), 100%);
     max-height: calc(100dvh - var(--fd-space-12));
     overflow-y: auto; background: var(--fd-surface-000);
     border-radius: var(--fd-radius-2xl); padding: var(--fd-space-8);
@@ -495,6 +505,34 @@ button, [role="button"] { touch-action: manipulation; }
    ========================================================================== */
 @layer components {
 
+  /* ---- régua horizontal -------------------------------------------------- */
+  .fd-shell {
+    width: 100%; max-width: var(--fd-w-shell);
+    margin-inline: auto; padding-inline: var(--fd-gutter);
+  }
+  .fd-read  { max-width: var(--fd-w-read); }
+  .fd-doc   { width: 100%; max-width: var(--fd-w-doc); margin-inline: auto;
+              padding-inline: var(--fd-gutter); }
+  .fd-field { width: 100%; max-width: var(--fd-w-field); margin-inline: auto;
+              padding-inline: var(--fd-space-4); }
+  .fd-auth  { width: 100%; max-width: var(--fd-w-auth); margin-inline: auto;
+              padding-inline: var(--fd-gutter); }
+  /* Linha de leitura: 65 caracteres. Vale para qualquer parágrafo que o
+     usuário lê de fato, mesmo dentro de um card largo. */
+  .fd-prose { max-width: 65ch; }
+
+  /* Grade de cards: o número de colunas segue o espaço, não um ponto de
+     quebra do viewport. Card órfão esticado na última linha é o sintoma de
+     grade com número fixo de colunas. */
+  .fd-cards {
+    display: grid; gap: var(--fd-space-4);
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  }
+  .fd-cards-lg {
+    display: grid; gap: var(--fd-space-4);
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
   /* ---- hero -------------------------------------------------------------- */
   /* A arte fica atrás, em cinza, com um degradê por cima: o desenho dá o
      assunto da tela sem disputar com o texto. */
@@ -523,8 +561,8 @@ button, [role="button"] { touch-action: manipulation; }
       var(--fd-surface-000) 0%,
       color-mix(in srgb, var(--fd-surface-000) 92%, transparent) 38%,
       color-mix(in srgb, var(--fd-surface-000) 15%, transparent) 62%,
-      color-mix(in srgb, var(--fd-surface-000) 55%, transparent) 82%,
-      color-mix(in srgb, var(--fd-surface-000) 88%, transparent) 100%
+      color-mix(in srgb, var(--fd-surface-000) 70%, transparent) 78%,
+      color-mix(in srgb, var(--fd-surface-000) 94%, transparent) 100%
     );
   }
   .fd-hero-title {
@@ -593,7 +631,8 @@ button, [role="button"] { touch-action: manipulation; }
   }
   @media (max-width: 720px) {
     .fd-hero { min-height: 0; padding: var(--fd-space-6); }
-    .fd-hero-art { opacity: .18; background-position: right -20% bottom; }
-    .fd-kpi { text-align: left; }
+    /* Na largura de celular o desenho não cabe sem cruzar o texto. Sai. */
+    .fd-hero-art { display: none; }
+    .fd-kpi { text-align: left; min-width: 0; }
   }
 }

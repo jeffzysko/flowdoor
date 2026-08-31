@@ -28,14 +28,14 @@ export function Bootstrap() {
   }
 
   return (
-    <main className="mx-auto max-w-md px-6 py-16 text-center">
+    <main className="fd-auth py-16 text-center">
       <p className="fd-overline">
         Primeira execução
       </p>
       <h1 className="fd-h2 mt-3">
         Assumir a plataforma
       </h1>
-      <p className="mt-3 text-ink-2">
+      <p className="mt-3 text-ink-2 fd-prose">
         Ainda não há responsável pelo Flowdoor nesta instalação. Quem confirmar
         agora passa a criar as exibidoras e convidar os administradores delas.
       </p>

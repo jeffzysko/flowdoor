@@ -55,11 +55,11 @@ export function EditarPonto({ ponto, podeExcluir }: { ponto: Ponto; podeExcluir:
 
   return (
     <>
-    <form action={action} className="fd-card mt-6 max-w-[920px]">
+    <form action={action} className="fd-card mt-6 fd-read">
       <input type="hidden" name="siteId" value={ponto.id} />
 
       <h2 className="fd-h4">Dados do ponto</h2>
-      <p className="mt-1 text-sm text-ink-2">
+      <p className="mt-1 text-sm text-ink-2 fd-prose">
         A coordenada é o que libera a chegada de quem está na rua. Errada, a
         pessoa fica travada no ponto certo.
       </p>
@@ -138,12 +138,12 @@ function ExcluirPonto({ siteId, code }: { siteId: string; code: string }) {
   const [state, action, pendente] = useActionState(excluirPonto, inicial);
 
   return (
-    <form action={action} className="fd-card mt-6 max-w-[920px]">
+    <form action={action} className="fd-card mt-6 fd-read">
       <input type="hidden" name="siteId" value={siteId} />
       <h3 className="fd-label">
         Excluir ponto
       </h3>
-      <p className="mt-1 text-sm text-ink-2">
+      <p className="mt-1 text-sm text-ink-2 fd-prose">
         Este ponto nunca foi vendido nem visitado, então pode ser apagado de
         verdade. Depois da primeira reserva, só dá para inativar.
       </p>

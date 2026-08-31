@@ -15,14 +15,13 @@ export default async function NovaOrgPage() {
   return (
     <div className="min-h-dvh">
       <AppHeader ctx={ctx} contexto="plataforma" />
-      <main className="mx-auto max-w-3xl px-5 py-8">
-        <Link
-          href="/plataforma"
-          className="fd-link fd-link-sm"
-        >
-          ← Organizações
-        </Link>
-        <NovaOrganizacao />
+      <main className="fd-shell py-10">
+        <div className="fd-read">
+          <Link href="/plataforma" className="fd-link fd-link-sm">
+            ← Organizações
+          </Link>
+          <NovaOrganizacao />
+        </div>
       </main>
     </div>
   );

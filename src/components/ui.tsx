@@ -23,7 +23,7 @@ export function PageHead({
       <div className="min-w-0">
         <p className="fd-overline">{eyebrow}</p>
         <h1 className="fd-h1 mt-2">{title}</h1>
-        {lead && <p className="fd-lead mt-2 max-w-2xl">{lead}</p>}
+        {lead && <p className="fd-lead fd-prose mt-2">{lead}</p>}
       </div>
       {action}
     </header>
@@ -54,7 +54,7 @@ export function Hero({
   return (
     <section className="fd-hero">
       <span className="fd-hero-art" aria-hidden />
-      <div className="min-w-0 max-w-2xl">
+      <div className="fd-prose min-w-0">
         <p className="fd-overline">{eyebrow}</p>
         <h1 className="fd-hero-title">{title}</h1>
         {lead && <p className="fd-hero-lead">{lead}</p>}
@@ -129,7 +129,7 @@ export function Secao({
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0">
           <h2 className="fd-h3">{titulo}</h2>
-          {lead && <p className="mt-2 max-w-2xl text-ink-2">{lead}</p>}
+          {lead && <p className="fd-prose mt-2 text-ink-2">{lead}</p>}
         </div>
         {action}
       </div>
@@ -185,7 +185,7 @@ export function Empty({
   return (
     <div className="fd-empty">
       {titulo && <h4 className="fd-h4">{titulo}</h4>}
-      <p className="mx-auto mt-2 max-w-prose text-sm text-ink-3">{children}</p>
+      <p className="mx-auto mt-2 max-w-[52ch] text-sm text-ink-3">{children}</p>
       {acao && <div className="mt-5 flex justify-center">{acao}</div>}
     </div>
   );

@@ -33,7 +33,7 @@ export default async function HistoricoPage() {
     <div className="field-shell">
       <CampoHeader nome={ctx.fullName} />
 
-      <main className="mx-auto max-w-3xl px-4 pb-16 pt-4">
+      <main className="fd-field pb-16 pt-4">
       <Hero
         eyebrow="Campo"
         title="Minha agenda"

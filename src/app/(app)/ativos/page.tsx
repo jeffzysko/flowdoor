@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionContext } from "@/lib/domain/session";
-import { PageHead, Empty, Table, Chip } from "@/components/ui";
+import { PageHead, Empty, Table, Chip, Stat } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Contratos e licenças" };
@@ -35,6 +35,9 @@ export default async function AtivosPage() {
     !v ? "neutro" : v <= hoje ? "risco" : v <= em60 ? "aviso" : "bom";
 
   const custoMes = rows.reduce((s, r) => s + (r.lease_monthly_cost ?? 0), 0);
+  const vencendo = rows.filter(
+    (r) => tone(r.lease_ends_on) !== "bom" || tone(r.license_expires_on) !== "bom"
+  ).length;
 
   return (
     <>
@@ -44,12 +47,23 @@ export default async function AtivosPage() {
         lead="O aluguel do terreno é o maior custo fixo. A licença é a maior fonte de multa."
       />
 
-      <p className="mt-5 fd-card">
-        <span className="fd-label">
-          Custo mensal de locação somado
-        </span>
-        <span className="fd-h2 mt-1 block tabular-nums">{brl(custoMes)}</span>
-      </p>
+      <section className="fd-cards mt-6">
+        <Stat
+          label="Custo mensal de locação"
+          value={brl(custoMes)}
+          hint="Somado dos contratos ativos"
+        />
+        <Stat
+          label="Pontos com contrato"
+          value={rows.length}
+          hint="Estruturas em terreno de terceiro"
+        />
+        <Stat
+          label="Vencem em 60 dias"
+          value={vencendo}
+          hint="Contrato ou licença"
+        />
+      </section>
 
       {rows.length === 0 ? (
         <div className="mt-6"><Empty titulo="Nenhum ponto cadastrado.">Aluguel de terreno e licença de veiculação vivem no cadastro do ponto — é de lá que sai o custo mensal.</Empty></div>

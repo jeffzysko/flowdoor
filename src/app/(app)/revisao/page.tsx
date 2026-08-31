@@ -155,7 +155,7 @@ export default async function RevisaoPage() {
         lead="O que a conferência automática não resolveu sozinha. Enquanto uma foto está aqui, a parada dela já foi concluída — a fila do campo não para."
       />
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-3">
+      <div className="fd-cards mt-6">
         <Stat label="Em revisão" value={emRevisao} hint="a conferência ficou em dúvida" />
         <Stat
           label="Sem conferência"
@@ -170,11 +170,11 @@ export default async function RevisaoPage() {
       </div>
 
       {itens.length === 0 ? (
-        <div className="mt-8">
+        <div className="mt-6">
           <Empty titulo="Nada para revisar.">Toda foto que chegou passou na checagem automática. O que travar aparece aqui.</Empty>
         </div>
       ) : (
-        <ol className="mt-8 space-y-8">
+        <ol className="mt-6 space-y-6">
           {itens.map((i) => {
             const foto = urls.get(i.path);
             const arte = i.artwork_path ? urls.get(i.artwork_path) : undefined;
@@ -334,7 +334,7 @@ export default async function RevisaoPage() {
           <h2 className="fd-h4">
             Pontos com coordenada suspeita
           </h2>
-          <p className="mt-1 max-w-2xl text-ink-2">
+          <p className="fd-prose mt-2 text-ink-2">
             Nestes pontos as chegadas caem sempre no mesmo lugar, longe da
             coordenada cadastrada. Chegadas espalhadas seriam GPS ruim;
             agrupadas e distantes apontam para o cadastro, não para as pessoas
@@ -357,7 +357,7 @@ export default async function RevisaoPage() {
                     {p.pessoas === 1 ? "pessoa" : "pessoas"} · desvio{" "}
                     {p.desvio_m} m · espalhamento {p.espalhamento_m} m
                   </p>
-                  <p className="mt-1 tabular-nums text-xs text-ink-2">
+                  <p className="mt-1 tabular-nums text-xs text-ink-2 fd-prose">
                     cadastro {Number(p.lat_cadastro).toFixed(5)},{" "}
                     {Number(p.lng_cadastro).toFixed(5)} → sugerido{" "}
                     {Number(p.lat_sugerido).toFixed(5)},{" "}

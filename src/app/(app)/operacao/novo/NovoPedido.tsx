@@ -177,7 +177,7 @@ export function NovoPedido({
           Pedido criado
         </p>
         <h1 className="fd-h2 mt-2 tabular-nums">{state.code}</h1>
-        <p className="mt-2 text-ink-2">
+        <p className="mt-2 text-ink-2 fd-prose">
           As faces foram reservadas e cada uma entrou na fila do aplicador, uma
           parada por vez.
         </p>
@@ -199,7 +199,7 @@ export function NovoPedido({
   return (
     <form onSubmit={enviar} className="mt-6 pb-16">
       <h1 className="fd-h2">Novo pedido</h1>
-      <p className="mt-1 text-ink-2">
+      <p className="mt-1 text-ink-2 fd-prose">
         Cada face escolhida vira uma reserva e uma aplicação em campo. Se alguma
         estiver ocupada no período, o pedido inteiro é recusado — nada nasce pela
         metade.
@@ -299,7 +299,7 @@ export function NovoPedido({
       </fieldset>
 
       {/* ------------------------------------------------------- faces */}
-      <fieldset className="fd-card mt-6 max-w-[920px]">
+      <fieldset className="fd-card mt-6 fd-read">
         <legend className="fd-overline">
           Faces e aplicações
         </legend>
@@ -461,7 +461,7 @@ export function NovoPedido({
             </p>
             <p className="fd-h3 tabular-nums">{reais(total)}</p>
             {semPreco && (
-              <p className="mt-1 text-xs text-warn">
+              <p className="mt-1 text-xs text-warn fd-prose">
                 Há face sem preço de tabela. Digite o valor dela, ou o pedido
                 sai sem contar essa linha.
               </p>

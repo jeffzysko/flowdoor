@@ -111,7 +111,7 @@ export function EditarPedido({
 
   if (cancelado) {
     return (
-      <p className="mt-8 text-sm text-ink-2 fd-card">
+      <p className="mt-8 text-sm text-ink-2 fd-card fd-prose">
         Este pedido está cancelado. As reservas foram liberadas e as aplicações
         que já tinham sido feitas continuam registradas.
       </p>
@@ -133,7 +133,7 @@ export function EditarPedido({
   return (
     <section className="fd-card mt-10">
       <h2 className="fd-h4">Editar {codigo}</h2>
-      <p className="mt-1 max-w-2xl text-sm text-ink-2">
+      <p className="fd-prose mt-2 text-sm text-ink-2">
         Mudar o período move as reservas de todas as faces de uma vez. Se
         qualquer uma estiver vendida na data nova, a alteração inteira é
         recusada — o pedido nunca fica pela metade.
@@ -310,7 +310,7 @@ function CancelarPedido({ orderId, codigo }: { orderId: string; codigo: string }
   return (
     <div className="fd-card w-full">
       <h3 className="font-bold">Cancelar {codigo}?</h3>
-      <p className="mt-1 max-w-2xl text-sm text-ink-2">
+      <p className="fd-prose mt-2 text-sm text-ink-2">
         As reservas voltam para a disponibilidade e as aplicações que ainda não
         aconteceram somem da rota. O que já foi aplicado continua registrado,
         com foto e horário — e o comprovante daquelas faces continua valendo.
@@ -320,7 +320,7 @@ function CancelarPedido({ orderId, codigo }: { orderId: string; codigo: string }
         value={motivo}
         onChange={(e) => setMotivo(e.target.value)}
         placeholder="Motivo (fica no registro)"
-        className="fd-input mt-3 max-w-md"
+        className="fd-input mt-3 max-w-[36ch]"
       />
 
       {erro && <p className="mt-3 text-sm text-danger">{erro}</p>}

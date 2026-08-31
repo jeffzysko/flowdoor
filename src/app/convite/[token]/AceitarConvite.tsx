@@ -316,7 +316,7 @@ function traduzir(m: string) {
 
 function Moldura({ children }: { children: React.ReactNode }) {
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-6 py-16">
+    <main className="fd-auth flex min-h-dvh flex-col justify-center py-16">
       <div className="fd-card">
         <Logo className="w-[132px]" />
         <div className="mt-6">{children}</div>

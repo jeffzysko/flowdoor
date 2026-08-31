@@ -47,7 +47,7 @@ export function Coordenadas({
         ))}
       </div>
 
-      <p className="mt-3 max-w-3xl text-sm text-ink-2">
+      <p className="fd-prose mt-3 text-sm text-ink-2">
         Só o que <strong>confere</strong> trava a chegada do aplicador. O que está{" "}
         <strong>parcial</strong> aparece no mapa e é vendável, mas a conferência de
         local fica desligada até três aplicações caírem agrupadas no mesmo lugar —

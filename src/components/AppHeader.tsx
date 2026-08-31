@@ -45,7 +45,7 @@ export function AppHeader({
 
   return (
     <header className="sticky top-0 z-30 bg-paper/85 backdrop-blur">
-      <div className="mx-auto grid max-w-[1540px] grid-cols-[auto_1fr_auto] items-center gap-4 px-6 py-4 lg:px-12">
+      <div className="fd-shell flex flex-wrap items-center gap-x-4 gap-y-3 py-4 lg:grid lg:grid-cols-[auto_1fr_auto]">
         <Link
           href={ctx.current ? "/painel" : "/plataforma"}
           aria-label="Flowdoor — início"
@@ -53,7 +53,9 @@ export function AppHeader({
           <Logo className="w-[118px]" />
         </Link>
 
-        <nav className="flex min-w-0 justify-center overflow-x-auto">
+        {/* Abaixo de 1024 o trilho desce para a segunda linha e rola sozinho:
+            espremer marca, trilho e identidade numa linha só quebra os três. */}
+        <nav className="order-3 -mx-[var(--fd-gutter)] w-full overflow-x-auto px-[var(--fd-gutter)] lg:order-none lg:mx-0 lg:flex lg:w-auto lg:min-w-0 lg:justify-center lg:px-0">
           {naEmpresa ? (
             <NavPrincipal itens={nav} extra={plataforma} />
           ) : (
@@ -68,7 +70,7 @@ export function AppHeader({
           )}
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="ml-auto flex items-center gap-3 lg:ml-0">
           {naEmpresa && ctx.current ? (
             <TrocarEmpresa
               atual={ctx.current}

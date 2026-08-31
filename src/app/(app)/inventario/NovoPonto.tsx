@@ -30,7 +30,7 @@ export function NovoPonto({ orgId }: { orgId: string }) {
   return (
     <form
       action={action}
-      className="fd-card mt-6 max-w-[920px]"
+      className="fd-card mt-6 fd-read"
     >
       <input type="hidden" name="orgId" value={orgId} />
 

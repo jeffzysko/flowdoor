@@ -11,7 +11,7 @@ export default function EntrarPage() {
   return (
     <main className="grid min-h-dvh lg:grid-cols-2">
       <section className="flex items-center justify-center px-6 py-16">
-        <div className="fd-card w-full max-w-md">
+        <div className="fd-card w-full max-w-[var(--fd-w-auth)]">
           <Logo className="w-[148px]" />
           <h1 className="fd-h2 mt-6">
             Entrar na operação
@@ -34,7 +34,7 @@ export default function EntrarPage() {
       </section>
 
       <aside className="hidden items-center justify-center bg-charcoal px-12 lg:flex">
-        <blockquote className="max-w-md text-surface">
+        <blockquote className="max-w-[46ch] text-surface">
           <p className="fd-h3 leading-snug">
             A peça está no ar. Com hora, coordenada e foto.
           </p>

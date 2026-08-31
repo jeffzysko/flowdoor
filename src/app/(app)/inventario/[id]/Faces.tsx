@@ -51,7 +51,7 @@ export function Faces({
       <div className="flex flex-wrap items-end justify-between gap-4 border-b border-line pb-3">
         <div>
           <h2 className="fd-h4">Faces</h2>
-          <p className="mt-1 text-sm text-ink-2">
+          <p className="mt-1 text-sm text-ink-2 fd-prose">
             O ponto é a estrutura. A face é o lado que se vende — e cada uma
             tem preço, medida e sentido de fluxo próprios.
           </p>
@@ -247,12 +247,12 @@ function NovaFace({
   }
 
   return (
-    <form action={action} className="fd-card mt-5 max-w-[920px]">
+    <form action={action} className="fd-card mt-5 fd-read">
       <input type="hidden" name="siteId" value={siteId} />
       <input type="hidden" name="orgId" value={orgId} />
 
       <h3 className="fd-h4">Nova face neste ponto</h3>
-      <p className="mt-1 text-sm text-ink-2">
+      <p className="mt-1 text-sm text-ink-2 fd-prose">
         Uma estrutura com dois lados vende dois. O código costuma seguir a
         letra: {sugerido}.
       </p>

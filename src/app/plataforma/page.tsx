@@ -33,11 +33,11 @@ export default async function PlataformaPage() {
     // Já existe responsável e este usuário não é membro de nenhuma empresa:
     // redirecionar para "/" criaria laço, então a conversa acaba aqui.
     return (
-      <main className="mx-auto max-w-lg px-6 py-16 text-center">
+      <main className="fd-auth py-16 text-center">
         <h1 className="fd-h3">
           Sua conta ainda não está em nenhuma empresa
         </h1>
-        <p className="mt-2 text-ink-2">
+        <p className="mt-2 text-ink-2 fd-prose">
           Peça ao administrador da sua empresa para enviar um convite para este
           e-mail.
         </p>
@@ -61,7 +61,7 @@ export default async function PlataformaPage() {
   return (
     <div className="min-h-dvh">
       <AppHeader ctx={ctx} contexto="plataforma" />
-      <main className="mx-auto max-w-[1540px] px-6 py-10 lg:px-12">
+      <main className="fd-shell py-10">
       <PageHead
         eyebrow="Flowdoor"
         title="Organizações"

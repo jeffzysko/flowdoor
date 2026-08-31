@@ -247,9 +247,23 @@ base nova, schema novo.
    `aria-modal`, Esc fecha, foco preso dentro e devolvido ao gatilho, altura
    em `dvh`. O componente `Modal` já faz isso; tela nova não abre camada
    sobreposta por conta própria.
-39. **Formulário tem largura de leitura: 920px.** Campo de 1400px de largura é
-   um alvo que o olho perde entre o rótulo e o valor. Tabela e calendário
-   podem ocupar a largura toda; formulário, não.
+39. **Cada contexto tem a sua largura, e ela vem de token.** `--fd-w-shell`
+   1240 para a barra e o conteúdo do app, `--fd-w-read` 920 para prosa e
+   formulário, `--fd-w-doc` 860 para o comprovante público, `--fd-w-field` 720
+   para o app de campo, `--fd-w-modal` 780, `--fd-w-auth` 460 para a caixa de
+   acesso. As classes são `.fd-shell`, `.fd-read`, `.fd-doc`, `.fd-field` e
+   `.fd-auth`; a medianiz é `--fd-gutter`, que respira com a tela. Parágrafo
+   que a pessoa lê de fato leva `.fd-prose` — 65 caracteres, mesmo dentro de
+   um card largo. Tabela e calendário ocupam a largura toda e rolam dentro do
+   card; formulário, não.
+40. **Grade de card segue o espaço, não o ponto de quebra.**
+   `repeat(auto-fit, minmax(210px, 1fr))` em `.fd-cards` (300px em
+   `.fd-cards-lg`). Grade com número fixo de colunas produz card órfão
+   esticado na última linha e quebra dentro de container estreito, porque o
+   ponto de quebra olha a janela e não o espaço disponível.
+41. **Abaixo de 1024 o trilho de navegação desce para a segunda linha.**
+   Marca, trilho e identidade não cabem numa linha só em tablet — espremer os
+   três corta o trilho no meio. Na segunda linha ele rola de ponta a ponta.
 28. **A unidade de venda é a bi-semana.** `faces.base_price` é o valor de
    **14 dias**, não do mês nem do período do pedido — é como mídia exterior se
    vende no Brasil, e a tabela `periods` já modela isso (104 períodos de 14

@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionContext } from "@/lib/domain/session";
-import { PageHead, Empty } from "@/components/ui";
+import { PageHead, Empty, Table } from "@/components/ui";
 import { canSell } from "@/lib/domain/permissions";
 import { NovoAnunciante } from "./NovoAnunciante";
 import { EditarAnunciante, type Anunciante } from "./EditarAnunciante";
@@ -31,28 +31,28 @@ export default async function ClientesPage() {
 
       {pode && <NovoAnunciante orgId={ctx.current.org_id} />}
       {rows.length === 0 ? (
-        <div className="mt-6"><Empty>Nenhum anunciante cadastrado ainda.</Empty></div>
+        <div className="mt-6">
+          <Empty titulo="Nenhum anunciante cadastrado ainda.">
+            O anunciante é quem paga a campanha — sem ele o pedido não tem dono.
+          </Empty>
+        </div>
       ) : (
-        <ul className="mt-5 space-y-3">
+        <Table head={["Anunciante", "CPF / CNPJ", "Contato", "Categoria", ""]}>
           {rows.map((a) => (
-            <li key={a.id} className="fd-card">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="font-medium">{a.name}</p>
-                  <p className="mt-1 tabular-nums text-xs text-ink-3">
-                    {a.tax_id ?? "sem CPF/CNPJ"}
-                    {a.category ? ` · ${a.category}` : ""}
-                  </p>
-                  <p className="mt-1 text-sm text-ink-2">
-                    {[a.contact_name, a.email, a.phone].filter(Boolean).join(" · ") ||
-                      "sem contato cadastrado"}
-                  </p>
-                </div>
-                {pode && <EditarAnunciante a={a} />}
-              </div>
-            </li>
+            <tr key={a.id}>
+              <td>
+                <b className="fd-table-link no-underline">{a.name}</b>
+              </td>
+              <td className="tabular-nums">{a.tax_id ?? "—"}</td>
+              <td>
+                {[a.contact_name, a.email, a.phone].filter(Boolean).join(" · ") ||
+                  "sem contato cadastrado"}
+              </td>
+              <td>{a.category ?? "—"}</td>
+              <td className="text-right">{pode && <EditarAnunciante a={a} />}</td>
+            </tr>
           ))}
-        </ul>
+        </Table>
       )}
     </>
   );
