@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionContext } from "@/lib/domain/session";
@@ -41,6 +42,16 @@ export default async function InventarioPage() {
         title="Pontos e faces"
         lead="O ponto é a estrutura. A face é o lado que se vende. Clique no endereço para abrir, corrigir ou somar faces."
       />
+
+      {pode && (
+        <p className="mt-4 text-sm text-ink-2">
+          Tem o inventário numa planilha?{" "}
+          <Link href={"/inventario/importar" as never} className="fd-link fd-link-sm">
+            Importe de uma vez
+          </Link>{" "}
+          — dá para rodar de novo depois só para reajustar a tabela.
+        </p>
+      )}
 
       {pode && <NovoPonto orgId={ctx.current.org_id} />}
 

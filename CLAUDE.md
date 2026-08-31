@@ -316,6 +316,24 @@ base nova, schema novo.
    com timeout curto, e nunca impede o cadastro manual. O que ela traz entra
    só em campo vazio — o que o vendedor digitou vale mais que a Receita.
    Situação cadastral diferente de ATIVA aparece como aviso, não como bloqueio.
+81. **A importação só cria e atualiza. Nunca apaga.** Planilha que chega sem
+   uma linha quase sempre significa "não incluí dessa vez", não "removi da
+   operação" — e a diferença entre as duas leituras é um inventário inteiro.
+   Célula vazia também não zera campo preenchido: quem manda planilha parcial
+   quer completar, não limpar.
+82. **A face não muda de ponto por planilha.** Mover uma face de estrutura
+   muda a reserva, a rota do aplicador e o comprovante já emitido. Isso se faz
+   na tela, com a pessoa olhando.
+83. **A prévia é a metade que importa.** Importação recorrente é a operação
+   que mais destrói cadastro em sistema de inventário: um de-para errado passa
+   despercebido até alguém reparar que setenta e oito faces mudaram de preço.
+   Ver quantas serão criadas e quantas alteradas, antes de gravar, é o que
+   separa a ferramenta útil da armadilha.
+84. **CSV, e o de-para fica guardado.** Ler .xlsx exigiria um parser de ZIP e
+   XML no caminho que cria inventário, para resolver o que "Salvar como → CSV"
+   resolve em dois cliques. E como o reajuste anual chega na mesma planilha do
+   ano passado, a correspondência de colunas fica em `organizations.settings`:
+   refazer o de-para toda vez é o que faz alguém desistir e voltar a digitar.
 77. **A agência acompanha a campanha por função, nunca por policy em
    `field_events`.** Aquela tabela carrega coordenada de chegada, precisão do
    GPS, identificador do aplicador e nota de comportamento — rastreamento de
