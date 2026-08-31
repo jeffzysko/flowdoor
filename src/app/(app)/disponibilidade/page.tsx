@@ -59,8 +59,26 @@ export default async function DisponibilidadePage() {
   // A ocupação é resolvida aqui, uma vez por face: no cliente isso viraria
   // uma varredura das reservas inteiras a cada célula desenhada.
   const intervalos = reservas
-    .map((b) => ({ face: b.face_id, r: parseRange(b.span) }))
-    .filter((x): x is { face: string; r: [string, string] } => x.r !== null);
+    .map((b) => ({ face: b.face_id, kind: b.kind, r: parseRange(b.span) }))
+    .filter((x): x is { face: string; kind: string; r: [string, string] } => x.r !== null);
+
+  // Opção e reserva não são a mesma coisa e não podem pintar igual: opção
+  // deixa a face vendável. Pintar as duas de cinza esconderia inventário
+  // livre — o erro mais caro que um calendário de disponibilidade comete.
+  const firmes = intervalos.filter((b) => b.kind !== "opcao");
+  const opcoes = intervalos.filter((b) => b.kind === "opcao");
+
+  const indicesQueBatem = (
+    lista: typeof intervalos,
+    faceId: string
+  ): number[] =>
+    periodos
+      .map((p, i) =>
+        lista.some((b) => b.face === faceId && b.r[0] <= p.fim && b.r[1] >= p.inicio)
+          ? i
+          : -1
+      )
+      .filter((i) => i >= 0);
 
   const paraCalendario: FaceCal[] = listaFaces.map((f) => ({
     id: f.id,
@@ -68,15 +86,8 @@ export default async function DisponibilidadePage() {
     endereco: f.sites?.address ?? "",
     cidade: f.sites?.city ?? "",
     medium: f.medium,
-    ocupadas: periodos
-      .map((p, i) =>
-        intervalos.some(
-          (b) => b.face === f.id && b.r[0] <= p.fim && b.r[1] >= p.inicio
-        )
-          ? i
-          : -1
-      )
-      .filter((i) => i >= 0),
+    ocupadas: indicesQueBatem(firmes, f.id),
+    comOpcao: indicesQueBatem(opcoes, f.id),
   }));
 
   const cidades = [...new Set(paraCalendario.map((f) => f.cidade).filter(Boolean))].sort(
@@ -88,7 +99,7 @@ export default async function DisponibilidadePage() {
       <PageHead
         eyebrow="Comercial"
         title="Disponibilidade"
-        lead="Bi-semanas do ano corrente, uma coluna por período. Cada face aceita uma reserva por bi-semana."
+        lead="Bi-semanas do ano corrente, uma coluna por período. Cada face aceita uma reserva por bi-semana — opção aberta aparece em mostarda e continua vendável."
       />
 
       {paraCalendario.length === 0 || periodos.length === 0 ? (

@@ -24,6 +24,7 @@ export const ROTULO_AVISO: Record<string, string> = {
   contrato_vencido: "contrato",
   aplicacao_atrasada: "rota",
   foto_parada: "conferência",
+  opcao_vencendo: "opção",
 };
 
 /**
@@ -35,6 +36,7 @@ export const ROTULO_AVISO: Record<string, string> = {
 export function destinoDoAviso(a: Aviso): Route {
   if (a.entity === "site" && a.entity_id) return `/inventario/${a.entity_id}` as Route;
   if (a.entity === "field_event_photo") return "/revisao" as Route;
+  if (a.entity === "hold") return "/opcoes" as Route;
   if (a.entity === "order" && a.entity_id) return `/operacao/${a.entity_id}` as Route;
   return "/painel#avisos" as Route;
 }

@@ -11,6 +11,8 @@ export type FaceCal = {
   medium: string;
   /** Índices dos períodos ocupados, na ordem em que vêm em `periodos`. */
   ocupadas: number[];
+  /** Índices com opção aberta. Continuam livres: opção não bloqueia. */
+  comOpcao: number[];
 };
 
 export type PeriodoCal = { id: string; seq: number; inicio: string; fim: string };
@@ -28,6 +30,11 @@ const dia = (v: string) =>
  * frase no topo da página não fica ao lado da cor quando a pessoa está lendo a
  * grade. Laranja aqui seria erro de gramática do design system: laranja é
  * marca, não estado.
+ *
+ * Mostarda é o terceiro estado: alguém guardou a bi-semana como opção. Ainda
+ * dá para vender — opção não bloqueia — mas quem vender precisa saber que tem
+ * outro cliente decidindo. Vender no escuro é como se descobre, tarde demais,
+ * que duas pessoas fecharam a mesma placa.
  */
 export function Calendario({
   faces,
@@ -102,6 +109,10 @@ export function Calendario({
             Livre
           </span>
           <span className="flex items-center gap-2">
+            <span className="inline-block h-4 w-8 rounded-sm bg-warn-soft" />
+            Com opção — livre, mas tem cliente decidindo
+          </span>
+          <span className="flex items-center gap-2">
             <span className="inline-block h-4 w-8 rounded-sm bg-ink-3" />
             Reservado — não aceita segunda reserva
           </span>
@@ -141,6 +152,7 @@ export function Calendario({
             <tbody>
               {visiveis.map((f) => {
                 const ocupadas = new Set(f.ocupadas);
+                const opcoes = new Set(f.comOpcao);
                 return (
                   <tr key={f.id}>
                     <td className="sticky left-0 z-10 whitespace-nowrap bg-surface py-2 pr-4">
@@ -151,14 +163,20 @@ export function Calendario({
                     </td>
                     {periodos.map((p, i) => {
                       const taken = ocupadas.has(i);
+                      const emOpcao = !taken && opcoes.has(i);
+                      const estado = taken
+                        ? "reservado"
+                        : emOpcao
+                          ? "livre, com opção aberta"
+                          : "livre";
                       return (
                         <td key={p.id} className="px-1 py-2 text-center">
                           <span
                             title={`${f.code} · bi-semana ${p.seq} (${dia(
                               p.inicio
-                            )} a ${dia(p.fim)}) · ${taken ? "reservado" : "livre"}`}
+                            )} a ${dia(p.fim)}) · ${estado}`}
                             className={`block h-5 w-full min-w-8 rounded-sm ${
-                              taken ? "bg-ink-3" : "bg-good-soft"
+                              taken ? "bg-ink-3" : emOpcao ? "bg-warn-soft" : "bg-good-soft"
                             }`}
                           />
                         </td>

@@ -316,6 +316,31 @@ base nova, schema novo.
    com timeout curto, e nunca impede o cadastro manual. O que ela traz entra
    só em campo vazio — o que o vendedor digitou vale mais que a Receita.
    Situação cadastral diferente de ATIVA aparece como aviso, não como bloqueio.
+52. **Opção não bloqueia a face, e isso é a decisão inteira.** O índice de
+   exclusão já ignorava `kind = 'opcao'` desde o início — agora tem tela para
+   isso. Duas opções podem existir sobre a mesma placa no mesmo período, e o
+   pedido firme passa por cima das duas. Bloquear no primeiro telefonema seria
+   vender inventário para quem só perguntou o preço. Quem confirma primeiro
+   leva, e é na confirmação que o índice de exclusão decide.
+53. **A opção tem numeração própria (`OPC-`), separada da de pedido.** Opção
+   que morre não pode furar a sequência de pedidos emitidos — contabilidade não
+   gosta de buraco. `hold_sequences` é uma tabela à parte de `order_sequences`.
+54. **Confirmar opção chama `create_order_with_items`, não reimplementa.** O
+   pedido que nasce de uma opção é o mesmo objeto do pedido criado à mão:
+   mesmas linhas, mesmo código, mesma auditoria. Duas funções criando pedido
+   seriam duas verdades sobre o que é um pedido. As reservas da opção viram
+   `consumida` depois, não antes — assim o índice de exclusão só olha para o
+   pedido novo.
+55. **A validade tem teto na véspera da campanha, 18h.** Opção que vence depois
+   do início não segura nada: no dia da colagem ninguém mais decide. As 18h
+   evitam a armadilha do fuso — 18h em Brasília é 21h UTC do mesmo dia, então a
+   data é a mesma dos dois lados da conta.
+56. **O aviso de opção vencendo é função própria, não um bloco novo dentro de
+   `gerar_alertas()`.** A original tem quatro inserts e quatro resoluções;
+   reescrever tudo para acrescentar o quinto é como se perde um deles. O
+   agendador chama as duas numa instrução só. É também o único aviso do sistema
+   que fala de dinheiro que ainda dá para ganhar — os outros quatro falam de
+   problema que já aconteceu.
 51. **Escolher face é lista aberta; `<select>` com trezentas faces é
    loteria.** Para achar uma placa no `<select>` você precisava já saber o
    código dela. Agora o catálogo fica visível, filtra enquanto digita, e o
@@ -510,8 +535,10 @@ são as que a auditoria encontrou, e nenhuma delas é óbvia olhando as telas:
   representação foram a decisão nº 2 da arquitetura, o RLS já respeita a
   relação, e não há nenhum jeito de criar uma. Na prática o sistema é
   single-tenant.
-- **Reserva com validade nunca foi ligada.** `bookings.kind = 'opcao'` e
-  `hold_expires_at` existem; nada cria uma opção.
+- ~~Reserva com validade nunca foi ligada.~~ **Fechado.** `holds` + `/opcoes`,
+  com confirmação, prorrogação, cancelamento com motivo, expiração de hora em
+  hora e aviso no sino. Falta editar as faces de uma opção aberta: hoje o
+  caminho é cancelar e refazer.
 - ~~Nada roda sozinho.~~ **Fechado.** `pg_cron` instalado, dois jobs ativos.
 - **`artwork_approved_at` / `artwork_approved_by` nunca são escritos.** O
   anunciante não aprova a arte em lugar nenhum.

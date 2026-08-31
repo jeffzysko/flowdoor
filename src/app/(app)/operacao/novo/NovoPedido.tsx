@@ -4,6 +4,14 @@ import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { criarPedido, type PedidoState } from "../actions";
+import { criarOpcao } from "@/app/(app)/opcoes/actions";
+import {
+  HORAS_DO_PRAZO,
+  PRAZOS,
+  dataHoraBR,
+  validadeDaOpcao,
+  type Prazo,
+} from "@/lib/domain/opcoes";
 import { biSemanas, valorDeTabela, reais, paraNumero } from "@/lib/domain/dinheiro";
 
 type Face = {
@@ -69,6 +77,11 @@ export function NovoPedido({
   const [busca, setBusca] = useState("");
   const [linhas, setLinhas] = useState<Linha[]>([]);
   const [padrao, setPadrao] = useState({ assignee_id: "", data: "", hora: "09:00" });
+  const [modo, setModo] = useState<"pedido" | "opcao">("pedido");
+  const [prazo, setPrazo] = useState<Prazo>("48h");
+  const [feito, setFeito] = useState<
+    { tipo: "pedido" | "opcao"; code: string; orderId?: string } | null
+  >(null);
   const [state, setState] = useState<PedidoState>({ ok: false });
   const [enviando, startTransition] = useTransition();
   const [subindoArte, setSubindoArte] = useState(false);
@@ -80,6 +93,9 @@ export function NovoPedido({
 
   const porId = useMemo(() => new Map(faces.map((f) => [f.id, f])), [faces]);
   const periodos = biSemanas(inicio, fim);
+  const opcao = modo === "opcao";
+  /** Até quando a opção vale. null = a campanha começa cedo demais para opção. */
+  const validade = opcao ? validadeDaOpcao(HORAS_DO_PRAZO[prazo], inicio) : null;
 
   /** Valor de cada linha: o negociado se houver, senão o de tabela. */
   const valorDaLinha = (l: Linha): number | null => {
@@ -143,6 +159,46 @@ export function NovoPedido({
       setState({ ok: false, message: "Escolha ao menos uma face." });
       return;
     }
+
+    // ---------------------------------------------------------- opção
+    // Opção não agenda equipe nem carrega arte: ela guarda faces, período e
+    // preço. Quem confirma vira pedido, e é o pedido que ganha aplicador.
+    if (opcao) {
+      if (!validade) {
+        setState({
+          ok: false,
+          message:
+            "A campanha começa cedo demais para uma opção. Feche como pedido.",
+        });
+        return;
+      }
+      startTransition(async () => {
+        const r = await criarOpcao({
+          orgId,
+          advertiserId,
+          title: titulo,
+          startsOn: inicio,
+          endsOn: fim,
+          expiresAt: validade,
+          notes: instrucoes,
+          linhas: validas.map((l) => ({
+            face_id: l.face_id,
+            starts_on: inicio,
+            ends_on: fim,
+            slots: 1,
+            price: valorDaLinha(l) ?? undefined,
+          })),
+        });
+        if (!r.ok) {
+          setState({ ok: false, message: r.message });
+          return;
+        }
+        setFeito({ tipo: "opcao", code: r.code! });
+      });
+      return;
+    }
+
+    // --------------------------------------------------------- pedido
     const semAplicador = validas.find((l) => !l.assignee_id || !l.data);
     if (semAplicador) {
       setState({
@@ -197,30 +253,43 @@ export function NovoPedido({
         })),
       });
       setState(r);
+      if (r.ok && r.code) setFeito({ tipo: "pedido", code: r.code, orderId: r.orderId });
     });
   }
 
-  if (state.ok && state.code) {
+  if (feito) {
+    const eOpcao = feito.tipo === "opcao";
     return (
       <section className="fd-card mt-6 bg-accent-soft text-center">
-        <p className="fd-overline">
-          Pedido criado
-        </p>
-        <h1 className="fd-h2 mt-2 tabular-nums">{state.code}</h1>
-        <p className="mt-2 text-ink-2 fd-prose">
-          As faces foram reservadas e cada uma entrou na fila do aplicador, uma
-          parada por vez.
+        <p className="fd-overline">{eOpcao ? "Opção guardada" : "Pedido criado"}</p>
+        <h1 className="fd-h2 mt-2 tabular-nums">{feito.code}</h1>
+        <p className="mt-2 text-ink-2 fd-prose mx-auto">
+          {eOpcao
+            ? `As faces ficam guardadas até ${validade ? dataHoraBR(validade) : "o prazo combinado"}. Elas não saem da disponibilidade — opção não bloqueia ninguém. Quem confirmar primeiro leva.`
+            : "As faces foram reservadas e cada uma entrou na fila do aplicador, uma parada por vez."}
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <Link
-            href={`/operacao/${state.orderId}` as never}
-            className="fd-btn"
-          >
-            Ver o pedido
-          </Link>
-          <Link href="/operacao" className="fd-btn fd-btn-ghost">
-            Todos os pedidos
-          </Link>
+          {eOpcao ? (
+            <>
+              {/* A rota é nova: o tipo gerado só passa a conhecê-la depois do
+                  primeiro build. */}
+              <Link href={"/opcoes" as never} className="fd-btn">
+                Ver as opções
+              </Link>
+              <Link href="/operacao" className="fd-btn fd-btn-ghost">
+                Todos os pedidos
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link href={`/operacao/${feito.orderId}` as never} className="fd-btn">
+                Ver o pedido
+              </Link>
+              <Link href="/operacao" className="fd-btn fd-btn-ghost">
+                Todos os pedidos
+              </Link>
+            </>
+          )}
         </div>
       </section>
     );
@@ -228,12 +297,60 @@ export function NovoPedido({
 
   return (
     <form onSubmit={enviar} className="mt-6 pb-16">
-      <h1 className="fd-h2">Novo pedido</h1>
-      <p className="mt-1 text-ink-2 fd-prose">
-        Cada face escolhida vira uma reserva e uma aplicação em campo. Se alguma
-        estiver ocupada no período, o pedido inteiro é recusado — nada nasce pela
-        metade.
+      <h1 className="fd-h2">{opcao ? "Nova opção" : "Novo pedido"}</h1>
+
+      <div className="mt-4">
+        <div className="fd-seg" role="group" aria-label="Tipo de fechamento">
+          <button
+            type="button"
+            className="fd-seg-item"
+            aria-pressed={!opcao}
+            onClick={() => setModo("pedido")}
+          >
+            Pedido firme
+          </button>
+          <button
+            type="button"
+            className="fd-seg-item"
+            aria-pressed={opcao}
+            onClick={() => setModo("opcao")}
+          >
+            Opção com validade
+          </button>
+        </div>
+      </div>
+
+      <p className="mt-3 text-ink-2 fd-prose">
+        {opcao
+          ? "A opção guarda faces, período e preço para um cliente que ainda não fechou. Ela não bloqueia a placa: outro vendedor pode oferecer a mesma face, e quem confirmar primeiro leva. Aplicador e horário ficam para depois, quando virar pedido."
+          : "Cada face escolhida vira uma reserva e uma aplicação em campo. Se alguma estiver ocupada no período, o pedido inteiro é recusado — nada nasce pela metade."}
       </p>
+
+      {opcao && (
+        <div className="fd-inset mt-4">
+          <label className="block">
+            <Rotulo>Validade da opção</Rotulo>
+            <select
+              value={prazo}
+              onChange={(e) => setPrazo(e.target.value as Prazo)}
+              className="fd-input max-w-[220px]"
+            >
+              {PRAZOS.map((pz) => (
+                <option key={pz.valor} value={pz.valor}>
+                  {pz.texto}
+                </option>
+              ))}
+            </select>
+          </label>
+          <p className="fd-hint fd-prose">
+            {!inicio
+              ? "Informe o início da campanha abaixo para calcular a data de vencimento."
+              : validade
+                ? `Vence em ${dataHoraBR(validade)} — véspera da campanha, no máximo. Depois disso as faces somem da lista de opções sozinhas.`
+                : "A campanha começa cedo demais para uma opção. Feche como pedido firme."}
+          </p>
+        </div>
+      )}
 
       {/* ---------------------------------------------------- campanha */}
       <fieldset className="fd-card mt-8">
@@ -302,6 +419,7 @@ export function NovoPedido({
             />
           </label>
 
+          {!opcao && (
           <label className="block sm:col-span-2">
             <Rotulo>Arte da campanha</Rotulo>
             <input
@@ -314,9 +432,10 @@ export function NovoPedido({
               Até 25 MB. Vai para o Storage, não para o banco.
             </span>
           </label>
+          )}
 
           <label className="block sm:col-span-2">
-            <Rotulo>Instruções técnicas</Rotulo>
+            <Rotulo>{opcao ? "Observações da negociação" : "Instruções técnicas"}</Rotulo>
             <textarea
               rows={3}
               value={instrucoes}
@@ -406,13 +525,14 @@ export function NovoPedido({
               <div className="fd-empty">
                 <p className="fd-h4">Nenhuma face no pedido ainda.</p>
                 <p className="mt-1 text-sm text-ink-2 fd-prose">
-                  Escolha ao lado. Para cada face você diz quem aplica, quando, e
-                  o valor — se for diferente da tabela.
+                  {opcao
+                    ? "Escolha ao lado. Para cada face você confirma o valor — se for diferente da tabela."
+                    : "Escolha ao lado. Para cada face você diz quem aplica, quando, e o valor — se for diferente da tabela."}
                 </p>
               </div>
             ) : (
               <>
-                {linhas.length > 1 && (
+                {!opcao && linhas.length > 1 && (
                   <div className="fd-inset mb-4">
                     <span className="fd-label">Definir para todas</span>
                     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,.8fr)_auto]">
@@ -486,7 +606,15 @@ export function NovoPedido({
                         </button>
                       </div>
 
-                      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(140px,1.2fr)_minmax(150px,1fr)_minmax(112px,.7fr)_minmax(112px,.8fr)_minmax(132px,1.1fr)]">
+                      <div
+                        className={
+                          opcao
+                            ? "max-w-[220px]"
+                            : "grid gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(140px,1.2fr)_minmax(150px,1fr)_minmax(112px,.7fr)_minmax(112px,.8fr)_minmax(132px,1.1fr)]"
+                        }
+                      >
+                        {!opcao && (
+                        <>
                         <label className="block">
                           <Rotulo>Aplicador</Rotulo>
                           <select
@@ -538,6 +666,8 @@ export function NovoPedido({
                             <option value={120}>2 horas</option>
                           </select>
                         </label>
+                        </>
+                        )}
 
                         <label className="block">
                           <Rotulo>Valor</Rotulo>
@@ -578,7 +708,7 @@ export function NovoPedido({
               : "Informe o período da campanha para calcular o valor."}
           </p>
           <div className="text-right">
-            <span className="fd-label">Total do pedido</span>
+            <span className="fd-label">{opcao ? "Total da opção" : "Total do pedido"}</span>
             <p className="fd-h3 tabular-nums">{reais(total)}</p>
             {semPreco && (
               <p className="mt-1 text-xs text-warn fd-prose">
@@ -602,14 +732,25 @@ export function NovoPedido({
       <div className="mt-6 flex flex-wrap items-center gap-4">
         <button
           type="submit"
-          disabled={enviando || subindoArte || advertisers.length === 0}
+          disabled={
+            enviando ||
+            subindoArte ||
+            advertisers.length === 0 ||
+            (opcao && !validade)
+          }
           className="fd-btn"
         >
           {subindoArte
             ? "Enviando a arte…"
             : enviando
-              ? "Criando pedido…"
-              : "Criar pedido e reservar"}
+              ? opcao
+                ? "Guardando opção…"
+                : "Criando pedido…"
+              : opcao
+                ? validade
+                  ? `Guardar opção até ${dataHoraBR(validade)}`
+                  : "Opção indisponível para esta data"
+                : "Criar pedido e reservar"}
         </button>
         <Link href="/operacao" className="fd-link fd-link-sm">
           Cancelar

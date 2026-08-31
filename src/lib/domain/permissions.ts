@@ -20,6 +20,7 @@ export const NAV_GRUPOS: Record<MemberRole, GrupoNav[]> = {
       titulo: "Operação",
       itens: [
         { href: "/operacao", label: "Pedidos", icon: "route" },
+        { href: "/opcoes", label: "Opções", icon: "clock" },
         { href: "/disponibilidade", label: "Disponibilidade", icon: "calendar" },
         { href: "/revisao", label: "Conferência de fotos", icon: "check" },
       ],
@@ -47,6 +48,7 @@ export const NAV_GRUPOS: Record<MemberRole, GrupoNav[]> = {
       itens: [
         { href: "/disponibilidade", label: "Disponibilidade", icon: "calendar" },
         { href: "/operacao", label: "Meus pedidos", icon: "route" },
+        { href: "/opcoes", label: "Minhas opções", icon: "clock" },
         { href: "/clientes", label: "Meus anunciantes", icon: "users" },
       ],
     },
