@@ -62,3 +62,36 @@ export async function salvarEmpresa(
   revalidatePath("/", "layout");
   return { ok: true, message: "Dados da empresa atualizados." };
 }
+
+/**
+ * Grava o caminho do logotipo. Caminho vazio remove.
+ *
+ * Recebe só o caminho: o org_id vem da sessão, e o arquivo já foi recusado
+ * pelo banco se estivesse fora da pasta da empresa. Aqui a conferência é de
+ * papel, para a tela responder com uma frase.
+ */
+export async function salvarLogo(caminho: string): Promise<EmpresaState> {
+  const ctx = await getSessionContext();
+  if (!ctx?.current) return { ok: false, message: "Sua sessão expirou. Entre de novo." };
+  if (!canManageTeam(ctx.current.role) && !ctx.isPlatformAdmin) {
+    return { ok: false, message: "Só o titular ou um administrador pode trocar o logotipo." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("organizations")
+    .update({ logo_path: caminho || null })
+    .eq("id", ctx.current.org_id);
+
+  if (error) {
+    return {
+      ok: false,
+      message: error.message.includes("logo_path")
+        ? "O banco ainda não tem o campo do logotipo. Rode a migração e tente de novo."
+        : "Não foi possível salvar o logotipo.",
+    };
+  }
+
+  revalidatePath("/", "layout");
+  return { ok: true, message: caminho ? "Logotipo atualizado." : "Logotipo removido." };
+}

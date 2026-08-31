@@ -5,6 +5,8 @@ import { canManageTeam, ROLE_LABEL } from "@/lib/domain/permissions";
 import { PageHead, Empty, Chip } from "@/components/ui";
 import { rotulo } from "@/lib/domain/rotulos";
 import { EmpresaForm } from "./EmpresaForm";
+import { LogoEmpresa } from "./LogoEmpresa";
+import { logoDaEmpresa } from "@/lib/domain/organizacao";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Dados da empresa" };
@@ -15,6 +17,8 @@ export default async function EmpresaPage() {
   if (!ctx.current) redirect("/plataforma");
 
   const pode = canManageTeam(ctx.current.role) || ctx.isPlatformAdmin;
+
+  const logoUrl = await logoDaEmpresa(ctx.current.org_id);
 
   const supabase = await createClient();
   const { data } = await supabase
@@ -76,6 +80,8 @@ export default async function EmpresaPage() {
           </span>
         </div>
       </section>
+
+      {pode && <LogoEmpresa orgId={ctx.current.org_id} url={logoUrl} />}
 
       {pode ? (
         <EmpresaForm

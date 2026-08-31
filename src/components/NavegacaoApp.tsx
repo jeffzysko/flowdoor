@@ -24,6 +24,8 @@ export type DadosNav = {
   avatarUrl: string | null;
   empresas: EmpresaItem[];
   atual: EmpresaItem | null;
+  /** Marca da empresa atual, quando ela tem uma. */
+  logoEmpresa?: string | null;
   podeEditarEmpresa: boolean;
   ehAdminPlataforma: boolean;
   contexto: "empresa" | "plataforma";
@@ -177,8 +179,13 @@ function MenuEmpresa(d: DadosNav) {
 
   const corpo = (
     <>
-      <span className="grid size-9 shrink-0 place-items-center rounded-md bg-surface text-ink-3">
-        <Icone nome="building" />
+      <span className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-md bg-surface text-ink-3">
+        {d.logoEmpresa ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={d.logoEmpresa} alt="" className="max-h-7 max-w-7 object-contain" />
+        ) : (
+          <Icone nome="building" />
+        )}
       </span>
       <span className="min-w-0 flex-1">
         <span className="fd-ident-nome">{d.atual.nome}</span>

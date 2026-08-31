@@ -48,7 +48,13 @@ type Snapshot = {
     instructions: string | null;
   };
   advertiser: { name: string } | null;
-  org: { name: string; city: string | null; state: string | null } | null;
+  org: {
+    name: string;
+    city: string | null;
+    state: string | null;
+    /** Só existe em comprovante publicado depois da migração do logotipo. */
+    logo_path?: string | null;
+  } | null;
   items: Item[];
   published_at: string;
 };
@@ -89,14 +95,32 @@ export default async function ProofPage({
     });
   }
 
+  // A marca da exibidora vem congelada no snapshot, como o resto: comprovante
+  // publicado antes do logotipo existir continua sem ele até ser republicado.
+  let logoUrl: string | null = null;
+  if (snap.org?.logo_path) {
+    const { data: url } = await admin.storage
+      .from("org-logos")
+      .createSignedUrl(snap.org.logo_path, 60 * 60);
+    logoUrl = url?.signedUrl ?? null;
+  }
+
   const done = snap.items.filter((i) => i.event?.status === "concluido").length;
 
   return (
     <main className="fd-doc py-12">
       <header className="border-b border-line pb-6">
-        <p className="fd-label">
-          Comprovante de veiculação
-        </p>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <p className="fd-label">Comprovante de veiculação</p>
+          {logoUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={logoUrl}
+              alt={snap.org?.name ?? "Exibidora"}
+              className="max-h-12 max-w-[180px] object-contain"
+            />
+          )}
+        </div>
         <h1 className="fd-h1 mt-3 sm:text-5xl">
           {snap.advertiser?.name ?? "Campanha"}
         </h1>

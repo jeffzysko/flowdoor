@@ -1,5 +1,6 @@
 import { NavegacaoApp, type EmpresaItem } from "./NavegacaoApp";
 import { NAV_GRUPOS, ROLE_LABEL, canManageTeam } from "@/lib/domain/permissions";
+import { logoDaEmpresa } from "@/lib/domain/organizacao";
 import type { SessionContext } from "@/lib/domain/types";
 
 /**
@@ -7,7 +8,7 @@ import type { SessionContext } from "@/lib/domain/types";
  * some abaixo de 1024 e vira barra com gaveta — a lista é a mesma, para não
  * existirem dois menus para aprender.
  */
-export function CascaApp({
+export async function CascaApp({
   ctx,
   contexto,
   children,
@@ -26,6 +27,8 @@ export function CascaApp({
     ? empresas.find((e) => e.id === ctx.current!.org_id) ?? null
     : null;
 
+  const logoUrl = ctx.current ? await logoDaEmpresa(ctx.current.org_id) : null;
+
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[252px_minmax(0,1fr)]">
       <NavegacaoApp
@@ -36,6 +39,7 @@ export function CascaApp({
         avatarUrl={ctx.avatarUrl}
         empresas={empresas}
         atual={atual}
+        logoEmpresa={logoUrl}
         podeEditarEmpresa={
           Boolean(ctx.current && canManageTeam(ctx.current.role)) || ctx.isPlatformAdmin
         }

@@ -277,6 +277,16 @@ base nova, schema novo.
    em que se está e a conta de quem está não são lugares para ir: são
    contexto. O bloco da empresa vira seletor quando a pessoa alcança mais de
    uma; o da conta abre perfil, dados da empresa e saída.
+45. **Arquivo de empresa mora em pasta com o id da empresa.** Vale para
+   `artworks`, `field-photos` e agora `org-logos`: a política do bucket confere
+   `(storage.foldername(name))[1]` contra o papel na organização, então o
+   caminho é parte da regra e não convenção. Bucket é privado e a URL sai
+   assinada. SVG fica fora da lista de tipos aceitos de propósito — SVG é
+   documento com script dentro.
+46. **Comprovante publicado não se reescreve.** O logotipo entra no snapshot
+   no momento da publicação; trocar a marca depois não muda documento já
+   emitido — para isso existe republicar. Registro que muda sozinho depois de
+   entregue não é registro.
 44. **Perfil e empresa se editam pelo próprio dono.** `salvarPerfil` não
    recebe id: o alvo é sempre `auth.uid()`, porque um id no formulário seria
    um parâmetro oferecido para alguém tentar. `salvarEmpresa` tira o `org_id`
