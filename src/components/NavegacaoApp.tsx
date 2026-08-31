@@ -7,8 +7,15 @@ import type { Route } from "next";
 import { Logo } from "./Logo";
 import { Icone } from "./Icone";
 import { Avatar } from "./Avatar";
+import { Chip } from "./ui";
 import { trocarEmpresa } from "@/app/(app)/trocar-empresa";
 import type { GrupoNav } from "@/lib/domain/permissions";
+import {
+  destinoDoAviso,
+  ROTULO_AVISO,
+  TOM_AVISO,
+  type Aviso,
+} from "@/lib/domain/avisos";
 
 export type EmpresaItem = {
   id: string;
@@ -24,20 +31,29 @@ export type DadosNav = {
   avatarUrl: string | null;
   empresas: EmpresaItem[];
   atual: EmpresaItem | null;
-  /** Marca da empresa atual, quando ela tem uma. */
   logoEmpresa?: string | null;
+  avisos: Aviso[];
+  avisosTotal: number;
   podeEditarEmpresa: boolean;
   ehAdminPlataforma: boolean;
   contexto: "empresa" | "plataforma";
 };
 
 /**
- * Navegação do sistema. Trilho vertical no desktop, barra com gaveta no
- * celular — a mesma lista nos dois, para ninguém precisar aprender dois
- * menus. O rodapé do trilho carrega identidade: a empresa em que se está e a
- * conta de quem está.
+ * Casca de navegação.
+ *
+ * Divisão de trabalho: o trilho da esquerda responde "para onde eu vou"; a
+ * barra de cima responde "onde estou, quem sou e o que precisa de mim".
+ * Empresa, avisos e conta são contexto, não destino — por isso saíram do meio
+ * da lista de destinos, onde competiam com ela.
+ *
+ * Abaixo de 1024 o trilho vira gaveta e a barra fica: num celular a barra é a
+ * única coisa que cabe permanentemente na tela.
  */
-export function NavegacaoApp(d: DadosNav) {
+export function NavegacaoApp({
+  children,
+  ...d
+}: DadosNav & { children: React.ReactNode }) {
   const [gaveta, setGaveta] = useState(false);
   const caminho = usePathname();
 
@@ -48,29 +64,46 @@ export function NavegacaoApp(d: DadosNav) {
   }, [caminho]);
 
   return (
-    <>
-      <aside className="hidden lg:block">
-        <Trilho {...d} />
-      </aside>
-
-      <header className="fd-topbar lg:hidden">
+    <div className="min-h-dvh">
+      <header className="fd-barra">
         <button
-          className="fd-icone-btn"
+          className="fd-icone-btn lg:hidden"
           aria-label="Abrir menu"
           aria-expanded={gaveta}
           onClick={() => setGaveta(true)}
         >
           <Icone nome="menu" className="size-6" />
         </button>
+
         <Link
           href={d.atual ? "/painel" : "/plataforma"}
           aria-label="Flowdoor — início"
-          className="mr-auto"
+          className="shrink-0"
         >
-          <Logo className="w-[104px]" />
+          <Logo className="w-[108px]" />
         </Link>
-        <MenuConta {...d} direcao="baixo" compacto />
+
+        {d.atual && (
+          <>
+            <span className="fd-barra-sep hidden sm:block" aria-hidden />
+            <MenuEmpresa {...d} />
+          </>
+        )}
+
+        <div className="ml-auto flex items-center gap-1">
+          {d.atual && <Sino {...d} />}
+          <MenuConta {...d} />
+        </div>
       </header>
+
+      <div className="lg:grid lg:grid-cols-[252px_minmax(0,1fr)]">
+        <aside className="hidden lg:block">
+          <Trilho {...d} />
+        </aside>
+        <div className="min-w-0">
+          <main className="fd-shell py-10">{children}</main>
+        </div>
+      </div>
 
       {gaveta && (
         <>
@@ -84,10 +117,11 @@ export function NavegacaoApp(d: DadosNav) {
           </div>
         </>
       )}
-    </>
+    </div>
   );
 }
 
+/** Só destinos. Contexto e identidade moram na barra. */
 function Trilho({ aoFechar, ...d }: DadosNav & { aoFechar?: () => void }) {
   const caminho = usePathname();
   const ativo = (href: string) =>
@@ -95,114 +129,109 @@ function Trilho({ aoFechar, ...d }: DadosNav & { aoFechar?: () => void }) {
 
   return (
     <nav className="fd-rail" aria-label="Navegação principal">
-      <div className="flex items-center justify-between gap-3">
-        <Link
-          href={d.atual ? "/painel" : "/plataforma"}
-          aria-label="Flowdoor — início"
-        >
-          <Logo className="w-[112px]" />
-        </Link>
-        {aoFechar && (
+      {aoFechar && (
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <Logo className="w-[108px]" />
           <button className="fd-icone-btn" aria-label="Fechar menu" onClick={aoFechar}>
             <Icone nome="fechar" className="size-5" />
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       <div className="fd-rail-miolo">
-      {d.contexto === "empresa" ? (
-        d.grupos.map((g) => (
-          <div key={g.titulo} className="fd-rail-group">
-            <p className="fd-rail-title">{g.titulo}</p>
-            {g.itens.map((i) => (
-              <Link
-                key={i.href}
-                href={i.href as Route}
-                aria-current={ativo(i.href) ? "page" : undefined}
-                className="fd-rail-item"
-              >
-                <Icone nome={i.icon} />
-                <span>{i.label}</span>
-              </Link>
-            ))}
-          </div>
-        ))
-      ) : (
-        <div className="fd-rail-group">
-          <p className="fd-rail-title">Plataforma</p>
-          <Link
-            href="/plataforma"
-            aria-current={caminho === "/plataforma" ? "page" : undefined}
-            className="fd-rail-item"
-          >
-            <Icone nome="building" />
-            <span>Empresas</span>
-          </Link>
-          {d.atual && (
-            <Link href="/painel" className="fd-rail-item">
-              <Icone nome="troca" />
-              <span>Voltar para {d.atual.nome}</span>
+        {d.contexto === "empresa" ? (
+          d.grupos.map((g) => (
+            <div key={g.titulo} className="fd-rail-group">
+              <p className="fd-rail-title">{g.titulo}</p>
+              {g.itens.map((i) => (
+                <Link
+                  key={i.href}
+                  href={i.href as Route}
+                  aria-current={ativo(i.href) ? "page" : undefined}
+                  className="fd-rail-item"
+                >
+                  <Icone nome={i.icon} />
+                  <span>{i.label}</span>
+                </Link>
+              ))}
+            </div>
+          ))
+        ) : (
+          <div className="fd-rail-group">
+            <p className="fd-rail-title">Plataforma</p>
+            <Link
+              href="/plataforma"
+              aria-current={caminho === "/plataforma" ? "page" : undefined}
+              className="fd-rail-item"
+            >
+              <Icone nome="building" />
+              <span>Empresas</span>
             </Link>
-          )}
-        </div>
-      )}
+            {d.atual && (
+              <Link href="/painel" className="fd-rail-item">
+                <Icone nome="troca" />
+                <span>Voltar para {d.atual.nome}</span>
+              </Link>
+            )}
+          </div>
+        )}
 
-      {d.ehAdminPlataforma && d.contexto === "empresa" && (
-        <div className="fd-rail-group">
-          <p className="fd-rail-title">Plataforma</p>
-          <Link href="/plataforma" className="fd-rail-item">
-            <Icone nome="building" />
-            <span>Todas as empresas</span>
-          </Link>
-        </div>
-      )}
-
-      </div>
-
-      <div className="fd-rail-foot">
-        {d.atual && <MenuEmpresa {...d} />}
-        <MenuConta {...d} direcao="cima" />
+        {d.ehAdminPlataforma && d.contexto === "empresa" && (
+          <div className="fd-rail-group">
+            <p className="fd-rail-title">Plataforma</p>
+            <Link href="/plataforma" className="fd-rail-item">
+              <Icone nome="building" />
+              <span>Todas as empresas</span>
+            </Link>
+          </div>
+        )}
       </div>
     </nav>
   );
 }
 
-/** Empresa atual. Vira seletor quando a pessoa alcança mais de uma. */
+/** Empresa atual, na barra. Vira seletor quando a pessoa alcança mais de uma. */
 function MenuEmpresa(d: DadosNav) {
   const [aberto, setAberto] = useState(false);
+  const [trocando, setTrocando] = useState(false);
   const caixa = useRef<HTMLDivElement>(null);
-  const [trocando, setTrocando] = useState<string | null>(null);
   useFechaFora(caixa, () => setAberto(false));
 
   if (!d.atual) return null;
   const varias = d.empresas.length > 1;
 
+  const marca = (
+    <span className="grid size-7 shrink-0 place-items-center overflow-hidden rounded-md bg-surface-2 text-ink-3">
+      {d.logoEmpresa ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={d.logoEmpresa} alt="" className="max-h-6 max-w-6 object-contain" />
+      ) : (
+        <Icone nome="building" className="size-4" />
+      )}
+    </span>
+  );
+
   const corpo = (
     <>
-      <span className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-md bg-surface text-ink-3">
-        {d.logoEmpresa ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={d.logoEmpresa} alt="" className="max-h-7 max-w-7 object-contain" />
-        ) : (
-          <Icone nome="building" />
-        )}
-      </span>
-      <span className="min-w-0 flex-1">
+      {marca}
+      <span className="hidden min-w-0 sm:block">
         <span className="fd-ident-nome">{d.atual.nome}</span>
         <span className="fd-ident-papel">
           {trocando ? "trocando…" : d.atual.viaPlataforma ? "pela plataforma" : d.atual.papel}
         </span>
       </span>
-      {varias && <Icone nome="troca" className="size-4 shrink-0 text-ink-3" />}
+      {varias && <Icone nome="chevron" className="size-4 shrink-0 text-ink-3" />}
     </>
   );
 
-  if (!varias) return <div className="fd-ident cursor-default">{corpo}</div>;
+  if (!varias) {
+    return <div className="fd-ident max-w-[240px] cursor-default">{corpo}</div>;
+  }
 
   return (
     <div ref={caixa} className="relative">
       <button
-        className="fd-ident"
+        className="fd-ident max-w-[240px]"
         aria-expanded={aberto}
         aria-haspopup="listbox"
         onClick={() => setAberto((v) => !v)}
@@ -210,10 +239,10 @@ function MenuEmpresa(d: DadosNav) {
         {corpo}
       </button>
       {aberto && (
-        <div className="fd-menu bottom-full left-0 mb-2 w-full" role="listbox">
+        <div className="fd-menu left-0 top-full mt-2" role="listbox">
           <p className="fd-menu-cab">
             <b>Trocar de empresa</b>
-            <span>{d.empresas.length} empresas ao seu alcance</span>
+            <span>{d.empresas.length} ao seu alcance</span>
           </p>
           {d.empresas.map((e) => (
             <button
@@ -224,7 +253,7 @@ function MenuEmpresa(d: DadosNav) {
               disabled={e.id === d.atual!.id}
               className="fd-menu-item"
               onClick={async () => {
-                setTrocando(e.id);
+                setTrocando(true);
                 setAberto(false);
                 await trocarEmpresa(e.id);
               }}
@@ -244,12 +273,107 @@ function MenuEmpresa(d: DadosNav) {
   );
 }
 
+/**
+ * Sino. O que ele mostra são os mesmos avisos do painel — licença vencendo,
+ * contrato vencido, foto parada em conferência —, gerados pela tarefa que roda
+ * às 8h no banco. Não é caixa de mensagens: é o que vence antes de alguém
+ * lembrar.
+ */
+function Sino(d: DadosNav) {
+  const [aberto, setAberto] = useState(false);
+  const caixa = useRef<HTMLDivElement>(null);
+  useFechaFora(caixa, () => setAberto(false));
+
+  const urgentes = d.avisos.filter((a) => a.level === "urgente").length;
+  const total = d.avisosTotal;
+
+  return (
+    <div ref={caixa} className="relative">
+      <button
+        className="fd-icone-btn relative"
+        aria-expanded={aberto}
+        aria-haspopup="menu"
+        aria-label={
+          total === 0
+            ? "Avisos: nenhum aberto"
+            : `Avisos: ${total} aberto${total > 1 ? "s" : ""}`
+        }
+        onClick={() => setAberto((v) => !v)}
+      >
+        <Icone nome="sino" className="size-5" />
+        {total > 0 && (
+          <span className={`fd-selo ${urgentes === 0 ? "fd-selo-calmo" : ""}`}>
+            {total > 9 ? "9+" : total}
+          </span>
+        )}
+      </button>
+
+      {aberto && (
+        <div className="fd-menu right-0 top-full mt-2 w-[min(360px,calc(100vw-32px))]" role="menu">
+          <p className="fd-menu-cab">
+            <b>Avisos</b>
+            <span>
+              {total === 0
+                ? "Nada vencendo agora."
+                : `${total} aberto${total > 1 ? "s" : ""}${
+                    urgentes ? ` · ${urgentes} urgente${urgentes > 1 ? "s" : ""}` : ""
+                  }`}
+            </span>
+          </p>
+
+          {d.avisos.length === 0 ? (
+            <p className="px-3 pb-3 text-sm text-ink-3">
+              Quando uma licença vencer, um contrato atrasar ou uma foto travar
+              em conferência, aparece aqui.
+            </p>
+          ) : (
+            <>
+              {d.avisos.map((a) => (
+                <Link
+                  key={a.id}
+                  href={destinoDoAviso(a)}
+                  role="menuitem"
+                  className="fd-menu-item fd-menu-item-bloco"
+                  onClick={() => setAberto(false)}
+                >
+                  <span className="flex flex-wrap items-center gap-2">
+                    <Chip tone={TOM_AVISO[a.level]}>
+                      {ROTULO_AVISO[a.kind] ?? "aviso"}
+                    </Chip>
+                    <span className="min-w-0 truncate">{a.title}</span>
+                  </span>
+                  {a.detail && (
+                    <span className="mt-1 block text-xs font-normal text-ink-3">
+                      {a.detail}
+                    </span>
+                  )}
+                </Link>
+              ))}
+              {total > d.avisos.length && (
+                <p className="fd-menu-label">
+                  e mais {total - d.avisos.length} · veja a lista completa
+                </p>
+              )}
+              <div className="fd-menu-sep" />
+              <Link
+                href={"/painel#avisos" as Route}
+                className="fd-menu-item"
+                role="menuitem"
+                onClick={() => setAberto(false)}
+              >
+                <Icone nome="grid" />
+                <span>Ver todos os avisos</span>
+              </Link>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /** Conta: perfil, dados da empresa e saída. */
-function MenuConta({
-  direcao,
-  compacto,
-  ...d
-}: DadosNav & { direcao: "cima" | "baixo"; compacto?: boolean }) {
+function MenuConta(d: DadosNav) {
   const [aberto, setAberto] = useState(false);
   const caixa = useRef<HTMLDivElement>(null);
   useFechaFora(caixa, () => setAberto(false));
@@ -257,28 +381,17 @@ function MenuConta({
   return (
     <div ref={caixa} className="relative">
       <button
-        className={compacto ? "fd-icone-btn size-10" : "fd-ident"}
+        className="fd-icone-btn"
         aria-expanded={aberto}
         aria-haspopup="menu"
-        aria-label={compacto ? "Sua conta" : undefined}
+        aria-label="Sua conta"
         onClick={() => setAberto((v) => !v)}
       >
-        <Avatar nome={d.nome} url={d.avatarUrl} tamanho={compacto ? 32 : 36} />
-        {!compacto && (
-          <span className="min-w-0 flex-1">
-            <span className="fd-ident-nome">{d.nome}</span>
-            <span className="fd-ident-papel">{d.email}</span>
-          </span>
-        )}
+        <Avatar nome={d.nome} url={d.avatarUrl} tamanho={32} />
       </button>
 
       {aberto && (
-        <div
-          role="menu"
-          className={`fd-menu ${
-            direcao === "cima" ? "bottom-full left-0 mb-2 w-full" : "right-0 top-full mt-2"
-          }`}
-        >
+        <div role="menu" className="fd-menu right-0 top-full mt-2">
           <p className="fd-menu-cab">
             <b>{d.nome}</b>
             <span>{d.email}</span>

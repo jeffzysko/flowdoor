@@ -261,7 +261,18 @@ base nova, schema novo.
    `.fd-cards-lg`). Grade com número fixo de colunas produz card órfão
    esticado na última linha e quebra dentro de container estreito, porque o
    ponto de quebra olha a janela e não o espaço disponível.
-41. **A navegação do escritório é um trilho vertical agrupado; a do campo,
+41. **Trilho responde "para onde vou"; barra superior responde "onde estou,
+   quem sou, o que precisa de mim".** Empresa, avisos e conta são contexto, não
+   destino — no meio da lista de destinos competiam com ela. A barra fica em
+   todas as larguras; o trilho é que vira gaveta abaixo de 1024, porque no
+   celular a barra é a única coisa que cabe permanentemente na tela.
+42. **O sino mostra os avisos que já existem, não uma caixa de mensagens
+   nova.** São os mesmos da tarefa das 8h — licença vencendo, contrato
+   vencido, foto parada em conferência —, com o mesmo destino por tipo que a
+   seção do painel usa (`destinoDoAviso`). Dois caminhos diferentes para o
+   mesmo aviso seria a receita para um deles apodrecer. O contador é número,
+   não bolinha: "3" diz mais que "tem algo".
+43. **A navegação do escritório é um trilho vertical agrupado; a do campo,
    duas pastilhas.** São públicos diferentes: no escritório são até nove
    destinos e a pessoa está sentada; na rua são dois e a pessoa está de pé,
    com uma mão. O trilho agrupa por assunto (Hoje · Operação · Inventário ·

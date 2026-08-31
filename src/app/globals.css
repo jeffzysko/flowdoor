@@ -103,6 +103,7 @@
   --fd-w-modal:  780px;
   --fd-w-auth:   460px;   /* caixa de acesso */
   --fd-gutter: clamp(16px, 4vw, 40px);
+  --fd-h-barra: 60px;   /* barra superior: contexto e identidade */
 
   /* ---- raio ------------------------------------------------------------- */
   --fd-radius-sm: 8px;    --fd-radius-md: 12px;   --fd-radius-lg: 16px;
@@ -649,18 +650,43 @@ button, [role="button"] { touch-action: manipulation; }
 
   /* O trilho não rola inteiro: rola só o miolo. Com overflow no elemento
      todo, o menu do rodapé abria dentro da área que rola e era cortado. */
+  /* ---- barra superior ---------------------------------------------------
+     Divisão de trabalho com o trilho: o trilho responde "para onde vou", a
+     barra responde "onde estou, quem sou e o que precisa de mim". Empresa,
+     avisos e conta são contexto — não são destino, e por isso não moram no
+     meio da lista de destinos. */
+  .fd-barra {
+    position: sticky; top: 0; z-index: 45;
+    display: flex; align-items: center; gap: var(--fd-space-3);
+    height: var(--fd-h-barra); padding-inline: var(--fd-space-4);
+    background: color-mix(in srgb, var(--fd-surface-050) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--fd-line-200);
+  }
+  .fd-barra-sep { width: 1px; height: 24px; background: var(--fd-line-200); }
+
+  /* Contador do sino. Número, não bolinha: "3" diz mais que "tem algo". */
+  .fd-selo {
+    position: absolute; top: 2px; right: 2px;
+    min-width: 18px; height: 18px; padding: 0 5px;
+    display: grid; place-items: center; border-radius: var(--fd-radius-pill);
+    background: var(--fd-danger-solid); color: var(--fd-surface-000);
+    font-size: 10px; font-weight: var(--fd-weight-bold);
+    font-variant-numeric: tabular-nums;
+  }
+  .fd-selo-calmo { background: var(--fd-ink-500); }
+
   .fd-rail {
-    position: sticky; top: 0; align-self: start;
+    position: sticky; top: var(--fd-h-barra); align-self: start;
     display: flex; flex-direction: column;
-    width: 252px; height: 100dvh; overflow: visible;
-    padding: var(--fd-space-6) var(--fd-space-4) var(--fd-space-5);
+    width: 252px; height: calc(100dvh - var(--fd-h-barra)); overflow: visible;
+    padding: var(--fd-space-5) var(--fd-space-4);
     background: var(--fd-surface-200);
     border-right: 1px solid var(--fd-line-200);
   }
   .fd-rail-miolo {
     flex: 1 1 auto; min-height: 0; overflow-y: auto;
     display: flex; flex-direction: column; gap: var(--fd-space-6);
-    margin-top: var(--fd-space-6);
     /* espaço para a sombra do item ativo não ser cortada na rolagem */
     padding: 2px;
   }
@@ -695,15 +721,15 @@ button, [role="button"] { touch-action: manipulation; }
     border-top: 1px solid var(--fd-line-200);
   }
 
-  /* Bloco de identidade no pé do trilho: empresa e conta. */
+  /* Bloco de identidade da barra: marca da empresa, nome e papel. */
   .fd-ident {
-    display: flex; align-items: center; gap: var(--fd-space-3); width: 100%;
-    padding: var(--fd-space-2) var(--fd-space-3);
+    display: flex; align-items: center; gap: var(--fd-space-2);
+    padding: var(--fd-space-1) var(--fd-space-2);
     border: 0; border-radius: var(--fd-radius-md); background: none;
     text-align: left; cursor: pointer; color: inherit;
     transition: background var(--fd-duration-fast) ease;
   }
-  .fd-ident:hover { background: var(--fd-surface-000); }
+  .fd-ident:hover { background: var(--fd-surface-200); }
   .fd-ident-nome {
     display: block; font-size: var(--fd-text-sm); font-weight: var(--fd-weight-bold);
     line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
@@ -730,6 +756,11 @@ button, [role="button"] { touch-action: manipulation; }
   .fd-menu-item:hover { background: var(--fd-surface-100); }
   .fd-menu-item[aria-current="true"] { color: var(--fd-orange-700); }
   .fd-menu-item:disabled { color: var(--fd-ink-400); cursor: default; }
+  /* Item que carrega duas linhas (aviso): uma coluna, alinhado ao topo. */
+  .fd-menu-item-bloco {
+    grid-template-columns: 1fr; align-items: start;
+    row-gap: 0; white-space: normal;
+  }
   .fd-menu-sep { height: 1px; margin: var(--fd-space-2) var(--fd-space-1); background: var(--fd-line-200); }
   .fd-menu-cab { padding: var(--fd-space-2) var(--fd-space-3) var(--fd-space-3); }
   .fd-menu-cab b { display: block; font-size: var(--fd-text-sm); }
