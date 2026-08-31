@@ -1,12 +1,12 @@
 /**
  * Como cada valor do banco se escreve na tela.
  *
- * No Postgres os valores não têm acento nem espaço — `em_renovacao`,
- * `aguardando_validacao`, `manutencao`. Isso é bom para o banco e péssimo para
- * quem lê: o usuário não escreve assim, e ver "painel_rodoviario" numa
- * proposta parece defeito. Aqui é o único lugar onde a tradução acontece.
+ * No Postgres os valores vêm sem acento e sem espaço: `em_renovacao`,
+ * `aguardando_validacao`, `manutencao`. É bom para o banco e ruim para quem
+ * lê. Ninguém escreve assim, e "painel_rodoviario" numa proposta parece
+ * defeito. Aqui é o único lugar onde a tradução acontece.
  *
- * Valor que a tela ainda não conhece não vira erro nem sai cru com underline:
+ * Valor que a tela ainda não conhece não vira erro nem sai cru com sublinhado:
  * `rotulo()` troca o sublinhado por espaço e devolve legível.
  */
 
@@ -88,7 +88,7 @@ function legivel(v: string) {
 }
 
 export function rotulo(tipo: keyof typeof MAPAS | string, valor: string | null | undefined): string {
-  if (!valor) return "—";
+  if (!valor) return "-";
   return MAPAS[tipo]?.[valor] ?? legivel(valor);
 }
 

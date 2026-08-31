@@ -41,10 +41,9 @@ const MOTIVOS: Record<string, string> = {
 
 /**
  * Aceite de convite por link. O token é o segredo: quem tem o link foi
- * convidado. Mas o token sozinho não decide QUAL conta entra na empresa —
- * isso é o e-mail do convite, e o servidor confere. Aqui a tela só mostra o
- * endereço já decidido, para a pessoa não digitar outro e levar um erro que
- * não teria como adivinhar.
+ * convidado. Mas quem decide QUAL conta entra na empresa é o e-mail do
+ * convite, e o servidor confere. A tela mostra esse endereço já decidido,
+ * para a pessoa não digitar outro e levar um erro sem explicação.
  */
 export function AceitarConvite({ token }: { token: string }) {
   const [fase, setFase] = useState<Fase>("carregando");
@@ -58,7 +57,7 @@ export function AceitarConvite({ token }: { token: string }) {
   // vezes: a primeira aceita, a segunda encontra o convite já usado e joga a
   // tela para o erro por cima de um aceite que deu certo. A trava é por ref,
   // não por estado, porque precisa valer já na segunda passada do mesmo
-  // render — estado só chegaria tarde demais.
+  // render. Estado só chegaria tarde demais.
   const jaRodou = useRef(false);
 
   const aceitar = useCallback(
@@ -169,7 +168,7 @@ export function AceitarConvite({ token }: { token: string }) {
       }
     } else if (!cadastro?.session) {
       // Confirmação de e-mail ligada no projeto: signUp não devolve sessão, e
-      // sem sessão a RPC de aceite não roda. Sem este ramo a pessoa via um
+      // sem sessão a RPC de aceite não roda. Sem este ramo a pessoa recebia um
       // "não autenticado" seco e não tinha o que fazer.
       setFase("confirmar_email");
       return;
@@ -215,8 +214,8 @@ export function AceitarConvite({ token }: { token: string }) {
         <h1 className="fd-h3">Confirme seu e-mail</h1>
         <p className="mt-2 text-ink-2">
           Sua conta foi criada. Mandamos um e-mail para{" "}
-          <strong>{convite?.email}</strong> — confirme por lá e volte a abrir
-          este mesmo link do convite para entrar na equipe.
+          <strong>{convite?.email}</strong>. Confirme por lá e abra este mesmo
+          link do convite de novo para entrar na equipe.
         </p>
         <p className="mt-3 text-sm text-ink-3">
           O convite continua valendo até a data de validade.

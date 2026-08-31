@@ -3,21 +3,20 @@
 /**
  * Captura de campo.
  *
- * A moldura é travada em 3,2:1 — a proporção de um outdoor. Não é enfeite:
- * força o aplicador a enquadrar a peça inteira, que é exatamente o que torna
- * a foto utilizável como comprovante para o anunciante.
+ * A moldura é travada em 3,2:1, a proporção de um outdoor. Isso força o
+ * aplicador a enquadrar a peça inteira, e é o que torna a foto utilizável como
+ * comprovante para o anunciante.
  *
- * A foto sai comprimida em JPEG. Nada de base64 em banco: o Blob vai para
- * a fila offline e de lá para o Storage.
+ * A foto sai comprimida em JPEG. Nada de base64 no banco: o Blob vai para a
+ * fila offline e de lá para o Storage.
  */
 
 import { stampBandHeight } from "./stamp";
 
 /**
- * O carimbo é desenhado no canvas, sobre a foto — não é interface, é conteúdo
- * da imagem. Canvas não lê variável CSS, então a cor vive aqui, nomeada. Ela é
- * branca de propósito: o carimbo cai sobre uma faixa escura no rodapé da foto,
- * e é o único lugar do produto onde branco sobre escuro é a leitura certa.
+ * O carimbo é desenhado no canvas, sobre a foto. Ele é conteúdo da imagem, não
+ * interface. Canvas não lê variável CSS, então a cor fica aqui, nomeada. Ela é
+ * branca porque o carimbo cai sobre uma faixa escura no rodapé da foto.
  */
 const CARIMBO_TEXTO = "#ffffff";
 const CARIMBO_TEXTO_FRACO = "rgba(255,255,255,0.92)";
@@ -32,9 +31,9 @@ export interface Capture {
   height: number;
   sharpness: number; // 0..1, quanto maior melhor
   /**
-   * Hora do relógio do aparelho no disparo. Não é a hora que vale — essa é
-   * a do servidor. Vai junto só para o servidor medir a diferença: relógio
-   * fora do lugar é sinal de aparelho mexido.
+   * Hora do relógio do aparelho no disparo. A hora que vale é a do servidor.
+   * Esta vai junto só para o servidor medir a diferença: relógio fora do lugar
+   * é sinal de aparelho mexido.
    */
   takenAt: Date;
 }
@@ -53,8 +52,8 @@ export interface Carimbo {
 /**
  * Escreve data, hora, ponto e coordenada na própria imagem.
  *
- * O registro que vale juridicamente é o do servidor — hora de chegada, GPS e
- * snapshot imutável. O carimbo resolve outro problema: a foto sai do sistema
+ * O registro que vale juridicamente é o do servidor: hora de chegada, GPS e
+ * snapshot imutável. O carimbo resolve outro problema. A foto sai do sistema
  * por WhatsApp, PDF e impressão, e fora daqui ela precisa se explicar sozinha.
  */
 function carimbar(
@@ -69,7 +68,7 @@ function carimbar(
   const linha2 = Math.round(22 * escala);
 
   // A altura vem de stamp.ts porque o servidor precisa do mesmo número para
-  // descontar esta faixa do hash perceptual.
+  // tirar esta faixa do hash perceptual.
   const faixa = stampBandHeight(w);
 
   const grad = ctx.createLinearGradient(0, h - faixa, 0, h);
@@ -104,7 +103,7 @@ function carimbar(
   ctx.fillStyle = "rgba(255,255,255,0.75)";
   ctx.fillText([coord, c.pedido].filter(Boolean).join("  ·  "), pad, h - pad);
 
-  // marca discreta na direita, para a foto se identificar fora do sistema
+  // marca discreta à direita, para a foto se identificar fora do sistema
   ctx.font = `700 ${linha2}px ui-monospace, "SF Mono", Menlo, monospace`;
   ctx.fillStyle = "rgba(255,255,255,0.55)";
   const marca = "FLOWDOOR";
@@ -130,10 +129,9 @@ export function stopCamera(stream: MediaStream | null) {
 }
 
 /**
- * Estimativa barata de nitidez: variância do laplaciano numa amostra
- * reduzida. Não é perfeito, mas separa "foto tremida" de "foto boa" —
- * que é a diferença entre um comprovante que serve e um que o cliente
- * devolve.
+ * Estimativa barata de nitidez: variância do laplaciano numa amostra reduzida.
+ * Não é perfeita, mas separa foto tremida de foto boa. É a diferença entre o
+ * comprovante que serve e o que o cliente devolve.
  */
 function estimateSharpness(data: ImageData): number {
   const { data: px, width, height } = data;

@@ -10,9 +10,9 @@ export type EquipeState = { ok: boolean; message?: string };
  * Desligar é desativar, nunca apagar.
  *
  * O membro assina aplicação, foto e comprovante. Apagar a linha deixaria
- * `field_events.assignee_id` apontando para o vazio e um comprovante sem
- * quem executou — o documento que o anunciante recebeu deixaria de fechar.
- * Inativo some da fila e dos seletores, e o passado continua com dono.
+ * `field_events.assignee_id` apontando para o vazio e o comprovante do
+ * anunciante sem quem executou. Inativo some da fila e dos seletores, e o
+ * passado continua com dono.
  */
 export async function atualizarMembro(
   orgId: string,

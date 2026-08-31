@@ -24,7 +24,7 @@ export default async function PortalPage({
 }) {
   const ctx = await getSessionContext();
   if (!ctx?.current) redirect("/entrar");
-  // A exibidora tem as telas dela; este portal é o outro lado do balcão.
+  // A exibidora tem as telas dela. Este portal é do lado de quem compra.
   if (ctx.current.organizations.kind === "exibidora") redirect("/painel");
 
   const supabase = await createClient();
@@ -49,7 +49,7 @@ export default async function PortalPage({
         <div className="mt-6">
           <Empty titulo="Nenhuma parceria ativa.">
             Quando uma exibidora conectar a sua empresa, o inventário dela
-            aparece aqui — com o que estiver livre e o que já tem cliente
+            aparece aqui. Você vê o que está livre e o que já tem cliente
             decidindo.
           </Empty>
         </div>
@@ -106,7 +106,7 @@ export default async function PortalPage({
       <PageHead
         eyebrow={ctx.current.organizations.name}
         title="Disponibilidade"
-        lead={`Inventário de ${atual.provedora?.name ?? "parceiro"}, do jeito que ele liberou para você.`}
+        lead={`Inventário de ${atual.provedora?.name ?? "parceiro"}, com o que ele liberou para você.`}
       />
 
       <PortalVenda

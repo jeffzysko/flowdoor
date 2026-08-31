@@ -24,7 +24,7 @@ const MESES = [
   "julho", "agosto", "setembro", "outubro", "novembro", "dezembro",
 ];
 
-/** "março/2027" — chave e rótulo do seletor de mês, na mesma função. */
+/** "março/2027": chave e rótulo do seletor de mês, na mesma função. */
 function mesDe(iso: string) {
   const [a, m] = iso.split("-").map(Number);
   return { chave: `${a}-${String(m).padStart(2, "0")}`, texto: `${MESES[m - 1]} de ${a}` };
@@ -39,15 +39,13 @@ const dia = (v: string) =>
 /**
  * Calendário de ciclos de 14 dias.
  *
- * Verde é livre e cinza é ocupado — e a legenda diz isso na tela, porque uma
- * frase no topo da página não fica ao lado da cor quando a pessoa está lendo a
- * grade. Laranja aqui seria erro de gramática do design system: laranja é
- * marca, não estado.
+ * Verde é livre, cinza é ocupado. A legenda fica na tela, ao lado da grade.
+ * Laranja não entra aqui: no design system laranja é cor de marca, não de
+ * estado.
  *
- * Mostarda é o terceiro estado: alguém guardou o ciclo como opção. Ainda
- * dá para vender — opção não bloqueia — mas quem vender precisa saber que tem
- * outro cliente decidindo. Vender no escuro é como se descobre, tarde demais,
- * que duas pessoas fecharam a mesma placa.
+ * Mostarda é o terceiro estado: alguém guardou o ciclo como opção. A face
+ * continua vendável, porque a opção não bloqueia. Quem vender precisa saber
+ * que tem outro cliente decidindo.
  */
 export function Calendario({
   faces,
@@ -66,9 +64,8 @@ export function Calendario({
   const [soLivres, setSoLivres] = useState(false);
   const [mes, setMes] = useState("");
 
-  // Doze colunas cabem na tela; o resto do ano fica atrás do seletor de mês.
-  // "Meu cliente quer abril" é a pergunta que a agência faz por telefone, e
-  // era a que a grade não respondia.
+  // Doze colunas cabem na tela. O resto do ano fica atrás do seletor de mês,
+  // para responder "meu cliente quer abril" sem varrer a grade inteira.
   const meses = useMemo(() => {
     const vistos = new Map<string, string>();
     for (const p of periodos) {
@@ -94,8 +91,8 @@ export function Calendario({
     return faces.filter((f) => {
       if (cidade && f.cidade !== cidade) return false;
       if (tipo && f.kind !== tipo) return false;
-      // "Só com ciclo livre" olha o que está na tela: filtrar pelo ano
-      // inteiro esconderia face livre justamente no mês que a pessoa abriu.
+      // "Só com ciclo livre" olha o que está na tela. Filtrar pelo ano inteiro
+      // esconderia face livre justamente no mês que a pessoa abriu.
       if (soLivres) {
         const livreNaJanela = janela.some(
           (_, k) => !f.ocupadas.includes(inicio + k)
@@ -103,8 +100,8 @@ export function Calendario({
         if (!livreNaJanela) return false;
       }
       if (!t) return true;
-      // O formato entra na busca por texto também: quem digita "led" quer o
-      // painel de LED, não precisa saber que existe um seletor à direita.
+      // O formato também entra na busca por texto. Quem digita "led" quer o
+      // painel de LED e não precisa achar o seletor à direita.
       return `${f.code} ${f.endereco} ${f.cidade} ${rotuloDoFormato(f.kind)}`
         .toLowerCase()
         .includes(t);
@@ -192,11 +189,11 @@ export function Calendario({
           </span>
           <span className="flex items-center gap-2">
             <span className="inline-block h-4 w-8 rounded-sm bg-warn-soft" />
-            Com opção — livre, mas tem cliente decidindo
+            Com opção: livre, mas tem cliente decidindo
           </span>
           <span className="flex items-center gap-2">
             <span className="inline-block h-4 w-8 rounded-sm bg-ink-3" />
-            Reservado — não aceita segunda reserva
+            Reservado: não aceita segunda reserva
           </span>
           <span className="ml-auto tabular-nums">
             {visiveis.length} de {faces.length} faces · {livresNaJanela} ciclos

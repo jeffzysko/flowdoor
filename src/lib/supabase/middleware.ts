@@ -1,9 +1,9 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-// Rotas que precisam funcionar deslogado. "/recuperar-senha" e obrigatorio
-// aqui: quem pede o link esta, por definicao, sem sessao — sem esta linha o
-// proxy devolvia para /entrar e a tela nunca aparecia.
+// Rotas que precisam funcionar sem login. "/recuperar-senha" é obrigatória
+// aqui: quem pede o link está sem sessão. Sem esta linha, o proxy devolvia
+// para /entrar e a tela nunca aparecia.
 const PUBLIC_PREFIXES = [
   "/entrar",
   "/recuperar-senha",

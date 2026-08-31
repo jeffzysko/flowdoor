@@ -53,12 +53,12 @@ export default async function EquipePage() {
           {equipe.map((m) => (
             <tr key={m.id}>
               <td className="font-medium">
-                {m.profiles?.full_name ?? "—"}
+                {m.profiles?.full_name ?? "-"}
                 {m.user_id === ctx.userId && (
                   <span className="ml-2 text-xs text-ink-3">você</span>
                 )}
               </td>
-              <td>{m.profiles?.email ?? "—"}</td>
+              <td>{m.profiles?.email ?? "-"}</td>
               <td>{ROLE_LABEL[m.role]}</td>
               <td>
                 <Chip tone={m.active ? "bom" : "aviso"}>{m.active ? "ativo" : "inativo"}</Chip>
@@ -87,7 +87,7 @@ export default async function EquipePage() {
             {pendentes.map((i) => (
               <tr key={i.id}>
                 <td>{i.email}</td>
-                <td>{i.full_name ?? "—"}</td>
+                <td>{i.full_name ?? "-"}</td>
                 <td>{ROLE_LABEL[i.role]}</td>
                 <td className="tabular-nums">
                   {new Date(i.expires_at).toLocaleDateString("pt-BR")}

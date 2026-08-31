@@ -16,16 +16,16 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Ponto" };
 
 const d = (v: string | null) =>
-  v ? new Date(v + "T12:00:00").toLocaleDateString("pt-BR") : "—";
+  v ? new Date(v + "T12:00:00").toLocaleDateString("pt-BR") : "-";
 const dt = (v: string | null) =>
-  v ? new Date(v).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : "—";
+  v ? new Date(v).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : "-";
 
 /**
  * Detalhe do ponto: onde se conserta o que foi cadastrado errado.
  *
- * Vale mais do que parece — a coordenada daqui é a que libera a chegada de
- * quem está na rua. Errada, a pessoa fica travada em pé no lugar certo, e o
- * único conserto até hoje era SQL na mão.
+ * A coordenada daqui é a que libera a chegada de quem está na rua. Errada, a
+ * pessoa fica travada em pé no lugar certo. Antes desta tela, o único conserto
+ * era SQL na mão.
  */
 export default async function PontoPage({
   params,
@@ -180,10 +180,10 @@ export default async function PontoPage({
 
             {ponto.geo_query && (
               <p className="mt-2 text-xs text-ink-3">
-                Encontrado por {origem ?? ponto.geo_source} — buscamos{" "}
+                Encontrado por {origem ?? ponto.geo_source}. A busca foi por{" "}
                 <span className="tabular-nums">{ponto.geo_query}</span>.
                 {sit === "parcial" &&
-                  " Se este não é o lugar, corrija a coordenada abaixo: coordenada digitada à mão passa a valer e trava a chegada."}
+                  " Se este não é o lugar, corrija a coordenada abaixo. Coordenada digitada à mão passa a valer e trava a chegada."}
               </p>
             )}
           </section>
@@ -193,8 +193,8 @@ export default async function PontoPage({
       {!ponto.latitude && (
         <p className="fd-alert fd-alert-warn mt-4">
           Sem coordenada cadastrada, a chegada neste ponto não pode ser
-          conferida — quem for aplicar vai passar direto pela trava de GPS ou
-          ficar preso nela. Preencha latitude e longitude antes de vender.
+          conferida. Quem for aplicar passa direto pela trava de GPS ou fica
+          preso nela. Preencha latitude e longitude antes de vender.
         </p>
       )}
 

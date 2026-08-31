@@ -41,8 +41,8 @@ export function PerfilForm({
     }
     setEnviando(true);
     const supabase = createClient();
-    // A pasta é o id da pessoa: a política do bucket só aceita escrita dentro
-    // da própria pasta, então o caminho é parte da regra, não convenção.
+    // A pasta é o id da pessoa. A política do bucket só aceita escrita dentro
+    // da própria pasta, então o caminho faz parte da regra.
     const ext = f.name.split(".").pop()?.toLowerCase() || "jpg";
     const destino = `${userId}/perfil-${Date.now()}.${ext}`;
     const { error } = await supabase.storage
@@ -130,7 +130,7 @@ export function PerfilForm({
           <input value={email} readOnly disabled className="fd-input" />
           <span className="fd-hint">
             É por ele que você entra. Trocar o e-mail exige confirmação no
-            endereço novo — peça a quem administra a empresa.
+            endereço novo. Peça para quem administra a empresa.
           </span>
         </label>
       </div>

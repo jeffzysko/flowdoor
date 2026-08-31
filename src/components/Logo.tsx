@@ -1,9 +1,9 @@
 import Image from "next/image";
 
 /**
- * Logotipo horizontal. Duas versões, e a escolha não é estética: sobre fundo
- * escuro o cinza do "DOOR" some, então lá entra a variante branca. Largura
- * mínima de 120px — abaixo disso a seta dentro do F vira sujeira.
+ * Logotipo horizontal, em duas versões. Sobre fundo escuro o cinza do "DOOR"
+ * some, então lá entra a variante branca. Use no mínimo 120px de largura.
+ * Abaixo disso a seta dentro do F vira sujeira.
  */
 export function Logo({
   tom = "claro",

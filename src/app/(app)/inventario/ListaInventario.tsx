@@ -39,9 +39,9 @@ export type FaceInv = {
 /**
  * A lista do inventário com os mesmos filtros da disponibilidade.
  *
- * Não é simetria por simetria: são as mesmas perguntas. Quem procura "os
- * outdoors de São José que estão inativos" faz isso nas duas telas, e ter
- * filtro só numa obrigava a rolar setenta e oito linhas na outra.
+ * As perguntas são as mesmas nas duas telas. Quem procura "os outdoors de São
+ * José que estão inativos" busca nas duas, e filtro só em uma obrigava a rolar
+ * a lista inteira na outra.
  */
 export function ListaInventario({ faces }: { faces: FaceInv[] }) {
   const [busca, setBusca] = useState("");
@@ -217,7 +217,7 @@ export function ListaInventario({ faces }: { faces: FaceInv[] }) {
                 </Chip>
               </td>
               <td className="tabular-nums">
-                {f.width_m && f.height_m ? `${f.width_m}×${f.height_m}m` : "—"}
+                {f.width_m && f.height_m ? `${f.width_m}×${f.height_m}m` : "-"}
               </td>
               <td className="text-right tabular-nums">
                 {reais(f.base_price)}

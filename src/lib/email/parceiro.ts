@@ -1,9 +1,9 @@
 /**
  * O e-mail de convite de parceiro.
  *
- * Diferente do convite de equipe: quem recebe não entra na empresa de quem
- * convidou — abre a própria. O texto precisa deixar isso claro, senão a
- * agência acha que vai virar funcionária da exibidora.
+ * É diferente do convite de equipe. Quem recebe não entra na empresa de quem
+ * convidou: abre a própria. O texto precisa deixar isso claro, senão a agência
+ * acha que vai virar funcionária da exibidora.
  */
 export function emailDeConviteParceiro(dados: {
   link: string;
@@ -26,13 +26,13 @@ export function emailDeConviteParceiro(dados: {
   const assunto = `${dados.exibidora} quer conectar ${dados.parceiro} no Flowdoor`;
 
   const texto = [
-    `CONVITE DE PARCERIA — ${dados.exibidora.toUpperCase()}`,
+    `CONVITE DE PARCERIA COM ${dados.exibidora.toUpperCase()}`,
     "",
     `${quem} convidou ${dados.parceiro} para ser ${papel} parceira no Flowdoor.`,
     "",
     `Aceitando, ${dados.parceiro} passa a ${oQueGanha}.`,
     "",
-    "Você abre a conta da sua própria empresa — não entra na equipe de",
+    "Você abre a conta da sua própria empresa. Não entra na equipe de",
     `${dados.exibidora}. Os dados da sua empresa continuam seus.`,
     "",
     "Abra o link abaixo para aceitar:",
@@ -49,7 +49,7 @@ export function emailDeConviteParceiro(dados: {
 
 <p>Aceitando, ${escapar(dados.parceiro)} passa a ${escapar(oQueGanha)}.</p>
 
-<p>Você abre a conta da sua própria empresa — não entra na equipe de ${escapar(dados.exibidora)}. Os dados da sua empresa continuam seus.</p>
+<p>Você abre a conta da sua própria empresa. Não entra na equipe de ${escapar(dados.exibidora)}. Os dados da sua empresa continuam seus.</p>
 
 <p><a href="${escapar(dados.link)}">Aceitar a parceria</a></p>
 

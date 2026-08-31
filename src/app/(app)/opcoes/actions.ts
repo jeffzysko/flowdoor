@@ -88,9 +88,9 @@ export async function criarOpcao(input: unknown): Promise<OpcaoState> {
 }
 
 /**
- * Confirmar é onde a disputa acontece: até aqui a opção não bloqueava nada.
+ * A disputa acontece na confirmação: até aqui a opção não bloqueia nada.
  * Se outro pedido pegou a face nesse meio tempo, o índice de exclusão recusa
- * e a opção continua aberta — nada fica pela metade.
+ * e a opção continua aberta. Nada fica pela metade.
  */
 export async function confirmarOpcao(holdId: string): Promise<OpcaoState> {
   const supabase = await createClient();
@@ -141,10 +141,10 @@ export async function cancelarOpcao(
 /**
  * Trocar as faces de uma opção aberta, sem trocar o número dela.
  *
- * Antes o único caminho era cancelar e refazer — o cliente tem OPC-2026-0007
- * no e-mail e receberia um OPC-2026-0011 sem explicação no meio da
- * negociação. As reservas que saem viram 'cancelada' em vez de sumir, para o
- * histórico mostrar o que estava lá antes.
+ * Antes o único caminho era cancelar e refazer. O cliente tem OPC-2026-0007 no
+ * e-mail e receberia um OPC-2026-0011 sem explicação no meio da negociação. As
+ * reservas que saem viram 'cancelada' em vez de sumir, para o histórico mostrar
+ * o que estava lá antes.
  */
 export async function atualizarFacesOpcao(
   holdId: string,

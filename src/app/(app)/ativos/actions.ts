@@ -6,13 +6,13 @@ import { createClient } from "@/lib/supabase/server";
 export type AtivoState = { ok: boolean; message?: string };
 
 /**
- * Contrato e licença não são tabelas: são campos do ponto. "Excluir" aqui é
- * limpar os campos — o ponto continua existindo, porque a estrutura continua
- * de pé na rua. Serve para o contrato que acabou e não foi renovado, e para a
- * licença que a prefeitura dispensou.
+ * Contrato e licença não são tabelas, são campos do ponto. "Excluir" aqui só
+ * limpa os campos. O ponto continua existindo, porque a estrutura segue de pé
+ * na rua. Serve para contrato vencido sem renovação e para licença dispensada
+ * pela prefeitura.
  *
- * O aviso correspondente se resolve sozinho na próxima rodada de
- * `gerar_alertas()`: a condição sumiu, o alerta some junto.
+ * O alerta correspondente some sozinho na próxima rodada de `gerar_alertas()`,
+ * porque a condição deixou de existir.
  */
 export async function limparContrato(siteId: string): Promise<AtivoState> {
   const supabase = await createClient();

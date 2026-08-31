@@ -9,9 +9,9 @@ export type RegrasState = { ok: boolean; message?: string };
 /**
  * Os limites vivem aqui e no banco, com os mesmos números.
  *
- * O de baixo é o que vale — a RPC de campo lê a coluna direto. O de cima
- * existe para a pessoa receber uma frase em vez de um erro de constraint, e
- * para um valor absurdo não chegar ao banco por caminho nenhum.
+ * Quem manda é o do banco: a RPC de campo lê a coluna direto. O daqui existe
+ * para a pessoa receber uma frase em vez de um erro de constraint, e para um
+ * valor absurdo não chegar ao banco por caminho nenhum.
  */
 const regras = z.object({
   require_proximity: z.boolean(),

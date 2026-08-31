@@ -3,10 +3,10 @@
 import { useEffect, useRef } from "react";
 
 /**
- * Modal do design system. O que o documento cobra e o protótipo não tinha:
- * role="dialog", aria-modal, Esc fecha, foco preso dentro e devolvido ao
- * gatilho quando fecha. Altura em dvh — a barra de endereço do celular come
- * o vh e a última linha do conteúdo some.
+ * Modal do design system, com o que o protótipo não tinha: role="dialog",
+ * aria-modal, Esc fecha, foco preso dentro e devolvido ao gatilho quando
+ * fecha. A altura usa dvh, porque a barra de endereço do celular come o vh
+ * e some com a última linha do conteúdo.
  */
 export function Modal({
   aberto,

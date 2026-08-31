@@ -125,11 +125,10 @@ export async function publicarComprovante(
 /**
  * Manda o comprovante para a agência que vendeu, quando houver uma.
  *
- * Service role porque a sessão é a da EXIBIDORA: pelo RLS ela não lê
- * `org_members` nem `profiles` da agência, e não deve — os endereços da
- * equipe de outra empresa não são dado dela. A leitura fica no servidor, para
- * um pedido que esta pessoa acabou de publicar, e nenhum endereço volta para
- * o navegador.
+ * Usa service role porque a sessão é a da exibidora: pelo RLS ela não lê
+ * `org_members` nem `profiles` da agência, e não deve. A leitura acontece no
+ * servidor, só para um pedido que esta pessoa acabou de publicar, e nenhum
+ * endereço volta para o navegador.
  */
 async function avisarAgencia(orderId: string, url: string): Promise<void> {
   const supabase = await createClient();
@@ -205,10 +204,9 @@ const edicao = z.object({
 });
 
 /**
- * Editar pedido é a operação mais perigosa do sistema comercial: mexer no
- * período move todas as reservas de uma vez. A RPC faz a checagem de colisão
- * antes de gravar e recusa a alteração inteira se qualquer face estiver
- * vendida — não existe pedido alterado pela metade.
+ * Mexer no período move todas as reservas do pedido de uma vez. A RPC checa
+ * colisão antes de gravar e recusa a alteração inteira se qualquer face
+ * estiver vendida. Não existe pedido alterado pela metade.
  */
 export async function atualizarPedido(input: unknown): Promise<PedidoState> {
   const parsed = edicao.safeParse(input);
@@ -260,8 +258,7 @@ export async function atualizarPedido(input: unknown): Promise<PedidoState> {
 
 /**
  * Cancelar libera o inventário e para a rota, mas não apaga o que já
- * aconteceu: aplicação concluída continua concluída, com foto e horário. Se
- * três faces subiram antes do cancelamento, elas subiram.
+ * aconteceu. Aplicação concluída continua concluída, com foto e horário.
  */
 export async function cancelarPedido(
   orderId: string,
@@ -304,13 +301,12 @@ export async function cancelarPedido(
 }
 
 /**
- * Excluir pedido é a borracha do engano, não um evento comercial.
+ * Excluir serve para apagar engano, não para registrar um cancelamento.
  *
- * Cancelar e excluir respondem coisas diferentes: pedido cancelado é um fato
- * que o histórico de conversão precisa guardar; pedido criado por engano às
- * 9h e apagado às 9h02 não é fato nenhum, e deixá-lo como "cancelado" suja o
- * relatório para sempre. Quem decide qual dos dois cabe é o banco — aplicação
- * concluída, comprovante publicado ou origem em opção travam a exclusão.
+ * Pedido cancelado é um fato que o histórico de conversão precisa guardar.
+ * Pedido criado por engano e apagado minutos depois não é, e deixá-lo como
+ * "cancelado" suja o relatório. Quem decide é o banco: aplicação concluída,
+ * comprovante publicado ou origem em opção travam a exclusão.
  */
 export async function excluirPedido(
   orderId: string
@@ -323,9 +319,9 @@ export async function excluirPedido(
     return {
       ok: false,
       message: m.includes("aplicacao")
-        ? "Este pedido já tem aplicação concluída. Cancele em vez de excluir — o que foi feito em campo continua no histórico."
+        ? "Este pedido já tem aplicação concluída. Cancele em vez de excluir. O que foi feito em campo continua no histórico."
         : m.includes("comprovante")
-          ? "Este pedido já teve comprovante publicado. Comprovante entregue ao anunciante não se apaga: cancele o pedido."
+          ? "Este pedido já teve comprovante publicado. Comprovante entregue ao anunciante não se apaga. Cancele o pedido."
           : m.includes("opcao")
             ? "Este pedido nasceu de uma opção confirmada. Cancele, para a opção continuar contando como fechada."
             : m.includes("sem permissao")

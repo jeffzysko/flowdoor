@@ -20,10 +20,11 @@ const empresa = z.object({
 /**
  * Salva os dados da empresa em que a pessoa está.
  *
- * O org_id vem da sessão, não do formulário: assim não há campo escondido para
- * apontar para outra empresa. O RLS (`organizations_update`) só deixa titular,
- * administrador ou responsável pela plataforma escrever — a conferência aqui
- * é para a tela responder com uma frase em vez de um erro cru do banco.
+ * O org_id vem da sessão, não do formulário. Assim não existe campo escondido
+ * apontando para outra empresa. O RLS (`organizations_update`) só deixa
+ * titular, administrador ou responsável pela plataforma escrever. A conferência
+ * aqui serve para a tela responder com uma frase em vez de um erro cru do
+ * banco.
  */
 export async function salvarEmpresa(
   _prev: EmpresaState,
@@ -66,9 +67,9 @@ export async function salvarEmpresa(
 /**
  * Grava o caminho do logotipo. Caminho vazio remove.
  *
- * Recebe só o caminho: o org_id vem da sessão, e o arquivo já foi recusado
- * pelo banco se estivesse fora da pasta da empresa. Aqui a conferência é de
- * papel, para a tela responder com uma frase.
+ * Recebe só o caminho. O org_id vem da sessão, e o banco já recusaria arquivo
+ * fora da pasta da empresa. Aqui a conferência é de papel, para a tela
+ * responder com uma frase.
  */
 export async function salvarLogo(caminho: string): Promise<EmpresaState> {
   const ctx = await getSessionContext();

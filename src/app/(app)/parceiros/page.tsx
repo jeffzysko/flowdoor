@@ -97,18 +97,18 @@ export default async function ParceirosPage() {
       />
 
       <p className="mt-4 text-sm text-ink-2 fd-prose">
-        Parceiro não é membro da sua equipe: ele tem a própria conta, a própria
+        Parceiro não é membro da sua equipe. Ele tem a própria conta, a própria
         equipe e os próprios clientes. Da sua empresa, ele enxerga só o
-        inventário que você liberar — nunca os seus pedidos, os seus preços
+        inventário que você liberar. Nunca os seus pedidos, os seus preços
         negociados com outros clientes ou as fotos de campo.
       </p>
 
       {parcerias.length === 0 ? (
         <div className="mt-6">
           <Empty titulo="Nenhum parceiro conectado ainda.">
-            Convide abaixo. A agência abre a conta dela, enxerga a
-            disponibilidade do que você liberar, e — se você permitir — monta a
-            opção que cai na sua lista para confirmar.
+            Convide abaixo. A agência abre a conta dela e enxerga a
+            disponibilidade do que você liberar. Se você permitir, ela também
+            monta a opção que cai na sua lista para confirmar.
           </Empty>
         </div>
       ) : (
@@ -117,7 +117,7 @@ export default async function ParceirosPage() {
             <tr key={p.id}>
               <td>
                 <b className="fd-table-link no-underline">
-                  {p.consumidora?.name ?? "—"}
+                  {p.consumidora?.name ?? "-"}
                 </b>
               </td>
               <td>{TIPO[p.kind]}</td>
@@ -156,8 +156,8 @@ export default async function ParceirosPage() {
         <section className="mt-10">
           <h2 className="fd-h4">Convites pendentes</h2>
           <p className="mt-1 text-sm text-ink-2 fd-prose">
-            Ainda não aceitos. O link vale 14 dias — e-mail digitado errado
-            precisa de um jeito de desligar.
+            Ainda não aceitos. O link vale 14 dias. Se errou o e-mail, cancele
+            o convite aqui.
           </p>
           <Table head={["Empresa", "E-mail", "Tipo", "Enxerga", "Pode", "Expira em", ""]}>
             {pendentes.map((c) => (

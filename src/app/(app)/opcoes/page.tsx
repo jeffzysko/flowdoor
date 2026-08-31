@@ -111,11 +111,10 @@ export default async function OpcoesPage() {
       />
 
       <p className="mt-4 text-sm text-ink-2 fd-prose">
-        Opção não bloqueia a face: duas podem existir sobre a mesma placa no
-        mesmo período, e quem confirmar primeiro leva. É na confirmação que a
-        reserva vira firme — se outro pedido pegou a face antes, o sistema
-        recusa e avisa. Opção pedida por parceiro chega sem preço: o valor é o
-        que você puser ao confirmar.
+        A opção não bloqueia a face. Duas podem existir na mesma placa e no
+        mesmo período. Quem confirmar primeiro leva. Se outro pedido pegou a
+        face antes, o sistema recusa e avisa. Opção pedida por parceiro chega
+        sem preço: o valor é o que você puser ao confirmar.
       </p>
 
       {abertas.length === 0 ? (
@@ -138,7 +137,7 @@ export default async function OpcoesPage() {
                   {o.title && <span className="block text-xs text-ink-3">{o.title}</span>}
                 </td>
                 <td>
-                  {o.advertisers?.name ?? "—"}
+                  {o.advertisers?.name ?? "-"}
                   {o.agencia && (
                     <span className="block text-xs text-ink-3">
                       pedido por {o.agencia.name}
@@ -194,8 +193,8 @@ export default async function OpcoesPage() {
         <>
           <h2 className="fd-h4 mt-10">Fechadas</h2>
           <p className="mt-1 text-sm text-ink-2 fd-prose">
-            O que virou pedido, o que venceu e o que o cliente deixou cair. É
-            esta lista que responde quanto da carteira não fecha.
+            O que virou pedido, o que venceu e o que o cliente deixou cair.
+            Esta lista mostra quanto da carteira não fecha.
           </p>
           <Table head={["Opção", "Anunciante", "Campanha", "Faces", "Desfecho", ""]}>
             {fechadas.map((o) => {
@@ -203,7 +202,7 @@ export default async function OpcoesPage() {
               return (
                 <tr key={o.id}>
                   <td className="tabular-nums">{o.code}</td>
-                  <td>{o.advertisers?.name ?? "—"}</td>
+                  <td>{o.advertisers?.name ?? "-"}</td>
                   <td className="tabular-nums">
                     {dataBR(o.starts_on)} → {dataBR(o.ends_on)}
                   </td>

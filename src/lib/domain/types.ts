@@ -15,8 +15,8 @@ export type FaceMedium = "estatico" | "digital";
 
 /**
  * De onde veio a coordenada do ponto, e o quanto ela vale. Só "exata",
- * "confirmada" e "manual" armam a trava de chegada do campo — barrar alguém
- * com base num centroide de rodovia é gerar chamado por erro nosso.
+ * "confirmada" e "manual" armam a trava de chegada do campo. Barrar o
+ * aplicador por causa de um centroide de rodovia seria erro nosso.
  */
 export type GeoPrecision =
   | "exata"
@@ -52,9 +52,9 @@ export interface Membership {
   org_id: string;
   role: MemberRole;
   /**
-   * Verdadeiro quando a pessoa alcança a empresa por ser responsável pela
-   * plataforma, e não por ter vínculo com ela. A interface mostra isso, porque
-   * "estou vendo a empresa de fora" e "eu trabalho aqui" não são a mesma coisa.
+   * Verdadeiro quando a pessoa chega à empresa por responder pela plataforma,
+   * não por ter vínculo com ela. A interface mostra essa diferença: ver a
+   * empresa de fora não é a mesma coisa que trabalhar nela.
    */
   viaPlataforma?: boolean;
   organizations: {

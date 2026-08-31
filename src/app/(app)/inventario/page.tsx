@@ -48,8 +48,8 @@ export default async function InventarioPage() {
           Tem o inventário numa planilha?{" "}
           <Link href={"/inventario/importar" as never} className="fd-link fd-link-sm">
             Importe de uma vez
-          </Link>{" "}
-          — dá para rodar de novo depois só para reajustar a tabela.
+          </Link>
+          . Dá para rodar de novo depois, só para reajustar a tabela.
         </p>
       )}
 
@@ -67,7 +67,7 @@ export default async function InventarioPage() {
       {faces.length === 0 ? (
         <div className="mt-6">
           <Empty titulo="Nenhuma face cadastrada.">
-            Comece por um ponto — endereço, coordenada e licença — e depois some
+            Comece por um ponto (endereço, coordenada e licença) e depois some
             as faces dele. A face é o que o vendedor reserva.
           </Empty>
         </div>

@@ -16,12 +16,12 @@ const perfil = z.object({
 /**
  * Salva o próprio perfil.
  *
- * Não recebe id: o alvo é sempre `auth.uid()`. A política `profiles_update_self`
- * já barraria escrever no perfil alheio, mas mandar o id daqui seria oferecer
- * um parâmetro para alguém tentar — e não existe motivo para ele existir.
+ * Não recebe id, o alvo é sempre `auth.uid()`. A política `profiles_update_self`
+ * já barraria escrever no perfil alheio, mas mandar o id daqui só criaria um
+ * parâmetro para alguém tentar forçar.
  *
- * O e-mail não entra: trocar e-mail é fluxo de autenticação (confirmação no
- * endereço novo), não edição de cadastro.
+ * O e-mail não entra aqui. Trocar e-mail é fluxo de autenticação, com
+ * confirmação no endereço novo.
  */
 export async function salvarPerfil(
   _prev: ContaState,

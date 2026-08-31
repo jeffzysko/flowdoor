@@ -39,9 +39,9 @@ function recado(bruto: string): string {
 /**
  * O parceiro monta a opção; quem precifica é a exibidora.
  *
- * A RPC não aceita preço de propósito — deixar a agência digitar o valor
- * seria deixá-la fechar desconto no lugar do dono da placa. O que chega aqui
- * é intenção de compra: faces, período e até quando o cliente dela decide.
+ * A RPC não aceita preço, de propósito. Se a agência digitasse o valor, ela
+ * fecharia desconto no lugar do dono da placa. O que chega aqui é intenção de
+ * compra: faces, período e até quando o cliente dela decide.
  */
 export async function pedirOpcao(input: unknown): Promise<PortalState> {
   const parsed = pedido.safeParse(input);
@@ -72,8 +72,8 @@ export async function pedirOpcao(input: unknown): Promise<PortalState> {
   revalidatePath("/portal");
   revalidatePath("/portal/opcoes");
 
-  // O e-mail é o segundo canal do mesmo aviso. Se falhar, a opção já existe
-  // e o sino já mostra — por isso nada aqui derruba o retorno de sucesso.
+  // O e-mail é o segundo canal do mesmo aviso. Se falhar, a opção já existe e
+  // o sino já mostra, então nada aqui derruba o retorno de sucesso.
   await avisarExibidora(v, r.code).catch(() => {});
 
   return { ok: true, code: r.code };
@@ -82,11 +82,10 @@ export async function pedirOpcao(input: unknown): Promise<PortalState> {
 /**
  * Avisa quem responde pela exibidora.
  *
- * Precisa do service role porque a sessão é a do PARCEIRO: pelo RLS ele não
- * lê `org_members` nem `profiles` da exibidora, e não deve mesmo — os
- * endereços de e-mail de outra empresa não são dado dele. A leitura acontece
- * só aqui no servidor, para uma opção que este usuário acabou de criar, e
- * nenhum endereço volta para o navegador.
+ * Precisa do service role porque a sessão é a do parceiro. Pelo RLS ele não lê
+ * `org_members` nem `profiles` da exibidora, e não deve. A leitura acontece só
+ * aqui no servidor, para uma opção que este usuário acabou de criar, e nenhum
+ * endereço volta para o navegador.
  */
 async function avisarExibidora(
   v: z.infer<typeof pedido>,

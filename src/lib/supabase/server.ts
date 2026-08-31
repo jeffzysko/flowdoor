@@ -26,9 +26,9 @@ export async function createClient() {
 }
 
 /**
- * Cliente com service role. IGNORA RLS — use apenas em rotas de servidor
- * onde a autorização já foi decidida no código, e nunca a partir de
- * parâmetro vindo do navegador sem checagem.
+ * Cliente com service role. IGNORA o RLS. Use apenas em rotas de servidor onde
+ * a autorização já foi decidida no código, e nunca a partir de parâmetro vindo
+ * do navegador sem checagem.
  */
 export function createAdminClient() {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;

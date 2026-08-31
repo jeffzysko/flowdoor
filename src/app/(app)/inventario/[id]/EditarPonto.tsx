@@ -130,8 +130,8 @@ export function EditarPonto({ ponto, podeExcluir }: { ponto: Ponto; podeExcluir:
 
 /**
  * Só aparece para ponto que nunca foi usado. Quem já tem reserva, aplicação
- * ou item de pedido é barrado por gatilho no banco — o botão escondido aqui é
- * cortesia, não a trava.
+ * ou item de pedido é barrado por gatilho no banco. Esconder o botão aqui é
+ * cortesia; a trava mesmo está no banco.
  */
 function ExcluirPonto({ siteId, code }: { siteId: string; code: string }) {
   const [confirmando, setConfirmando] = useState(false);

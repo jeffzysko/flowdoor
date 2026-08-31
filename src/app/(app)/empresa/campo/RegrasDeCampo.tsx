@@ -31,12 +31,9 @@ export type Regras = {
 /**
  * As regras de campo, numa tela.
  *
- * Elas existiam desde o começo e só podiam ser mudadas por SQL: o raio de
- * 150 m e a tolerância de 3 horas valiam para o outdoor no meio do nada e
- * para o mupi na esquina, igual. Cada número aqui tem uma consequência
- * concreta em quem está na rua, e é isso que o texto ao lado diz — número de
- * configuração sem consequência escrita é número que ninguém tem coragem de
- * mexer.
+ * Antes elas só mudavam por SQL. O raio de 150 m e a tolerância de 3 horas
+ * valiam igual para o outdoor no meio do nada e para o mupi na esquina. O
+ * texto ao lado de cada número diz o que ele muda para quem está na rua.
  */
 export function RegrasDeCampo({
   orgId,
@@ -59,7 +56,7 @@ export function RegrasDeCampo({
   function enviar() {
     setState({ ok: false });
     salvar(async () => {
-      // O banco tem colunas que a tela não edita (org_id, updated_at); mandar
+      // O banco tem colunas que a tela não edita (org_id, updated_at). Mandar
       // o objeto inteiro faria o update tentar escrever a chave primária.
       setState(await salvarRegrasDeCampo(orgId, camposDaTela(v)));
     });
@@ -75,18 +72,18 @@ export function RegrasDeCampo({
       >
         <Chave
           rotulo="Exigir estar perto para começar"
-          descricao="Desligado, o aplicador registra chegada de qualquer lugar e só a
-                     conferência da foto aponta o problema — depois de a equipe já
-                     ter ido embora."
+          descricao="Desligado, o aplicador registra chegada de qualquer lugar. O
+                     problema só aparece na conferência da foto, com a equipe já
+                     longe do ponto."
           valor={v.require_proximity}
           onChange={(b) => set("require_proximity", b)}
         />
         <Numero
           rotulo="Raio da trava"
           sufixo="metros"
-          descricao="Mais folgado que o raio da foto de propósito: travar custa mais
-                     caro que apontar. Abaixo de 100 m, GPS de celular em rua com
-                     prédio alto reprova gente honesta."
+          descricao="Mais folgado que o raio da foto de propósito, porque travar custa
+                     mais caro que apontar. Abaixo de 100 m, o GPS do celular em rua
+                     com prédio alto reprova gente honesta."
           valor={v.start_radius_m}
           onChange={(n) => set("start_radius_m", n)}
           desabilitado={!v.require_proximity}
@@ -120,8 +117,9 @@ export function RegrasDeCampo({
         <Numero
           rotulo="Distância máxima aceita no escape"
           sufixo="metros"
-          descricao="Vale quando HÁ coordenada. Sem coordenada nenhuma o escape passa
-                     — é o caso legítimo. Com coordenada a 40 km, não é sinal ruim."
+          descricao="Vale quando existe coordenada. Sem coordenada nenhuma o escape
+                     passa, que é o caso legítimo. Coordenada a 40 km do ponto não
+                     é sinal ruim."
           valor={v.override_max_radius_m}
           onChange={(n) => set("override_max_radius_m", n)}
           desabilitado={!v.allow_override}
@@ -143,7 +141,7 @@ export function RegrasDeCampo({
         <Numero
           rotulo="Raio aceito na foto"
           sufixo="metros"
-          descricao="Mais apertado que o raio da trava: aqui é só apontar, e apontar
+          descricao="Mais apertado que o raio da trava. Aqui é só apontar, e apontar
                      errado custa uma revisão, não uma viagem perdida."
           valor={v.location_radius_m}
           onChange={(n) => set("location_radius_m", n)}
@@ -179,8 +177,8 @@ export function RegrasDeCampo({
         <Numero
           rotulo="Prazo entre chegada e foto"
           sufixo="minutos"
-          descricao="Aplicação de outdoor leva o tempo que leva; conte a colagem
-                     inteira, não só o clique."
+          descricao="Conte a colagem inteira, não só o clique. Aplicação de outdoor
+                     leva tempo."
           valor={v.max_minutes_after_start}
           onChange={(n) => set("max_minutes_after_start", n)}
           desabilitado={!v.check_freshness}
@@ -188,7 +186,7 @@ export function RegrasDeCampo({
         <Chave
           rotulo="Na dúvida, segurar"
           descricao="Ligado, foto sem veredicto claro fica parada esperando alguém.
-                     Desligado, ela passa e a operação revisa depois — que é o
+                     Desligado, ela passa e a operação revisa depois. Esse é o
                      padrão, porque campo parado custa mais que revisão."
           valor={v.block_on_uncertain}
           onChange={(b) => set("block_on_uncertain", b)}
@@ -245,20 +243,20 @@ export function RegrasDeCampo({
       <Bloco
         titulo="Acompanhamento do aplicador"
         lead="Quando os sinais acima se repetem na mesma pessoa, o sistema tira o
-              piloto automático dela: as fotos passam a cair em revisão manual."
+              piloto automático. As fotos dela passam a cair em revisão manual."
       >
         <Alerta tom="aviso">
           Estes dois números criam uma pontuação sobre uma pessoa a partir de
-          coordenada, foto e horário — isso é monitoramento de trabalhador, e no
+          coordenada, foto e horário. Isso é monitoramento de trabalhador e no
           Brasil encosta na LGPD. Avise a equipe de que existe, diga para que
-          serve e guarde o combinado por escrito. Não é parecer jurídico; é
-          para você não descobrir isso na primeira venda para empresa grande.
+          serve e guarde o combinado por escrito. Isto aqui não é parecer
+          jurídico.
         </Alerta>
         <Numero
           rotulo="Pontuação que liga o acompanhamento"
           sufixo="pontos"
-          descricao="Não bloqueia o campo: só faz a conferência parar de aprovar
-                     sozinha. Baixo demais e um dia ruim de GPS marca alguém."
+          descricao="Não bloqueia o campo. Só faz a conferência parar de aprovar
+                     sozinha. Baixo demais, um dia ruim de GPS marca alguém."
           valor={v.watch_threshold}
           onChange={(n) => set("watch_threshold", n)}
         />

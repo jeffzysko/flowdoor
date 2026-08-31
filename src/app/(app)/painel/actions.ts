@@ -6,10 +6,9 @@ import { createClient } from "@/lib/supabase/server";
 export type AvisoState = { ok: boolean; message?: string };
 
 /**
- * Dispensar é diferente de resolver. Resolvido é a tarefa percebendo que o
- * problema sumiu — licença renovada, foto conferida. Dispensado é alguém
- * olhando e decidindo que aquele aviso não importa, e fica registrado quem
- * decidiu.
+ * Dispensar é diferente de resolver. Resolvido é a tarefa vendo que o problema
+ * sumiu (licença renovada, foto conferida). Dispensado é alguém decidindo que
+ * o aviso não importa, e fica registrado quem decidiu.
  */
 export async function dispensarAviso(
   _prev: AvisoState,

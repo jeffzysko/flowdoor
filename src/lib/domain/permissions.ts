@@ -4,12 +4,12 @@ export type ItemNav = { href: string; label: string; icon: string };
 export type GrupoNav = { titulo: string; itens: ItemNav[] };
 
 /**
- * O menu é derivado do papel. A UI esconde; o RLS impede.
- * Nunca confiar só nesta tabela para autorização.
+ * O menu vem do papel. A interface esconde, o RLS impede. Nunca use esta
+ * tabela sozinha como autorização.
  *
- * Agrupado por assunto: sete destinos numa fileira só viram uma corrente sem
- * hierarquia, onde "Visão geral" e "Contratos e licenças" pesam igual. O
- * título do grupo é a pergunta que o usuário faz antes de procurar o item.
+ * Os itens ficam agrupados por assunto. Numa lista corrida, sete destinos
+ * pesam todos igual, e "Visão geral" some no meio de "Contratos e licenças".
+ * O título do grupo é a pergunta que a pessoa faz antes de procurar o item.
  */
 const PAINEL: ItemNav = { href: "/painel", label: "Visão geral", icon: "grid" };
 
@@ -99,17 +99,17 @@ export const NAV_GRUPOS: Record<MemberRole, GrupoNav[]> = {
   leitura: [{ titulo: "Hoje", itens: [PAINEL] }],
 };
 
-// Administrador vê o mesmo que o titular: a diferença entre os dois é quem
+// Administrador vê o mesmo que o titular. A diferença entre os dois é quem
 // pode encerrar a empresa, não quais telas cada um abre.
 NAV_GRUPOS.admin = NAV_GRUPOS.owner;
 
 /**
  * O menu do parceiro.
  *
- * Agência e representação não operam inventário: não têm ponto, não têm
- * equipe de campo, não conferem foto. Mostrar o menu da exibidora para elas
- * seria oferecer oito telas vazias. Elas consultam e pedem — e é isso que o
- * trilho oferece.
+ * Agência e representação não operam inventário. Não têm ponto, não têm equipe
+ * de campo, não conferem foto. O menu da exibidora abriria oito telas vazias
+ * para elas. Elas consultam disponibilidade e pedem opção, e o menu mostra
+ * só isso.
  */
 export const NAV_PARCEIRO: GrupoNav[] = [
   {
@@ -126,7 +126,7 @@ export const NAV_PARCEIRO: GrupoNav[] = [
   },
 ];
 
-/** O trilho depende do papel E do tipo de empresa, não só do papel. */
+/** O menu depende do papel E do tipo de empresa, não só do papel. */
 export function navDaSessao(role: MemberRole, tipoDeEmpresa: string): GrupoNav[] {
   if (tipoDeEmpresa === "exibidora") return NAV_GRUPOS[role] ?? [];
   return NAV_PARCEIRO.map((g) => ({

@@ -46,8 +46,8 @@ export function paraFormulario(a: Anunciante): ValoresAnunciante {
 /**
  * Linha da tabela mais o formulário que abre abaixo dela.
  *
- * O formulário não cabe numa célula — são onze campos. Abrir na linha inteira
- * mantém o contexto (você vê quem está editando) sem o custo de um modal.
+ * O formulário não cabe numa célula, são onze campos. Abrir na linha inteira
+ * mantém o contexto (você vê quem está editando) sem precisar de um modal.
  */
 export function LinhaAnunciante({
   a,
@@ -99,9 +99,9 @@ export function LinhaAnunciante({
             {a.person_type === "fisica" ? "PF" : "PJ"}
           </span>
         </td>
-        <td className="tabular-nums">{v.taxId || "—"}</td>
+        <td className="tabular-nums">{v.taxId || "-"}</td>
         <td>{contato || "sem contato cadastrado"}</td>
-        <td>{a.category ?? "—"}</td>
+        <td>{a.category ?? "-"}</td>
         <td className="text-right">
           {pode && (
             <div className="flex flex-wrap items-center justify-end gap-2">
@@ -143,8 +143,8 @@ export function LinhaAnunciante({
                 <>
                   <p className="text-sm">
                     Excluir <b>{a.name}</b> apaga o cadastro para sempre. Só
-                    funciona se ele nunca teve pedido nem opção — o banco recusa
-                    o resto, e nesse caso o caminho é arquivar.
+                    funciona se ele nunca teve pedido nem opção. Se teve, o
+                    banco recusa e o caminho é arquivar.
                   </p>
                   <div className="mt-3 flex flex-wrap items-center gap-3">
                     <button
@@ -161,7 +161,7 @@ export function LinhaAnunciante({
                       }}
                       className="fd-link fd-link-sm"
                     >
-                      Deixa pra lá
+                      Cancelar
                     </button>
                   </div>
                 </>

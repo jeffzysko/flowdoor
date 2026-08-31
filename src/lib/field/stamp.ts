@@ -1,12 +1,12 @@
 /**
  * Geometria do carimbo.
  *
- * Mora fora de camera.ts porque duas partes do sistema precisam do mesmo
- * número: o navegador, que desenha a faixa, e o servidor, que calcula o
- * hash perceptual e precisa ignorar exatamente essa faixa.
+ * Fica fora de camera.ts porque duas partes do sistema precisam do mesmo
+ * número: o navegador, que desenha a faixa, e o servidor, que calcula o hash
+ * perceptual e tem que ignorar exatamente essa faixa.
  *
  * Se as duas contas divergirem, o hash passa a medir o carimbo em vez da
- * imagem — e como o carimbo é igual em toda foto, tudo viraria duplicata.
+ * imagem. E como o carimbo é igual em toda foto, tudo viraria duplicata.
  */
 
 /** Largura de referência em que as medidas do carimbo foram desenhadas. */

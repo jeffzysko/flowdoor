@@ -42,13 +42,12 @@ export type DadosNav = {
 /**
  * Casca de navegação.
  *
- * Divisão de trabalho: o trilho da esquerda responde "para onde eu vou"; a
- * barra de cima responde "onde estou, quem sou e o que precisa de mim".
- * Empresa, avisos e conta são contexto, não destino — por isso saíram do meio
- * da lista de destinos, onde competiam com ela.
+ * O trilho da esquerda responde "para onde eu vou". A barra de cima responde
+ * "onde estou, quem sou e o que precisa de mim". Empresa, avisos e conta são
+ * contexto, então ficam na barra e não na lista de destinos.
  *
- * Abaixo de 1024 o trilho vira gaveta e a barra fica: num celular a barra é a
- * única coisa que cabe permanentemente na tela.
+ * Abaixo de 1024 o trilho vira gaveta e a barra continua fixa, porque no
+ * celular só ela cabe o tempo todo na tela.
  */
 export function NavegacaoApp({
   children,
@@ -57,7 +56,7 @@ export function NavegacaoApp({
   const [gaveta, setGaveta] = useState(false);
   const caminho = usePathname();
 
-  // Navegou: a gaveta fecha sozinha. Sem isto ela fica aberta por cima da
+  // Ao navegar, a gaveta fecha sozinha. Sem isso ela fica aberta por cima da
   // tela nova e a pessoa acha que o clique não funcionou.
   useEffect(() => {
     setGaveta(false);
@@ -77,7 +76,7 @@ export function NavegacaoApp({
 
         <Link
           href={d.atual ? "/painel" : "/plataforma"}
-          aria-label="Flowdoor — início"
+          aria-label="Flowdoor, início"
           className="shrink-0"
         >
           <Logo className="w-[108px]" />
@@ -190,7 +189,7 @@ function Trilho({ aoFechar, ...d }: DadosNav & { aoFechar?: () => void }) {
   );
 }
 
-/** Empresa atual, na barra. Vira seletor quando a pessoa alcança mais de uma. */
+/** Empresa atual, na barra. Vira seletor quando a pessoa tem acesso a mais de uma. */
 function MenuEmpresa(d: DadosNav) {
   const [aberto, setAberto] = useState(false);
   const [trocando, setTrocando] = useState(false);
@@ -242,7 +241,7 @@ function MenuEmpresa(d: DadosNav) {
         <div className="fd-menu left-0 top-full mt-2" role="listbox">
           <p className="fd-menu-cab">
             <b>Trocar de empresa</b>
-            <span>{d.empresas.length} ao seu alcance</span>
+            <span>você tem acesso a {d.empresas.length}</span>
           </p>
           {d.empresas.map((e) => (
             <button
@@ -274,10 +273,9 @@ function MenuEmpresa(d: DadosNav) {
 }
 
 /**
- * Sino. O que ele mostra são os mesmos avisos do painel — licença vencendo,
- * contrato vencido, foto parada em conferência —, gerados pela tarefa que roda
- * às 8h no banco. Não é caixa de mensagens: é o que vence antes de alguém
- * lembrar.
+ * Sino. Mostra os mesmos avisos do painel: licença vencendo, contrato vencido,
+ * foto parada em conferência. A tarefa das 8h no banco gera a lista. Não é
+ * caixa de mensagens, só o que tem prazo para vencer.
  */
 function Sino(d: DadosNav) {
   const [aberto, setAberto] = useState(false);
@@ -419,7 +417,7 @@ function MenuConta(d: DadosNav) {
   );
 }
 
-/** Clique fora e Esc fecham. Menu que só fecha no próprio botão vira armadilha. */
+/** Clique fora e Esc fecham o menu. Só o próprio botão fechar não basta. */
 function useFechaFora(
   ref: React.RefObject<HTMLElement | null>,
   aoFechar: () => void

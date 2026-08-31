@@ -56,10 +56,10 @@ const hora = (v?: string | null) =>
 /**
  * Uma parada por vez. A próxima só aparece depois que a foto desta é validada.
  *
- * E "aparece" aqui não é só a tela: o RLS fecha `field_events`, `sites` e
- * `faces` para papéis de campo, então a rota futura não sai nem por chamada
- * direta ao PostgREST com a chave do navegador. Ver
- * `my_current_event_id()` e `is_field_only()` no banco.
+ * Não é só a tela que esconde: o RLS fecha `field_events`, `sites` e `faces`
+ * para papéis de campo, então a rota futura não sai nem por chamada direta ao
+ * PostgREST com a chave do navegador. Ver `my_current_event_id()` e
+ * `is_field_only()` no banco.
  */
 export default async function CampoPage() {
   const ctx = await getSessionContext();
@@ -90,7 +90,7 @@ export default async function CampoPage() {
       <Hero
         eyebrow="Minha jornada"
         title="Meu dia"
-        lead="Veja suas aplicações atribuídas, chegue ao ponto e registre a conclusão com a comprovação fotográfica."
+        lead="As aplicações que estão com você. Chegue ao ponto e feche cada uma com a foto."
         kpi={{ label: "Aplicações para hoje", value: p.vazio ? 0 : p.restantes }}
         acao={
           <Link href="/campo/historico" className="fd-btn">
@@ -117,7 +117,7 @@ export default async function CampoPage() {
           <section className="mt-6 grid gap-4 lg:grid-cols-[2fr_1fr]">
             <CardDestaque
               marcador={`Próxima aplicação${p.order_code ? ` · ${p.order_code}` : ""}`}
-              titulo={p.address ?? "—"}
+              titulo={p.address ?? "sem endereço"}
               lead={`${p.district ? `${p.district} · ` : ""}${p.city}/${p.state}${
                 p.orientation ? ` · sentido ${p.orientation}` : ""
               }`}

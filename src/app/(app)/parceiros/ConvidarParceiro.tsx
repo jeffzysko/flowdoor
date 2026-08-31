@@ -34,9 +34,9 @@ export function ConvidarParceiro({
     <section className="fd-card mt-8">
       <h2 className="fd-h4">Convidar parceiro</h2>
       <p className="mt-1 text-sm text-ink-2 fd-prose">
-        O parceiro abre a conta da empresa dele — não entra na sua equipe. O
-        que ele passa a enxergar do seu inventário é o que você marcar aqui, e
-        dá para mudar depois.
+        O parceiro abre a conta da empresa dele. Ele não entra na sua equipe.
+        Ele enxerga do seu inventário só o que você marcar aqui, e dá para
+        mudar depois.
       </p>
 
       <form action={action} className="mt-5">
@@ -108,9 +108,9 @@ export function ConvidarParceiro({
             <span>
               <b>Reservar como opção.</b>{" "}
               <span className="text-ink-2">
-                Ele monta a opção e ela cai na sua lista para confirmar. Opção
-                não bloqueia a placa e o preço quem põe é você — parceiro não
-                fecha desconto no lugar do dono.
+                Ele monta a opção e ela cai na sua lista para confirmar. A
+                opção não bloqueia a placa, e quem põe o preço é você. Parceiro
+                não fecha desconto no seu lugar.
               </span>
             </span>
           </label>
@@ -204,8 +204,8 @@ export function ConvidarParceiro({
               : state.aviso}
           </p>
           <p className="fd-hint">
-            O link abaixo é o segredo do convite — trate como senha. Vale 14
-            dias e só funciona uma vez.
+            Trate o link abaixo como senha. Ele vale 14 dias e só funciona uma
+            vez.
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-3">
             <code className="fd-input break-all text-xs">{state.link}</code>

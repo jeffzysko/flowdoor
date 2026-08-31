@@ -63,8 +63,8 @@ export function Faces({
         <div>
           <h2 className="fd-h4">Faces</h2>
           <p className="mt-1 text-sm text-ink-2 fd-prose">
-            O ponto é a estrutura. A face é o lado que se vende — e cada uma
-            tem preço, medida e sentido de fluxo próprios.
+            O ponto é a estrutura. A face é o lado que se vende. Cada face tem
+            preço, medida e sentido de fluxo próprios.
           </p>
         </div>
         {!novo && (
@@ -177,8 +177,8 @@ function FormFace({
 
         <p className="fd-hint fd-prose">
           Front light e top sight se vendem por mês no Brasil; o resto do
-          inventário, por ciclo de 14 dias. É esta escolha que decide o que o
-          preço acima significa.
+          inventário, por ciclo de 14 dias. Esta escolha define o que o preço
+          acima significa.
         </p>
 
         {medium === "digital" && (
@@ -280,7 +280,7 @@ function NovaFace({
 
       <h3 className="fd-h4">Nova face neste ponto</h3>
       <p className="mt-1 text-sm text-ink-2 fd-prose">
-        Uma estrutura com dois lados vende dois. O código costuma seguir a
+        Uma estrutura com dois lados tem duas faces. O código costuma seguir a
         letra: {sugerido}.
       </p>
 
@@ -304,7 +304,7 @@ function NovaFace({
 
       <p className="fd-hint fd-prose">
         Front light e top sight se vendem por mês; o resto, por ciclo de 14
-        dias. É esta escolha que decide o que o preço acima significa.
+        dias. Esta escolha define o que o preço acima significa.
       </p>
 
       {medium === "digital" && (

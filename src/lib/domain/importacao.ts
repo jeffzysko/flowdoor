@@ -3,12 +3,12 @@ import { FACE_KIND, FACE_KIND_LABEL, type FaceKind } from "./formatos";
 /**
  * Importação de inventário por planilha.
  *
- * Uma linha por FACE, com as colunas do ponto repetidas — é assim que toda
+ * Uma linha por FACE, com as colunas do ponto repetidas. É assim que toda
  * operação de mídia exterior mantém a dela, porque o que se vende é a face.
  *
  * O arquivo é CSV de propósito. Ler .xlsx exigiria uma biblioteca de parser
- * de ZIP e XML para resolver um problema que "Salvar como → CSV" resolve em
- * dois cliques, e é dependência nova no caminho de dados que cria inventário.
+ * de ZIP e XML para resolver o que "Salvar como CSV" resolve em dois cliques,
+ * e seria uma dependência nova no caminho que cria inventário.
  */
 
 export type Campo = {
@@ -64,7 +64,7 @@ export const CAMPOS: Campo[] = [
   { chave: "height_m", rotulo: "Altura (m)", grupo: "face",
     apelidos: ["altura", "altura m"] },
   { chave: "base_price", rotulo: "Valor do período", grupo: "face",
-    ajuda: "Do ciclo de 14 dias, ou do mês — conforme a coluna ao lado.",
+    ajuda: "Do ciclo de 14 dias, ou do mês, conforme a coluna ao lado.",
     apelidos: ["valor", "preco", "valor do ciclo", "valor bi-semana", "tabela", "preco tabela", "valor quinzena", "valor mensal"] },
   { chave: "sale_unit", rotulo: "Vendida por", grupo: "face",
     ajuda: "ciclo ou mês. Em branco, front light e top sight viram mês.",
@@ -75,7 +75,7 @@ export const CAMPOS: Campo[] = [
     apelidos: ["situacao", "status", "ativa"] },
 ];
 
-/** Sem acento, sem pontuação, minúsculo — para comparar cabeçalho de planilha. */
+/** Sem acento, sem pontuação e em minúsculo, para comparar cabeçalho de planilha. */
 export function normalizar(s: string): string {
   return s
     .normalize("NFD")
@@ -197,8 +197,8 @@ export function meioDe(v: string | undefined, formato: FaceKind | null): "estati
     if (["digital", "led", "sim", "s", "dinamico"].includes(t)) return "digital";
     if (["estatico", "impresso", "lona", "papel", "nao", "n"].includes(t)) return "estatico";
   }
-  // Painel de LED sem coluna de meio é digital: a planilha já disse isso no
-  // formato, e obrigar a repetir é o tipo de campo que ninguém preenche.
+  // Painel de LED sem coluna de meio é digital. A planilha já disse isso no
+  // formato, e obrigar a repetir só gera campo em branco.
   if (formato === "painel_led") return "digital";
   return null;
 }
@@ -291,6 +291,6 @@ export function planilhaModelo(): string {
   const linha = (vs: string[]) =>
     vs.map((v) => (/[;"\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v)).join(";");
 
-  // BOM na frente: sem ele o Excel brasileiro abre "Curitiba" como "Curitiba".
+  // BOM na frente. Sem ele o Excel brasileiro estraga os acentos ao abrir.
   return "\ufeff" + [linha(cabecalho), linha(exemplo1), linha(exemplo2)].join("\r\n") + "\r\n";
 }

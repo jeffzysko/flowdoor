@@ -3,9 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 
 /**
  * Porta de entrada de todo link de e-mail: convite, recuperação de senha e
- * magic link. O Supabase manda o usuário para cá com um `code`; aqui ele vira
- * sessão. Sem esta rota, o link cai numa página qualquer e morre — foi o que
- * acontecia antes.
+ * magic link. O Supabase manda o usuário para cá com um `code`, e aqui ele
+ * vira sessão. Sem esta rota, o link cai numa página qualquer e morre.
  */
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
@@ -49,7 +48,7 @@ export async function GET(request: NextRequest) {
 function traduzir(mensagem: string): string {
   const m = mensagem.toLowerCase();
   if (m.includes("expired") || m.includes("otp_expired"))
-    return "Esse link expirou. Peça um novo para o administrador.";
+    return "Esse link venceu. Peça um novo para o administrador.";
   if (m.includes("invalid"))
     return "Esse link não é mais válido. Peça um novo.";
   return "Não foi possível usar esse link. Peça um novo.";

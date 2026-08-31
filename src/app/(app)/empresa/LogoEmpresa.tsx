@@ -10,7 +10,7 @@ import { salvarLogo } from "./actions";
 const LIMITE = 2 * 1024 * 1024;
 
 /**
- * Logotipo da empresa. O arquivo sobe direto do navegador para o bucket — a
+ * Logotipo da empresa. O arquivo sobe direto do navegador para o bucket. A
  * pasta é o org_id, que é o que a política do banco confere. O caminho volta
  * para uma ação de servidor, que grava na empresa.
  */
@@ -67,7 +67,7 @@ export function LogoEmpresa({
       <h2 className="fd-h4">Logotipo</h2>
       <p className="fd-prose mt-2 text-sm text-ink-2">
         Aparece no menu de quem opera e no comprovante que o anunciante recebe.
-        Comprovante já publicado não muda sozinho — republique o pedido para o
+        Comprovante já publicado não muda sozinho. Republique o pedido para o
         documento sair com a marca nova.
       </p>
 

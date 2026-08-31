@@ -71,9 +71,9 @@ export default async function MinhasOpcoesPage() {
       />
 
       <p className="mt-4 text-sm text-ink-2 fd-prose">
-        A opção segura a intenção, não a placa: as faces continuam livres para
-        todo mundo até a exibidora confirmar. Quem fechar primeiro leva — por
-        isso vale ligar antes de vencer.
+        A opção não bloqueia a face. Ela continua livre para todo mundo até a
+        exibidora confirmar. Quem fechar primeiro leva, então vale ligar antes
+        de vencer.
       </p>
 
       {abertas.length === 0 ? (
@@ -94,7 +94,7 @@ export default async function MinhasOpcoesPage() {
                 <b className="fd-table-link no-underline tabular-nums">{o.code}</b>
                 {o.title && <span className="block text-xs text-ink-3">{o.title}</span>}
               </td>
-              <td>{o.exibidora?.name ?? "—"}</td>
+              <td>{o.exibidora?.name ?? "sem nome"}</td>
               <td className="tabular-nums">
                 {dataBR(o.starts_on)} → {dataBR(o.ends_on)}
               </td>
@@ -122,7 +122,7 @@ export default async function MinhasOpcoesPage() {
             {fechadas.map((o) => (
               <tr key={o.id}>
                 <td className="tabular-nums">{o.code}</td>
-                <td>{o.exibidora?.name ?? "—"}</td>
+                <td>{o.exibidora?.name ?? "sem nome"}</td>
                 <td className="tabular-nums">
                   {dataBR(o.starts_on)} → {dataBR(o.ends_on)}
                 </td>

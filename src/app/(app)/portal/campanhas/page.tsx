@@ -39,14 +39,14 @@ export default async function CampanhasPage() {
       <PageHead
         eyebrow={ctx.current.organizations.name}
         title="Minhas campanhas"
-        lead="O que já fechou, como está na rua e o comprovante para o cliente."
+        lead="O que já fechou, como está na rua e o comprovante do cliente."
       />
 
       {linhas.length === 0 ? (
         <div className="mt-6">
           <Empty titulo="Nenhuma campanha fechada ainda.">
             Quando a exibidora confirmar uma das suas opções, ela vira campanha
-            e aparece aqui — com a agenda de aplicação e, no fim, o comprovante.
+            e aparece aqui, com a agenda de aplicação e, no fim, o comprovante.
           </Empty>
         </div>
       ) : (

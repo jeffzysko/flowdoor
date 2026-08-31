@@ -8,7 +8,7 @@ import type { SessionContext } from "@/lib/domain/types";
 /**
  * Casca das telas com sessão: barra de contexto em cima, trilho de destinos à
  * esquerda, conteúdo à direita. Abaixo de 1024 o trilho vira gaveta e a barra
- * fica — no celular ela é a única coisa que cabe permanentemente na tela.
+ * continua fixa, porque no celular só ela cabe o tempo todo na tela.
  */
 export async function CascaApp({
   ctx,
@@ -29,9 +29,9 @@ export async function CascaApp({
     ? empresas.find((e) => e.id === ctx.current!.org_id) ?? null
     : null;
 
-  // Os avisos do sino são os mesmos do painel: gerados pela tarefa das 8h.
-  // Uma consulta pequena por carga, com índice — o preço de ter na barra o
-  // que hoje só aparece se a pessoa abrir a visão geral.
+  // Os avisos do sino são os mesmos do painel, gerados pela tarefa das 8h.
+  // Custa uma consulta pequena por carga, com índice. Em troca, o aviso
+  // aparece na barra sem a pessoa precisar abrir a visão geral.
   let avisos: Aviso[] = [];
   let avisosTotal = 0;
 

@@ -26,19 +26,19 @@ export default async function PlataformaPage() {
       .select("user_id", { count: "exact", head: true });
 
     // Nenhum admin ainda: o primeiro usuário pode assumir a plataforma.
-    // A RPC fecha a corrida com advisory lock — dois cliques simultâneos
-    // não geram dois donos.
+    // A RPC usa advisory lock, então dois cliques ao mesmo tempo não
+    // geram dois donos.
     if ((count ?? 0) === 0) return <Bootstrap />;
 
-    // Já existe responsável e este usuário não é membro de nenhuma empresa:
-    // redirecionar para "/" criaria laço, então a conversa acaba aqui.
+    // Já existe responsável e este usuário não é membro de nenhuma empresa.
+    // Redirecionar para "/" criaria laço, então a página acaba aqui.
     return (
       <main className="fd-auth py-16 text-center">
         <h1 className="fd-h3">
           Sua conta ainda não está em nenhuma empresa
         </h1>
         <p className="mt-2 text-ink-2 fd-prose">
-          Peça ao administrador da sua empresa para enviar um convite para este
+          Peça para quem administra a empresa mandar um convite para este
           e-mail.
         </p>
         <form action="/auth/sair" method="post" className="mt-6">
@@ -63,7 +63,7 @@ export default async function PlataformaPage() {
       <PageHead
         eyebrow="Flowdoor"
         title="Organizações"
-        lead="Exibidoras, agências e representações da plataforma."
+        lead="Exibidoras, agências e representações que usam a plataforma."
         action={
           <Link
             href="/plataforma/nova"
@@ -75,14 +75,14 @@ export default async function PlataformaPage() {
       />
 
       {orgs.length === 0 ? (
-        <div className="mt-6"><Empty titulo="Nenhuma organização criada ainda.">Cada exibidora é uma organização, com inventário, equipe e pedidos próprios.</Empty></div>
+        <div className="mt-6"><Empty titulo="Nenhuma organização criada ainda.">Cada exibidora é uma organização. Ela tem inventário, equipe e pedidos próprios.</Empty></div>
       ) : (
         <Table head={["Nome", "Tipo", "Praça", "Plano", "Status", "Criada em"]}>
           {orgs.map((o) => (
             <tr key={o.id}>
               <td className="font-medium">{o.name}</td>
               <td><Chip>{rotulo("org_kind", o.kind)}</Chip></td>
-              <td>{o.city ? `${o.city}/${o.state}` : "—"}</td>
+              <td>{o.city ? `${o.city}/${o.state}` : "-"}</td>
               <td className="tabular-nums">{o.plan}</td>
               <td>
                 <Chip tone={o.status === "ativa" ? "bom" : "aviso"}>{rotulo("org_status", o.status)}</Chip>

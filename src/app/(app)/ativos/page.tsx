@@ -8,9 +8,9 @@ import { AcoesAtivo } from "./AcoesAtivo";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Contratos e licenças" };
 
-const d = (v: string | null) => (v ? new Date(v + "T12:00:00").toLocaleDateString("pt-BR") : "—");
+const d = (v: string | null) => (v ? new Date(v + "T12:00:00").toLocaleDateString("pt-BR") : "-");
 const brl = (v: number | null) =>
-  v == null ? "—" : v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  v == null ? "-" : v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
 type S = {
   id: string; code: string; address: string; city: string; state: string;
@@ -70,19 +70,19 @@ export default async function AtivosPage() {
       </section>
 
       {rows.length === 0 ? (
-        <div className="mt-6"><Empty titulo="Nenhum ponto cadastrado.">Aluguel de terreno e licença de veiculação vivem no cadastro do ponto — é de lá que sai o custo mensal.</Empty></div>
+        <div className="mt-6"><Empty titulo="Nenhum ponto cadastrado.">Aluguel de terreno e licença de veiculação ficam no cadastro do ponto. É de lá que sai o custo mensal.</Empty></div>
       ) : (
         <Table head={["Ponto", "Endereço", "Proprietário", "Aluguel", "Contrato até", "Licença", "Licença até", ""]}>
           {rows.map((s) => (
             <tr key={s.id}>
               <td className="tabular-nums">{s.code}</td>
               <td>{s.address} · {s.city}/{s.state}</td>
-              <td>{s.owner_name ?? "—"}</td>
+              <td>{s.owner_name ?? "-"}</td>
               <td className="tabular-nums">{brl(s.lease_monthly_cost)}</td>
               <td>
                 <Chip tone={tone(s.lease_ends_on)}>{d(s.lease_ends_on)}</Chip>
               </td>
-              <td className="tabular-nums">{s.license_number ?? "—"}</td>
+              <td className="tabular-nums">{s.license_number ?? "-"}</td>
               <td>
                 <Chip tone={tone(s.license_expires_on)}>{d(s.license_expires_on)}</Chip>
               </td>

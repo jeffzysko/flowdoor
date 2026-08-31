@@ -97,16 +97,14 @@ const MOTIVO_ESCAPE: Record<string, string> = {
 };
 
 const dt = (v: string | null) =>
-  v ? new Date(v).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : "—";
+  v ? new Date(v).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : "sem data";
 
 /**
  * A mesa de revisão.
  *
- * Três dos sinais antifraude só sabem produzir "revisão" — deslocamento
- * implausível, janela estourada e chegada sem confirmação de GPS. Sem esta
- * tela eles não são controle nenhum, são um estado que ninguém olha. E o
- * escape self-service do campo só é aceitável porque tudo que passa por ele
- * cai aqui.
+ * Três sinais antifraude só produzem "revisão": deslocamento implausível,
+ * janela estourada e chegada sem confirmação de GPS. Sem esta tela eles viram
+ * um estado que ninguém olha. A chegada declarada sem GPS também cai aqui.
  */
 export default async function RevisaoPage() {
   const ctx = await getSessionContext();
@@ -154,14 +152,13 @@ export default async function RevisaoPage() {
       <PageHead
         eyebrow="Operação"
         title="Revisão de fotos"
-        lead="O que a conferência automática não resolveu sozinha. Enquanto uma foto está aqui, a parada dela já foi concluída — a fila do campo não para."
+        lead="O que a conferência automática não resolveu sozinha. Enquanto uma foto está aqui, a parada dela já foi concluída. A fila do campo não para."
       />
 
       {canManageTeam(ctx.current.role) && (
         <p className="mt-4 text-sm text-ink-2 fd-prose">
-          Fila grande demais ou pequena demais é sintoma de regra mal
-          calibrada — raio, tolerância de horário e sinais de fraude se ajustam
-          em{" "}
+          Fila grande ou pequena demais é sinal de regra mal calibrada. Raio,
+          tolerância de horário e sinais de fraude se ajustam em{" "}
           <Link href={"/empresa/campo" as never} className="fd-link fd-link-sm">
             regras de campo
           </Link>
@@ -174,7 +171,7 @@ export default async function RevisaoPage() {
         <Stat
           label="Sem conferência"
           value={semConferencia}
-          hint="a checagem automática não rodou"
+          hint="a conferência automática não rodou"
         />
         <Stat
           label="Pontos suspeitos"
@@ -185,7 +182,7 @@ export default async function RevisaoPage() {
 
       {itens.length === 0 ? (
         <div className="mt-6">
-          <Empty titulo="Nada para revisar.">Toda foto que chegou passou na checagem automática. O que travar aparece aqui.</Empty>
+          <Empty titulo="Nada para revisar.">Toda foto que chegou passou na conferência automática. O que travar aparece aqui.</Empty>
         </div>
       ) : (
         <ol className="mt-6 space-y-6">
@@ -350,9 +347,9 @@ export default async function RevisaoPage() {
           </h2>
           <p className="fd-prose mt-2 text-ink-2">
             Nestes pontos as chegadas caem sempre no mesmo lugar, longe da
-            coordenada cadastrada. Chegadas espalhadas seriam GPS ruim;
-            agrupadas e distantes apontam para o cadastro, não para as pessoas
-            — e é isso que trava a chegada delas todo dia.
+            coordenada cadastrada. Chegada espalhada seria GPS ruim. Agrupada e
+            distante aponta erro no cadastro, e é isso que trava a chegada das
+            pessoas todo dia.
           </p>
 
           <ul className="mt-5 space-y-4">

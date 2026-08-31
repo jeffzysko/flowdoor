@@ -41,9 +41,8 @@ const quando = (iso: string | null) =>
  * Uma campanha da agência, com o detalhe que abre embaixo.
  *
  * O progresso vem por função e traz só face, endereço, data e situação. A
- * agência precisa saber que a placa foi aplicada no dia 12 — não precisa
- * saber onde o aplicador estava às 9h14. Coordenada, precisão de GPS e nota
- * de comportamento ficam do lado da exibidora, onde é o trabalho dela.
+ * agência precisa saber que a placa foi aplicada no dia 12. Coordenada,
+ * precisão de GPS e nota de comportamento ficam do lado da exibidora.
  */
 export function Campanha({ c, base }: { c: CampanhaLinha; base: string }) {
   const [aberto, setAberto] = useState(false);
@@ -110,7 +109,7 @@ export function Campanha({ c, base }: { c: CampanhaLinha; base: string }) {
                 <p className="text-sm text-ink-3">Carregando…</p>
               ) : paradas.length === 0 ? (
                 <p className="text-sm text-ink-3">
-                  A agenda de aplicação ainda não foi montada pela exibidora.
+                  A exibidora ainda não montou a agenda de aplicação.
                 </p>
               ) : (
                 <ul className="fd-list">

@@ -136,7 +136,7 @@ export function EditarPedido({
       <p className="fd-prose mt-2 text-sm text-ink-2">
         Mudar o período move as reservas de todas as faces de uma vez. Se
         qualquer uma estiver vendida na data nova, a alteração inteira é
-        recusada — o pedido nunca fica pela metade.
+        recusada. O pedido nunca fica pela metade.
       </p>
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -174,7 +174,7 @@ export function EditarPedido({
               </div>
               {l.travada ? (
                 <span className="fd-label">
-                  já aplicada — não sai do pedido
+                  já aplicada, não sai do pedido
                 </span>
               ) : (
                 <button
@@ -195,7 +195,7 @@ export function EditarPedido({
                   }
                   className={campo}
                 >
-                  <option value="">— sem responsável —</option>
+                  <option value="">Sem responsável</option>
                   {membros.map((m) => (
                     <option key={m.id} value={m.id}>{m.nome}</option>
                   ))}
@@ -253,7 +253,7 @@ export function EditarPedido({
               }}
               className={campo}
             >
-              <option value="">— escolha uma face —</option>
+              <option value="">Escolha uma face</option>
               {livres.map((f) => (
                 <option key={f.id} value={f.id}>
                   {f.code} · {f.endereco}
@@ -313,7 +313,7 @@ function CancelarPedido({ orderId, codigo }: { orderId: string; codigo: string }
       <p className="fd-prose mt-2 text-sm text-ink-2">
         As reservas voltam para a disponibilidade e as aplicações que ainda não
         aconteceram somem da rota. O que já foi aplicado continua registrado,
-        com foto e horário — e o comprovante daquelas faces continua valendo.
+        com foto e horário. O comprovante daquelas faces continua valendo.
       </p>
 
       <input
@@ -350,10 +350,10 @@ function CancelarPedido({ orderId, codigo }: { orderId: string; codigo: string }
 
       <div className="mt-5 border-t border-line pt-4">
         <p className="fd-prose text-sm text-ink-2">
-          Se este pedido foi engano — nasceu errado e nada aconteceu nele —
-          excluir some com ele de vez, em vez de deixar um cancelado no
-          relatório de conversão. Só funciona sem aplicação concluída, sem
-          comprovante publicado e sem origem em opção.
+          Se este pedido nasceu errado e nada aconteceu nele, excluir some com
+          ele de vez, em vez de deixar um cancelado no relatório de conversão.
+          Só funciona sem aplicação concluída, sem comprovante publicado e sem
+          origem em opção.
         </p>
         <button
           disabled={indo}

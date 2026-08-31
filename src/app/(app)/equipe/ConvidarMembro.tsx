@@ -36,7 +36,7 @@ export function ConvidarMembro({ orgId }: { orgId: string }) {
       <h2 className="fd-h4">Convidar para a equipe</h2>
       <p className="mt-1 text-sm text-ink-2 fd-prose">
         O convite vai por e-mail para a pessoa. O link também aparece aqui,
-        para você mandar por outro canal se preferir — ele é o segredo, trate
+        caso você prefira mandar por outro canal. Ele dá acesso, então trate
         como senha.
       </p>
 

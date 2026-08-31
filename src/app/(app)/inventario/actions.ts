@@ -11,8 +11,8 @@ export type FormState = { ok: boolean; message?: string };
 /**
  * Campo de formulário vazio chega como "" e não como ausente. Sem isto,
  * `z.coerce.number()` transforma "" em 0 e um campo opcional deixado em
- * branco vira erro de validação — que foi exatamente o que acontecia ao
- * cadastrar um ponto sem informar a largura.
+ * branco vira erro de validação. Era o que acontecia ao cadastrar um ponto sem
+ * informar a largura.
  */
 const vazio = (v: unknown) => (v === "" || v === null ? undefined : v);
 const numero = () => z.preprocess(vazio, z.coerce.number().optional());
@@ -37,10 +37,10 @@ function traduzir(err: { message: string; hint?: string | null }): string {
 /**
  * Resolve a coordenada do ponto quando ninguém digitou uma.
  *
- * O cliente entrega endereço e ponto de referência; latitude e longitude ele
- * nunca tem. Então o sistema busca — e devolve junto o quanto aquilo vale,
- * porque é a precisão que decide se a trava de chegada arma no campo.
- * Coordenada digitada à mão ganha de qualquer busca e não é sobrescrita.
+ * O cliente entrega endereço e ponto de referência, nunca latitude e
+ * longitude. O sistema busca e devolve junto a precisão do resultado. É a
+ * precisão que decide se a trava de chegada arma no campo. Coordenada digitada
+ * à mão ganha de qualquer busca e não é sobrescrita.
  */
 async function resolverCoordenada(v: {
   latitude?: number | null;
@@ -72,8 +72,8 @@ async function resolverCoordenada(v: {
   });
 
   if (!ehCoordenada(r)) {
-    // Falha de busca não impede cadastrar o ponto. Sem coordenada ele
-    // simplesmente não trava a chegada, e o campo confirma depois.
+    // Falha de busca não impede cadastrar o ponto. Sem coordenada ele não
+    // trava a chegada, e o campo confirma depois.
     return {
       latitude: null,
       longitude: null,
@@ -115,7 +115,7 @@ const novoPonto = z.object({
 
 /**
  * Cria o ponto e a primeira face dele. A face herda o org_id do ponto por
- * trigger — o cliente não escolhe de quem é o inventário.
+ * trigger. O cliente não escolhe de quem é o inventário.
  */
 export async function criarPonto(
   _prev: FormState,
@@ -356,11 +356,10 @@ export async function atualizarFace(
 
 // ============================================================== exclusões
 /**
- * A recusa não é decidida aqui: dois gatilhos no banco barram a exclusão de
- * qualquer ponto ou face com histórico. A tela esconde o botão quando sabe
- * que não vai passar, e esta função existe para o caso de a tela estar
- * desatualizada — alguém pode ter vendido a face enquanto a página estava
- * aberta.
+ * Quem recusa é o banco: dois gatilhos barram a exclusão de qualquer ponto ou
+ * face com histórico. A tela esconde o botão quando sabe que não vai passar.
+ * Esta função cobre o caso de a tela estar desatualizada, quando alguém vendeu
+ * a face enquanto a página estava aberta.
  */
 export async function excluirFace(
   _prev: FormState,
@@ -420,7 +419,7 @@ export async function buscarCoordenada(
     return {
       ok: false,
       message:
-        "Esta coordenada foi confirmada pelas chegadas reais do campo. Buscar de novo seria trocar o que se sabe pelo que se supõe.",
+        "Esta coordenada foi confirmada pelas chegadas reais do campo. Buscar de novo trocaria um dado confirmado por uma estimativa.",
     };
   }
 
@@ -478,10 +477,10 @@ const PARALELO = 4;   // requisições simultâneas ao Google
 /**
  * Busca a coordenada de todos os pontos que ainda não têm uma confiável.
  *
- * É o botão do dia em que uma exibidora nova entra: a lista dela chega sem
- * latitude nenhuma, e clicar ponto a ponto 53 vezes não é trabalho de gente.
- * Roda em lotes porque função serverless tem tempo limitado — a tela diz
- * quantos faltam e o botão pode ser clicado de novo.
+ * Serve para quando uma exibidora nova entra: a lista dela chega sem latitude
+ * nenhuma e ninguém vai clicar ponto a ponto 53 vezes. Roda em lotes porque a
+ * função serverless tem tempo limitado. A tela diz quantos faltam e o botão
+ * pode ser clicado de novo.
  */
 export async function buscarCoordenadasEmLote(
   _prev: FormState,
@@ -492,11 +491,11 @@ export async function buscarCoordenadasEmLote(
 
   const supabase = await createClient();
 
-  // Primeiro a limpeza, depois a fila. A busca devolver o MESMO ponto para
-  // referências diferentes é chute, não acerto — e chute marcado como exata
-  // arma a trava e barra o aplicador no lugar certo. Isso roda ANTES de
-  // montar a fila porque é o que devolve esses pontos para ela; rodando só no
-  // fim, um inventário todo marcado exata nunca seria revisto.
+  // Primeiro a limpeza, depois a fila. Quando a busca devolve o MESMO ponto
+  // para referências diferentes, o resultado é chute. Chute marcado como exata
+  // arma a trava e barra o aplicador no lugar certo. Roda ANTES de montar a
+  // fila porque é o que devolve esses pontos para ela. Rodando só no fim, um
+  // inventário todo marcado exata nunca seria revisto.
   const { data: rebaixadosAntes } = await supabase.rpc("demote_duplicate_coordinates", {
     p_org: orgId,
   });
@@ -590,7 +589,7 @@ export async function buscarCoordenadasEmLote(
 
   const duplicados = Number(rebaixadosAntes ?? 0) + Number(rebaixadosDepois ?? 0);
   const partes = [
-    `${Math.max(exatas - duplicados, 0)} ponto(s) com coordenada exata — esses já travam a chegada`,
+    `${Math.max(exatas - duplicados, 0)} ponto(s) com coordenada exata, que já travam a chegada`,
     aproximadas ? `${aproximadas} aproximado(s), que travam depois que o campo confirmar` : null,
     duplicados
       ? `${duplicados} caíram na mesma coordenada de outro ponto e viraram estimados`

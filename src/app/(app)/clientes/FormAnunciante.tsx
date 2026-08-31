@@ -44,10 +44,10 @@ type Recado = { tom: "ok" | "aviso" | "erro"; texto: string };
 /**
  * O formulário de anunciante, um só para cadastrar e editar.
  *
- * A ordem das perguntas é deliberada: pessoa física ou jurídica vem primeiro
- * porque tudo depois disso muda — a máscara do documento, o dígito verificador,
- * a existência de razão social e a possibilidade de puxar os dados da Receita.
- * Perguntar isso no meio do caminho obrigaria a apagar o que já foi digitado.
+ * Pessoa física ou jurídica vem primeiro porque tudo depois disso muda: a
+ * máscara do documento, o dígito verificador, a razão social e a busca na
+ * Receita. Perguntar no meio do caminho obrigaria a apagar o que já foi
+ * digitado.
  */
 export function FormAnunciante({
   inicial,
@@ -87,8 +87,8 @@ export function FormAnunciante({
 
   function trocarTipo(tipo: TipoPessoa) {
     if (tipo === v.personType) return;
-    // O documento vai junto: CPF remascarado como CNPJ é lixo com aparência
-    // de dado. Melhor o campo vazio do que um número que parece válido.
+    // Limpa o documento junto. CPF remascarado como CNPJ vira número inválido
+    // com cara de válido. Melhor deixar o campo vazio.
     setV((atual) => ({ ...atual, personType: tipo, taxId: "", legalName: "" }));
     setRecado(null);
   }
@@ -114,7 +114,7 @@ export function FormAnunciante({
       setRecado({
         tom: ativa ? "ok" : "aviso",
         texto: ativa
-          ? `${d.razaoSocial}${onde ? ` — ${onde}` : ""}. Confira antes de salvar.`
+          ? `${d.razaoSocial}${onde ? `, ${onde}` : ""}. Confira antes de salvar.`
           : `${d.razaoSocial}: situação cadastral ${d.situacao.toLowerCase()}. Confirme com o cliente antes de faturar.`,
       });
     });
@@ -304,7 +304,7 @@ export function FormAnunciante({
       </div>
 
       <p className="fd-hint fd-prose">
-        A categoria alimenta a regra de exclusividade — é ela que evita duas
+        A categoria alimenta a regra de exclusividade. É ela que evita duas
         marcas concorrentes em pontos vizinhos.
       </p>
 

@@ -3,13 +3,13 @@
 /**
  * Fila offline do aplicador.
  *
- * O momento mais frágil do produto é um sujeito no topo de uma escada, na
- * beira de uma rodovia, com uma barra de sinal — e é justamente o momento
- * que exige duas chamadas de rede e o envio de uma foto.
+ * O aplicador registra a aplicação no topo de uma escada, na beira da rodovia,
+ * com uma barra de sinal. E esse registro exige duas chamadas de rede e o
+ * envio de uma foto.
  *
- * Aqui a foto e a ação são gravadas em IndexedDB ANTES de qualquer rede.
+ * Por isso a foto e a ação são gravadas em IndexedDB ANTES de qualquer rede.
  * Se a rede cair, nada se perde: a fila drena sozinha quando o sinal volta.
- * Cada item carrega uma chave de idempotência, então reenviar não duplica.
+ * Cada item leva uma chave de idempotência, então reenviar não duplica.
  */
 
 const DB_NAME = "flowdoor-field";
@@ -34,8 +34,8 @@ export interface QueueItem {
     /** Relógio do aparelho no disparo, ISO. O servidor usa só para comparar. */
     clientTime?: string | null;
     /**
-     * Motivo declarado quando a pessoa passa a trava de proximidade por
-     * conta própria. Preenchido, a parada nunca aprova sozinha.
+     * Motivo que a pessoa declara ao passar a trava de proximidade por conta
+     * própria. Com este campo preenchido, a parada nunca aprova sozinha.
      */
     overrideReason?: string | null;
   };

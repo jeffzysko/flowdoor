@@ -16,7 +16,7 @@ const PERMANENT = [
   "evento nao encontrado",
   "evento não encontrado",
   "ja concluido",
-  // Fora de ordem na fila: insistir não resolve, a parada não é essa.
+  // Fora de ordem na fila. Insistir não resolve: a parada não é essa.
   "nao e a sua parada de agora",
   // Longe demais até para o escape: repetir não aproxima ninguém.
   "longe demais para justificar",
@@ -66,9 +66,9 @@ async function send(item: QueueItem): Promise<void> {
   });
   if (error) throw new Error(error.message);
 
-  // Local e horário o banco já conferiu. Falta a comparação com a arte, que
-  // roda no servidor. Se a chamada falhar, a foto fica aguardando validação e
-  // a operação resolve na fila de revisão — o registro não se perde.
+  // Local e horário o banco já conferiu. Falta comparar com a arte, que roda
+  // no servidor. Se a chamada falhar, a foto fica aguardando validação e a
+  // operação resolve na fila de revisão. O registro não se perde.
   const r = data as { photo_id?: string; precisa_ia?: boolean } | null;
   if (r?.photo_id) {
     try {
@@ -88,9 +88,9 @@ export interface FlushResult {
   failed: number;
   remaining: number;
   /**
-   * Mensagens do servidor para o que não passou. A chegada agora pode ser
-   * recusada por distância, e recusa que ninguém mostra vira tela travada
-   * sem explicação.
+   * Mensagens do servidor para o que não passou. A chegada pode ser recusada
+   * por distância, e recusa que ninguém mostra vira tela travada sem
+   * explicação.
    */
   errors: string[];
 }

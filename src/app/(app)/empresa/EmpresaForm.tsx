@@ -29,8 +29,8 @@ export function EmpresaForm({
       <h2 className="fd-h4">Identificação</h2>
       <p className="fd-prose mt-2 text-sm text-ink-2">
         O nome fantasia aparece na interface e no comprovante público. A razão
-        social e o CNPJ entram no contrato e na nota — sem eles a cobrança
-        trava na hora de emitir.
+        social e o CNPJ entram no contrato e na nota. Sem eles a cobrança trava
+        na hora de emitir.
       </p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">

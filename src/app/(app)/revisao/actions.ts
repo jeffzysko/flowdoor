@@ -8,9 +8,8 @@ export type RevisaoState = { ok: boolean; message?: string };
 /**
  * Aprovar ou pedir nova foto.
  *
- * Recusar exige motivo escrito, e não é burocracia: o texto vai direto para a
- * tela de quem está na rua, como `rejected_reason`. Recusa sem motivo manda a
- * pessoa refazer sem saber o quê.
+ * Recusar exige motivo escrito. O texto vai direto para a tela de quem está na
+ * rua, como `rejected_reason`. Sem ele, a pessoa refaz sem saber o quê.
  */
 export async function revisarFoto(
   _prev: RevisaoState,
@@ -27,7 +26,7 @@ export async function revisarFoto(
   if (acao === "recusar" && notas.length < 5) {
     return {
       ok: false,
-      message: "Escreva o que precisa ser refeito — a pessoa lê isso na rua.",
+      message: "Escreva o que precisa ser refeito. A pessoa lê isso na rua.",
     };
   }
 
@@ -58,9 +57,9 @@ export async function revisarFoto(
 /**
  * Move a coordenada do ponto para a média das chegadas registradas.
  *
- * Só faz sentido quando as chegadas estão agrupadas longe do cadastro — aí
- * quem está errado é o cadastro, não as pessoas. A RPC exige duas chegadas
- * no mínimo e grava o valor antigo no audit_log.
+ * Só faz sentido quando as chegadas estão agrupadas longe do cadastro. Nesse
+ * caso o erro está no cadastro, não nas pessoas. A RPC exige duas chegadas no
+ * mínimo e grava o valor antigo no audit_log.
  */
 export async function corrigirCoordenada(
   _prev: RevisaoState,

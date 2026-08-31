@@ -41,11 +41,10 @@ const dia = (v: string) =>
 /**
  * O portal do parceiro.
  *
- * A ordem das perguntas é a da venda de mídia exterior, não a do banco:
- * primeiro QUANDO (o ciclo), porque é o período que decide o que está
- * livre; depois ONDE (as faces livres naquele período); e só então PARA QUEM.
- * Um calendário de doze colunas seria bonito e inútil aqui — a agência não
- * administra o inventário, ela compra um período.
+ * A ordem das perguntas segue a venda de mídia exterior. Primeiro quando (o
+ * ciclo), porque é o período que decide o que está livre. Depois onde (as
+ * faces livres naquele período). Só então para quem. A agência não administra
+ * o inventário, ela compra um período.
  */
 export function PortalVenda({
   agencyId,
@@ -83,8 +82,8 @@ export function PortalVenda({
 
   /**
    * O período da campanha começa no ciclo escolhido e dura o que a agência
-   * pedir. Sem isto, uma face vendida por mês só podia ser pedida por 14
-   * dias — metade do que ela se vende.
+   * pedir. Sem isto, uma face vendida por mês só daria para pedir por 14
+   * dias, metade do que ela se vende.
    */
   const inicio = periodo?.starts_on ?? "";
   const fim = useMemo(() => {
@@ -200,8 +199,8 @@ export function PortalVenda({
           <h2 className="fd-h2 mt-2 tabular-nums">{feito}</h2>
           <p className="mt-2 text-ink-2 fd-prose mx-auto">
             {atual.nome} recebeu o pedido e vai precificar. Enquanto isso as
-            faces continuam livres para todo mundo — opção não bloqueia, quem
-            confirmar primeiro leva.
+            faces continuam livres para todo mundo. A opção não bloqueia, e
+            quem confirmar primeiro leva.
           </p>
           <div className="mt-5 flex flex-wrap justify-center gap-3">
             <Link href={"/portal/opcoes" as never} className="fd-btn">
@@ -259,11 +258,11 @@ export function PortalVenda({
             onChange={(e) => setDuracao(Number(e.target.value))}
             className="fd-input max-w-[360px]"
           >
-            <option value={14}>1 ciclo — 14 dias</option>
-            <option value={28}>2 ciclos — 28 dias</option>
-            <option value={30}>1 mês — 30 dias</option>
-            <option value={60}>2 meses — 60 dias</option>
-            <option value={90}>3 meses — 90 dias</option>
+            <option value={14}>1 ciclo (14 dias)</option>
+            <option value={28}>2 ciclos (28 dias)</option>
+            <option value={30}>1 mês (30 dias)</option>
+            <option value={60}>2 meses (60 dias)</option>
+            <option value={90}>3 meses (90 dias)</option>
           </select>
           <span className="fd-hint">
             {fim
@@ -380,7 +379,7 @@ export function PortalVenda({
           </div>
           <p className="fd-hint">
             &quot;Tem cliente decidindo&quot; é uma opção aberta de outra
-            pessoa — ainda dá para pedir, e quem confirmar primeiro leva.
+            pessoa. Você ainda pode pedir, e quem confirmar primeiro leva.
           </p>
         </div>
 
@@ -407,7 +406,7 @@ export function PortalVenda({
           {mensaisCurtas > 0 && (
             <p className="fd-alert fd-alert-warn mt-3">
               {mensaisCurtas} face(s) da lista se vendem por mês. Com{" "}
-              {duracao} dias, a tabela cobra um mês inteiro — se a ideia era o
+              {duracao} dias, a tabela cobra um mês inteiro. Se a ideia era o
               mês, escolha 30 dias na duração.
             </p>
           )}
@@ -453,7 +452,7 @@ export function PortalVenda({
                   className="fd-input"
                 />
                 <span className="fd-hint">
-                  O cadastro do anunciante fica com a exibidora — é ela que
+                  O cadastro do anunciante fica com a exibidora, que é quem
                   fatura.
                 </span>
               </label>

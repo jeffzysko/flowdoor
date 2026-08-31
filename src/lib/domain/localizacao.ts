@@ -4,9 +4,9 @@ import type { GeoPrecision } from "./types";
  * Como a confiança na coordenada aparece na tela.
  *
  * Três estados, não seis. O operador não precisa saber se veio do Places ou
- * do Geocoding — precisa saber se pode mandar alguém para lá e se a trava de
- * chegada vai valer. A precisão detalhada continua no ponto, para quem for
- * investigar.
+ * do Geocoding. Ele precisa saber se pode mandar alguém para lá e se a trava
+ * de chegada vai valer. A precisão detalhada continua no ponto, para quem
+ * for investigar.
  */
 export type SituacaoLocal = "confere" | "parcial" | "ausente";
 
@@ -44,7 +44,7 @@ export const LOCAL_EXPLICACAO: Record<SituacaoLocal, string> = {
   confere:
     "A coordenada aponta para o lugar da estrutura. A chegada do aplicador é travada por ela.",
   parcial:
-    "A coordenada está na região certa, mas não no ponto exato. Não trava a chegada — o lugar se confirma sozinho depois de três aplicações agrupadas no mesmo local.",
+    "A coordenada está na região certa, mas não no ponto exato. Não trava a chegada. O lugar se confirma sozinho depois de três aplicações agrupadas no mesmo local.",
   ausente:
     "Este ponto não tem coordenada. Ele aparece na lista e pode ser vendido, mas o aplicador chega sem conferência de local.",
 };

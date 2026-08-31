@@ -13,8 +13,8 @@ export const maxDuration = 60;
  * momento do envio. Aqui roda o que precisa sair do Postgres: as duas
  * impressões digitais da imagem e a leitura da IA.
  *
- * A ordem importa. Duplicata é barata de detectar e cara de ignorar, então
- * vem primeiro — arquivo repetido nem chega a virar chamada de IA.
+ * A duplicata vem primeiro porque é barata de detectar: arquivo repetido nem
+ * chega a virar chamada de IA.
  */
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
   const querCampanha = f.check_campaign !== "desligado";
   const querTela = f.check_screen !== "desligado";
 
-  // Arquivo já reprovado por duplicata não merece uma chamada de IA.
+  // Arquivo já reprovado por duplicata não precisa de chamada de IA.
   if (!duplicada && bytes && (querCampanha || querTela)) {
     const v = await analisarFoto(
       { data: bytes.toString("base64"), mime: arquivo?.type || "image/jpeg" },

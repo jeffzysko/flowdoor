@@ -6,8 +6,8 @@ import type { Route } from "next";
 
 /**
  * Trilho de navegação, no meio da barra. Precisa do caminho atual para marcar
- * onde o usuário está — sem isso o cabeçalho é uma fileira de links iguais e a
- * pessoa perde a noção de onde chegou. A pastilha branca é o "você está aqui".
+ * onde o usuário está. Sem isso o cabeçalho vira uma fileira de links iguais.
+ * A pastilha branca é o "você está aqui".
  */
 export function NavPrincipal({
   itens,

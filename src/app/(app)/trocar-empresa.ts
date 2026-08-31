@@ -7,11 +7,11 @@ import { COOKIE_ORG, getSessionContext } from "@/lib/domain/session";
 /**
  * Guarda qual empresa a pessoa está olhando.
  *
- * O cookie é preferência de navegação, não credencial: ele só escolhe entre as
- * empresas que a sessão já alcança. Um valor forjado não abre porta nenhuma —
- * o RLS decide o que pode ser lido, e uma empresa fora do alcance nem entra na
- * lista abaixo. Por isso a conferência aqui existe: cookie que não bate com a
- * lista é ignorado em vez de gravado.
+ * O cookie é preferência de navegação, não credencial. Ele só escolhe entre as
+ * empresas que a sessão já alcança. Um valor forjado não abre nada: o RLS
+ * decide o que pode ser lido, e uma empresa fora do alcance nem entra na lista
+ * abaixo. Por isso a conferência aqui: cookie que não bate com a lista é
+ * ignorado em vez de gravado.
  */
 export async function trocarEmpresa(orgId: string) {
   const ctx = await getSessionContext();

@@ -5,8 +5,8 @@ import { pendingCount } from "@/lib/field/queue";
 import { startAutoFlush } from "@/lib/field/sync";
 
 /**
- * O aplicador precisa saber se o que ele registrou já chegou.
- * Silêncio aqui é o que gera ligação para o escritório.
+ * Mostra ao aplicador se o que ele registrou já chegou ao servidor.
+ * Sem esse aviso, ele liga para o escritório para confirmar.
  */
 export function QueueBanner() {
   const [pendentes, setPendentes] = useState(0);
@@ -38,7 +38,7 @@ export function QueueBanner() {
     >
       {!online && (
         <p className="font-medium">
-          Sem sinal. Pode seguir trabalhando — nada se perde.
+          Sem sinal. Pode seguir trabalhando, nada se perde.
         </p>
       )}
       {pendentes > 0 && (

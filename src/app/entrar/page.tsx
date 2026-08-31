@@ -39,9 +39,9 @@ export default function EntrarPage() {
             A peça está no ar. Com hora, coordenada e foto.
           </p>
           <p className="mt-4 text-on-dark">
-            Cada aplicação registra a posição do aparelho na chegada e sai com a
-            foto carimbada com data, hora e coordenada. O comprovante que o
-            anunciante recebe não é uma foto solta no WhatsApp.
+            Cada aplicação registra a posição do aparelho na chegada. A foto
+            sai carimbada com data, hora e coordenada, e vira o comprovante que
+            o anunciante recebe.
           </p>
         </blockquote>
       </aside>
@@ -71,7 +71,7 @@ function Formulario() {
 
     setAviso(
       t.includes("expired")
-        ? "Esse link de e-mail expirou. Peça um novo para o administrador."
+        ? "Esse link de e-mail venceu. Peça um novo para o administrador."
         : t.includes("invalid")
           ? "Esse link de e-mail não é mais válido. Peça um novo."
           : "Não foi possível usar esse link de e-mail."
@@ -106,8 +106,8 @@ function Formulario() {
     const seguro = destino && destino.startsWith("/") && !destino.startsWith("//");
 
     // Navegação dura, não router.replace. O cliente acabou de gravar o cookie
-    // de sessão; uma navegação do App Router pode partir antes do cookie estar
-    // visível para o servidor, e o middleware devolve para cá — laço infinito.
+    // de sessão. Uma navegação do App Router pode partir antes do cookie estar
+    // visível para o servidor, o middleware devolve para cá e vira laço.
     window.location.assign(seguro ? destino : "/");
   }
 

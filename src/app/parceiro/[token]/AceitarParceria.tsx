@@ -38,9 +38,9 @@ const MOTIVOS: Record<string, string> = {
  * Aceite de convite de parceria.
  *
  * Difere do convite de equipe num ponto que muda a tela inteira: aceitar aqui
- * não coloca a pessoa dentro da exibidora — cria (ou liga) a empresa DELA. Por
- * isso existe a fase "escolher_empresa": a agência que já atende duas
- * exibidoras não pode acabar com duas contas iguais, uma por convite.
+ * não coloca a pessoa dentro da exibidora, e sim cria (ou liga) a empresa
+ * DELA. Por isso existe a fase "escolher_empresa". A agência que já atende
+ * duas exibidoras não pode acabar com duas contas iguais, uma por convite.
  */
 export function AceitarParceria({ token }: { token: string }) {
   const [fase, setFase] = useState<Fase>("carregando");
@@ -71,7 +71,7 @@ export function AceitarParceria({ token }: { token: string }) {
     [token]
   );
 
-  /** Empresas onde já sou titular ou administrador — candidatas a receber a parceria. */
+  /** Empresas onde já sou titular ou administrador. São as candidatas a receber a parceria. */
   const carregarMinhas = useCallback(
     async (supabase: ReturnType<typeof createClient>, uid: string) => {
       const { data } = await supabase
@@ -241,8 +241,8 @@ export function AceitarParceria({ token }: { token: string }) {
         <h1 className="fd-h3">Confirme seu e-mail</h1>
         <p className="mt-2 text-ink-2">
           Sua conta foi criada. Mandamos um e-mail para{" "}
-          <strong>{convite?.email}</strong> — confirme por lá e volte a abrir
-          este mesmo link para abrir a parceria.
+          <strong>{convite?.email}</strong>. Confirme por lá e abra este mesmo
+          link de novo para abrir a parceria.
         </p>
       </Moldura>
     );
@@ -270,7 +270,7 @@ export function AceitarParceria({ token }: { token: string }) {
         <p className="mt-2 text-ink-2 fd-prose">
           <strong>{convite?.provider_name}</strong> convidou{" "}
           <strong>{convite?.partner_name}</strong>. Você já administra empresa
-          no Flowdoor — ligue a parceria a uma delas em vez de abrir uma conta
+          no Flowdoor. Ligue a parceria a uma delas em vez de abrir uma conta
           repetida.
         </p>
 

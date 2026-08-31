@@ -10,8 +10,8 @@ export function NovoAnunciante({ orgId }: { orgId: string }) {
   const [aberto, setAberto] = useState(false);
   const [state, action, pendente] = useActionState(criarAnunciante, inicial);
 
-  // Fechar no sucesso, sem esperar clique: o vendedor já foi para a próxima
-  // coisa. A mensagem fica no lugar do botão.
+  // Fecha sozinho no sucesso, sem esperar clique. O vendedor já foi para a
+  // próxima coisa, e a mensagem fica no lugar do botão.
   if (state.ok && aberto) setAberto(false);
 
   if (!aberto) {
@@ -31,7 +31,7 @@ export function NovoAnunciante({ orgId }: { orgId: string }) {
     <>
       <h2 className="fd-h4 mt-8">Novo anunciante</h2>
       <p className="mt-1 text-sm text-ink-2 fd-prose">
-        Quem paga pela campanha. O CPF/CNPJ é único por empresa — é ele que
+        Quem paga pela campanha. O CPF/CNPJ é único por empresa. É ele que
         impede o mesmo cliente cadastrado duas vezes com nomes diferentes.
       </p>
       <FormAnunciante

@@ -94,7 +94,7 @@ export type ConviteState = {
  *
  * O link volta SEMPRE, mesmo com o e-mail entregue: o token aparece uma vez
  * só, e se o envio falhar em silêncio quem convidou fica sem nada na mão.
- * Falha de e-mail não invalida o convite — vira aviso, e o link continua ali.
+ * Falha de e-mail não invalida o convite: vira aviso, e o link continua ali.
  */
 export async function criarConvite(
   _prev: ConviteState,
@@ -134,7 +134,7 @@ export async function criarConvite(
 
   // Quem convidou e de qual empresa: entra no corpo do e-mail para a pessoa
   // reconhecer o remetente. Se qualquer um dos dois faltar, o e-mail sai
-  // assim mesmo — texto um pouco mais seco, convite igual.
+  // assim mesmo, com texto mais seco.
   const [{ data: org }, { data: { user } }] = await Promise.all([
     supabase.from("organizations").select("name").eq("id", orgId).maybeSingle(),
     supabase.auth.getUser(),
@@ -175,14 +175,14 @@ export async function criarConvite(
     link,
     aviso:
       envio.motivo === "sem_chave"
-        ? "O envio de e-mail não está configurado neste ambiente. Mande o link abaixo à mão."
-        : "O convite foi criado, mas o e-mail não saiu. Mande o link abaixo à mão.",
+        ? "O envio de e-mail não está configurado neste ambiente. Copie o link abaixo e mande você mesmo."
+        : "O convite foi criado, mas o e-mail não saiu. Copie o link abaixo e mande você mesmo.",
   };
 }
 
 /**
  * Cancela um convite que ainda não foi aceito. O link vale 14 dias e é o
- * segredo — e-mail digitado errado precisa de um jeito de desligar.
+ * segredo, então e-mail digitado errado precisa de um jeito de desligar.
  */
 export async function cancelarConvite(
   _prev: { ok: boolean; message?: string },

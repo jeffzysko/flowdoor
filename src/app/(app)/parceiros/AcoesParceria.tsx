@@ -139,7 +139,7 @@ export function AcoesParceria({
           <p className="text-sm">
             Encerrar a parceria com <b>{nome}</b> tira o acesso ao seu
             inventário na hora. As opções que ele já criou continuam na sua
-            lista — quem decide o que fazer com elas é você.
+            lista, e você decide o que fazer com elas.
           </p>
           <p className="fd-hint">
             Se for coisa temporária, suspender faz o mesmo e é mais fácil de

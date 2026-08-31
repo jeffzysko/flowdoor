@@ -16,10 +16,10 @@ export type ClienteState = { ok: boolean; message?: string; id?: string };
 /**
  * O mesmo formato para criar e editar.
  *
- * A validação repete a do navegador de propósito: a do cliente é conforto, a
+ * A validação repete a do navegador de propósito. A do cliente é conforto, a
  * daqui é a que vale. Documento e telefone chegam com máscara e são guardados
- * só com dígitos — comparar "(41) 99999-0000" com "41999990000" é o tipo de
- * duplicata que só aparece meses depois.
+ * só com dígitos. Sem isso, "(41) 99999-0000" e "41999990000" viram dois
+ * cadastros diferentes.
  */
 const base = z.object({
   personType: z.enum(["fisica", "juridica"]),
@@ -138,10 +138,10 @@ export async function buscarCnpj(cnpj: string): Promise<RespostaCnpj> {
 
 // ================================================= arquivar e excluir
 /**
- * Excluir anunciante só vale para o cadastro que nunca foi usado — o gatilho
- * `advertisers_no_delete_if_used` recusa o resto, e faz bem: apagar um
- * anunciante com pedido levaria junto o dono da campanha. Para esse caso
- * existe arquivar, que tira dos seletores de venda e deixa o histórico de pé.
+ * Excluir anunciante só vale para cadastro que nunca foi usado. O gatilho
+ * `advertisers_no_delete_if_used` recusa o resto, porque apagar um anunciante
+ * com pedido levaria junto o dono da campanha. Nesse caso o caminho é
+ * arquivar, que tira dos seletores de venda e mantém o histórico.
  */
 export async function excluirAnunciante(id: string): Promise<ClienteState> {
   const supabase = await createClient();
@@ -152,7 +152,7 @@ export async function excluirAnunciante(id: string): Promise<ClienteState> {
     return {
       ok: false,
       message: m.includes("historico")
-        ? "Este anunciante já tem pedido ou opção. Arquive em vez de excluir — o histórico continua de pé."
+        ? "Este anunciante já tem pedido ou opção. Arquive em vez de excluir, assim o histórico continua de pé."
         : "Não foi possível excluir o anunciante.",
     };
   }

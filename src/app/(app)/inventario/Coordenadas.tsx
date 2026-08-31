@@ -10,9 +10,9 @@ const inicial = { ok: false } as { ok: boolean; message?: string };
 /**
  * Painel de situação do local, no topo do inventário.
  *
- * O cliente entrega a lista com endereço e ponto de referência; latitude ele
- * nunca tem. Quem produz a coordenada é o sistema — e o operador precisa ver,
- * de relance, em quantos pontos ela vale o bastante para travar a chegada.
+ * O cliente entrega a lista com endereço e ponto de referência, nunca a
+ * latitude. Quem produz a coordenada é o sistema. O operador precisa ver de
+ * relance em quantos pontos ela vale o bastante para travar a chegada.
  */
 export function Coordenadas({
   orgId,
@@ -50,8 +50,8 @@ export function Coordenadas({
       <p className="fd-prose mt-3 text-sm text-ink-2">
         Só o que <strong>confere</strong> trava a chegada do aplicador. O que está{" "}
         <strong>parcial</strong> aparece no mapa e é vendável, mas a conferência de
-        local fica desligada até três aplicações caírem agrupadas no mesmo lugar —
-        aí a coordenada real substitui a estimada sozinha.
+        local fica desligada até três aplicações caírem agrupadas no mesmo lugar.
+        Aí a coordenada real substitui a estimada sozinha.
       </p>
 
       {faltam > 0 && (

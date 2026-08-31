@@ -60,12 +60,12 @@ type Snapshot = {
 };
 
 const dt = (v: string | null) =>
-  v ? new Date(v).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : "—";
+  v ? new Date(v).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : "sem registro";
 const d = (v: string) => new Date(v + "T12:00:00").toLocaleDateString("pt-BR");
 
 /**
- * A página que o anunciante vê. É o produto.
- * Sem login, sem app, sem PDF anexo — um link que abre e prova.
+ * A página que o anunciante vê. Sem login, sem app, sem PDF anexo: um link
+ * que abre e prova.
  * A leitura passa por get_public_proof, que só responde a token válido
  * e devolve o snapshot congelado no momento da publicação.
  */
@@ -82,7 +82,7 @@ export default async function ProofPage({
 
   const snap = data as Snapshot;
 
-  // URLs assinadas de curta duração — a foto nunca fica pública no bucket
+  // URLs assinadas de curta duração. A foto nunca fica pública no bucket.
   const paths = snap.items.flatMap((i) => i.event?.photos.map((p) => p.path) ?? []);
   const signed = new Map<string, string>();
 
@@ -134,7 +134,7 @@ export default async function ProofPage({
             ["Pedido", snap.order.code],
             ["Faces", String(snap.items.length)],
             ["Aplicadas", `${done} de ${snap.items.length}`],
-            ["Exibidora", snap.org?.name ?? "—"],
+            ["Exibidora", snap.org?.name ?? "sem nome"],
           ].map(([k, v]) => (
             <div key={k}>
               <dt>{k}</dt>
@@ -184,7 +184,7 @@ export default async function ProofPage({
               )}
 
               <dl className="grid grid-cols-2 gap-x-6 gap-y-3 px-6 py-5 text-sm sm:grid-cols-4">
-                <Row k="Período" v={`${d(item.starts_on)} – ${d(item.ends_on)}`} />
+                <Row k="Período" v={`${d(item.starts_on)} a ${d(item.ends_on)}`} />
                 <Row k="Chegada" v={dt(ev?.started_at ?? null)} />
                 <Row k="Conclusão" v={dt(ev?.finished_at ?? null)} />
                 <Row
@@ -192,7 +192,7 @@ export default async function ProofPage({
                   v={
                     ev?.started_lat && ev?.started_lng
                       ? `${ev.started_lat.toFixed(5)}, ${ev.started_lng.toFixed(5)}`
-                      : "—"
+                      : "sem registro"
                   }
                 />
               </dl>

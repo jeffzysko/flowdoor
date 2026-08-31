@@ -2,8 +2,8 @@
  * O e-mail que avisa a exibidora de que um parceiro pediu uma opção.
  *
  * O aviso no sino já existe, mas o sino só aparece para quem abre o sistema.
- * Uma opção vale 48 horas: se o vendedor só entrar na quinta, a agência
- * esperou dois dias por uma resposta que nunca saiu.
+ * Uma opção vale 48 horas. Se o vendedor só entrar na quinta, a agência
+ * esperou dois dias sem resposta.
  */
 export function emailDeOpcaoDeParceiro(dados: {
   link: string;
@@ -19,7 +19,7 @@ export function emailDeOpcaoDeParceiro(dados: {
   const assunto = `${dados.agencia} pediu a opção ${dados.codigo}`;
 
   const texto = [
-    `PEDIDO DE OPÇÃO — ${dados.codigo}`,
+    `PEDIDO DE OPÇÃO ${dados.codigo}`,
     "",
     `${dados.agencia} montou uma opção no seu inventário.`,
     "",
@@ -29,8 +29,8 @@ export function emailDeOpcaoDeParceiro(dados: {
     `Vence em: ${dados.venceEm}`,
     dados.recado ? `Recado: ${dados.recado}` : "",
     "",
-    "A opção não bloqueia as placas — elas seguem à venda para todo mundo.",
-    "Quem confirmar primeiro leva, e o preço é o que você puser ao confirmar.",
+    "A opção não bloqueia as placas. Elas seguem à venda para todo mundo.",
+    "Quem confirmar primeiro leva. O preço é o que você puser ao confirmar.",
     "",
     dados.link,
   ]
@@ -46,7 +46,7 @@ export function emailDeOpcaoDeParceiro(dados: {
 
 ${dados.recado ? `<p><em>${escapar(dados.recado)}</em></p>` : ""}
 
-<p>A opção não bloqueia as placas — elas seguem à venda para todo mundo. Quem confirmar primeiro leva, e o preço é o que você puser ao confirmar.</p>
+<p>A opção não bloqueia as placas. Elas seguem à venda para todo mundo. Quem confirmar primeiro leva. O preço é o que você puser ao confirmar.</p>
 
 <p><a href="${escapar(dados.link)}">Abrir as opções</a></p>
 `.trim();

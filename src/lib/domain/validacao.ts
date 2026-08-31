@@ -17,9 +17,8 @@ const LIMIAR_APROVA = 0.75;
 const LIMIAR_REPROVA = 0.75;
 
 /**
- * A pergunta da tela é mais barata de acertar do que a da campanha: moiré e
- * borda de monitor são evidentes quando existem. Por isso o limiar é alto e
- * o "não sei" vira 'ok' — só reprova quem a IA reconhece com folga.
+ * Moiré e borda de monitor são evidentes quando existem. Por isso o limiar é
+ * alto e o "não sei" vira 'ok'. Só reprova o que a IA reconhece com folga.
  */
 const LIMIAR_TELA = 0.8;
 
@@ -49,14 +48,14 @@ const desligada = (quer: boolean): CheckResult => (quer ? "incerto" : "desligado
 
 /**
  * Olha a foto de campo com a IA e responde duas coisas: se a peça é da
- * campanha certa, e se aquilo é mesmo uma foto tirada na rua.
+ * campanha certa, e se a foto foi mesmo tirada na rua.
  *
- * Regra de ouro na campanha: na dúvida, "incerto" — nunca "falhou". Reflexo
- * no vinil, foto à noite, ângulo torto e poste na frente produzem falso
- * negativo com facilidade, e um falso negativo prende o aplicador na rua.
+ * Na dúvida sobre a campanha, o resultado é "incerto", nunca "falhou". Reflexo
+ * no vinil, foto à noite, ângulo torto e poste na frente geram falso negativo
+ * com facilidade, e falso negativo prende o aplicador na rua.
  *
- * Falha de chave, de rede ou de formato nunca derruba o registro: a foto
- * fica em revisão e a operação decide.
+ * Falha de chave, de rede ou de formato nunca derruba o registro. A foto fica
+ * em revisão e a operação decide.
  */
 export async function analisarFoto(
   foto: FotoBytes,
@@ -85,8 +84,8 @@ export async function analisarFoto(
   const comparaArte = quer.campanha && arte !== null;
 
   if (quer.campanha && !comparaArte) {
-    // Sem arte legível não dá para comparar campanha, mas a pergunta da tela
-    // não depende dela — segue com a foto sozinha.
+    // Sem arte legível não dá para comparar a campanha. A pergunta da tela
+    // não depende da arte, então segue com a foto sozinha.
     vazio.motivo = artePath
       ? "A arte da campanha não é uma imagem legível (PDF?)."
       : "O pedido não tem arte anexada para comparar.";
@@ -98,7 +97,7 @@ export async function analisarFoto(
   if (comparaArte) {
     perguntas.push(
       "1) A peça fotografada é da MESMA campanha da arte aprovada? Fotos de campo têm " +
-        "reflexo, ângulo, sombra, chuva e obstrução — nada disso, sozinho, é motivo para " +
+        "reflexo, ângulo, sombra, chuva e obstrução. Nada disso, sozinho, é motivo para " +
         "reprovar. Responda 'divergente' apenas quando a peça for claramente de OUTRA " +
         "campanha (outra marca, outro produto, outra mensagem). Se não der para afirmar, " +
         "responda 'incerto'."

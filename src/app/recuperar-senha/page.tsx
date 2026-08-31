@@ -25,7 +25,7 @@ export default function RecuperarSenhaPage() {
       { redirectTo: `${base}/auth/callback?type=recovery` }
     );
 
-    // Erro de envio a gente mostra; "esse e-mail não existe" a gente não.
+    // Erro de envio a gente mostra. "Esse e-mail não existe" a gente não.
     // Dizer quais endereços têm conta entrega a lista de quem trabalha aqui
     // para qualquer pessoa que tente adivinhar.
     if (error && !/user|not found|invalid/i.test(error.message)) {
@@ -56,8 +56,8 @@ export default function RecuperarSenhaPage() {
           </p>
           <p className="mt-3 text-sm text-ink-3">
             Não chegou? Veja a caixa de spam. Se ainda assim não vier, o
-            endereço pode estar diferente do cadastrado — nesse caso peça a
-            quem administra a empresa.
+            endereço pode estar diferente do que está cadastrado. Nesse caso,
+            peça ajuda a quem administra a empresa.
           </p>
           <Link
             href="/entrar"
@@ -72,8 +72,8 @@ export default function RecuperarSenhaPage() {
             Esqueceu a senha?
           </h1>
           <p className="mt-2 text-ink-2">
-            Informe o e-mail da sua conta. Mandamos um link para você criar uma
-            nova.
+            Informe o e-mail da sua conta. A gente manda um link para você criar
+            uma senha nova.
           </p>
 
           <form onSubmit={pedir} className="mt-8 space-y-4">

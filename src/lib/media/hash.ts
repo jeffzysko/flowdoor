@@ -13,8 +13,7 @@ import { stampBandHeight } from "../field/stamp";
  * brilho, e por isso pega a foto reciclada mesmo depois de passar por
  * WhatsApp. A comparação é por distância de Hamming, feita no Postgres.
  *
- * Roda só no servidor. Hash calculado no navegador é hash que o fraudador
- * escreve à mão.
+ * Roda só no servidor. Hash calculado no navegador dá para forjar.
  */
 
 const GRID = 32; // matriz de trabalho antes da DCT
@@ -91,7 +90,7 @@ function dct2(m: Float64Array): Float64Array {
 
 /**
  * 64 bits em texto ('0'/'1'), no formato que o Postgres aceita como bit(64).
- * Devolve null quando a imagem não decodifica — a foto ainda vale, só perde
+ * Devolve null quando a imagem não decodifica. A foto ainda vale, só perde
  * este sinal.
  */
 export function phash64(jpegBytes: Buffer): string | null {

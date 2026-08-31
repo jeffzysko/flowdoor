@@ -146,9 +146,9 @@ export function NovoPedido({
   }
 
   /**
-   * Uma equipe costuma sair num dia só. Preencher trinta vezes o mesmo
-   * aplicador e a mesma data é o tipo de trabalho que o sistema deve fazer.
-   * Só preenche o que está vazio — o que já foi ajustado à mão fica.
+   * Uma equipe costuma sair num dia só, então repetir aplicador e data em
+   * cada linha é trabalho à toa. Preenche só o que está vazio: o que foi
+   * ajustado à mão fica como está.
    */
   function aplicarPadrao() {
     setLinhas((atual) =>
@@ -282,7 +282,7 @@ export function NovoPedido({
         <h1 className="fd-h2 mt-2 tabular-nums">{feito.code}</h1>
         <p className="mt-2 text-ink-2 fd-prose mx-auto">
           {eOpcao
-            ? `As faces ficam guardadas até ${validade ? dataHoraBR(validade) : "o prazo combinado"}. Elas não saem da disponibilidade — opção não bloqueia ninguém. Quem confirmar primeiro leva.`
+            ? `As faces ficam guardadas até ${validade ? dataHoraBR(validade) : "o prazo combinado"}. Elas continuam na disponibilidade, porque opção não bloqueia a face. Quem confirmar primeiro leva.`
             : "As faces foram reservadas e cada uma entrou na fila do aplicador, uma parada por vez."}
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
@@ -339,8 +339,8 @@ export function NovoPedido({
 
       <p className="mt-3 text-ink-2 fd-prose">
         {opcao
-          ? "A opção guarda faces, período e preço para um cliente que ainda não fechou. Ela não bloqueia a placa: outro vendedor pode oferecer a mesma face, e quem confirmar primeiro leva. Aplicador e horário ficam para depois, quando virar pedido."
-          : "Cada face escolhida vira uma reserva e uma aplicação em campo. Se alguma estiver ocupada no período, o pedido inteiro é recusado — nada nasce pela metade."}
+          ? "A opção guarda faces, período e preço para um cliente que ainda não fechou. Ela não bloqueia a placa. Outro vendedor pode oferecer a mesma face, e quem confirmar primeiro leva. Aplicador e horário ficam para depois, quando virar pedido."
+          : "Cada face escolhida vira uma reserva e uma aplicação em campo. Se alguma estiver ocupada no período, o pedido inteiro é recusado. Nada nasce pela metade."}
       </p>
 
       {opcao && (
@@ -363,7 +363,7 @@ export function NovoPedido({
             {!inicio
               ? "Informe o início da campanha abaixo para calcular a data de vencimento."
               : validade
-                ? `Vence em ${dataHoraBR(validade)} — véspera da campanha, no máximo. Depois disso as faces somem da lista de opções sozinhas.`
+                ? `Vence em ${dataHoraBR(validade)}, na véspera da campanha no máximo. Depois disso as faces saem da lista de opções sozinhas.`
                 : "A campanha começa cedo demais para uma opção. Feche como pedido firme."}
           </p>
         </div>
@@ -465,10 +465,9 @@ export function NovoPedido({
       </fieldset>
 
       {/* -------------------------------------------------------- faces
-          Escolher primeiro, agendar depois. Antes era um <select> com todas as
-          faces dentro de cada linha vazia: para achar uma placa você precisava
-          já saber o código dela. Agora a lista fica aberta, filtra enquanto
-          digita, e o agendamento só existe para a face que já entrou. */}
+          Escolher primeiro, agendar depois. A lista de faces fica aberta e
+          filtra enquanto digita. O agendamento só aparece para a face que já
+          entrou no pedido. */}
       <fieldset className="fd-card mt-6">
         <legend className="fd-overline">Faces e aplicações</legend>
         <p className="fd-hint fd-prose">
@@ -491,8 +490,8 @@ export function NovoPedido({
                 <p className="fd-h4">Nenhuma face no pedido ainda.</p>
                 <p className="mt-1 text-sm text-ink-2 fd-prose">
                   {opcao
-                    ? "Escolha ao lado. Para cada face você confirma o valor — se for diferente da tabela."
-                    : "Escolha ao lado. Para cada face você diz quem aplica, quando, e o valor — se for diferente da tabela."}
+                    ? "Escolha ao lado. Em cada face você confirma o valor, se for diferente da tabela."
+                    : "Escolha ao lado. Em cada face você diz quem aplica, quando, e o valor, se for diferente da tabela."}
                 </p>
               </div>
             ) : (

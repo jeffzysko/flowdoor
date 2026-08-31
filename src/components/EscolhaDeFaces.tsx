@@ -18,9 +18,8 @@ export type FaceEscolhivel = {
 /**
  * O catálogo de faces, num componente só.
  *
- * Existe em duas telas — novo pedido e edição de opção — e um `<select>` com
- * trezentas faces era a versão anterior nas duas. Duas cópias de um seletor
- * viram duas regras de busca diferentes em três meses; esta é a única.
+ * Aparece em duas telas: novo pedido e edição de opção. Fica em um lugar só
+ * para as duas usarem a mesma regra de busca.
  */
 export function EscolhaDeFaces({
   faces,
@@ -98,7 +97,7 @@ export function EscolhaDeFaces({
         )}
       </div>
       <p className="fd-hint">
-        O valor ao lado é a tabela do período de venda da face — ciclo de 14
+        O valor ao lado é a tabela do período de venda da face: ciclo de 14
         dias, ou mês. O total sai do período da campanha.
       </p>
     </div>

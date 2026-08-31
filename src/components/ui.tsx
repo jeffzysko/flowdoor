@@ -3,8 +3,8 @@ import type { Route } from "next";
 
 /**
  * As peças do design system v2. A referência viva é
- * design-system/flowdoor-design-system.html; as classes .fd-* moram em
- * globals.css. Aqui só composição — nenhum estilo solto, nenhum hex.
+ * design-system/flowdoor-design-system.html e as classes .fd-* moram em
+ * globals.css. Aqui só tem composição, sem estilo solto e sem hex.
  */
 
 export function PageHead({
@@ -32,9 +32,9 @@ export function PageHead({
 
 
 /**
- * Hero da tela. A arte do outdoor entra atrás, em cinza, com degradê por cima
- * — dá o assunto sem disputar leitura. O canto direito carrega o número que
- * importa e a ação que ele pede; sem os dois, use só o PageHead.
+ * Hero da tela. A arte do outdoor entra atrás, em cinza, com degradê por cima,
+ * para dar o assunto sem atrapalhar a leitura. O canto direito leva o número
+ * que importa e a ação que ele pede. Sem os dois, use só o PageHead.
  */
 export function Hero({
   eyebrow,
@@ -139,8 +139,8 @@ export function Secao({
 }
 
 /**
- * Card de indicador. Sempre as três partes — rótulo, número e contexto:
- * número sozinho não informa nada. Só levanta no hover quando abre algo.
+ * Card de indicador, sempre com as três partes: rótulo, número e contexto.
+ * Número sozinho não informa nada. Só levanta no hover quando abre algo.
  */
 export function Stat({
   label,
@@ -263,9 +263,9 @@ export function Chip({
   tone?: "neutro" | "bom" | "aviso" | "risco" | "marca";
   children: React.ReactNode;
 }) {
-  // Pares do design system, medidos: sucesso 5,89:1 · atenção 5,68:1 ·
-  // erro 6,75:1 · neutro 7,33:1 · marca 5,40:1. A tag padrão é VERDE — ela
-  // marca estado positivo, e laranja aqui competiria com o botão primário.
+  // Contraste medido dos pares do design system: sucesso 5,89:1, atenção
+  // 5,68:1, erro 6,75:1, neutro 7,33:1, marca 5,40:1. A tag padrão é VERDE,
+  // porque marca estado positivo. Laranja aqui competiria com o botão primário.
   const cls = {
     neutro: "fd-tag-neutral",
     bom: "",

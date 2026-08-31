@@ -93,7 +93,7 @@ export function AcoesOpcao({
         <div className="fd-inset mt-3 text-left">
           <p className="text-sm text-ink-2 fd-prose">
             Trocar as faces mantém o número da opção. O cliente já tem esse
-            código no e-mail — refazer do zero trocaria o número no meio da
+            código no e-mail, e refazer do zero trocaria o número no meio da
             negociação.
           </p>
 
@@ -232,8 +232,7 @@ export function AcoesOpcao({
           </label>
           <p className="fd-hint">
             As faces voltam para a disponibilidade na hora. O motivo fica no
-            histórico — é ele que responde, daqui a seis meses, por que metade
-            das opções não fecha.
+            histórico e mostra, depois, por que as opções não estão fechando.
           </p>
           <button
             type="button"

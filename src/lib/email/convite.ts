@@ -2,9 +2,9 @@ import { ROLE_LABEL } from "@/lib/domain/permissions";
 import type { MemberRole } from "@/lib/domain/types";
 
 /**
- * O e-mail de convite. Texto e HTML na mesma função porque os dois têm que
- * dizer a mesma coisa — cliente que só lê texto puro não pode receber uma
- * versão pela metade, e discrepância entre as duas partes é sinal de spam.
+ * O e-mail de convite. Texto e HTML ficam na mesma função porque os dois
+ * precisam dizer a mesma coisa. Quem lê só texto puro não pode receber uma
+ * versão pela metade, e diferença entre as duas partes é sinal de spam.
  */
 export function emailDeConvite(dados: {
   link: string;

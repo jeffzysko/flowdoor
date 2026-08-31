@@ -1,19 +1,19 @@
 @import "tailwindcss";
 
 /* ==========================================================================
-   FLOWDOOR — DESIGN SYSTEM v2 · marca laranja
+   FLOWDOOR · DESIGN SYSTEM v2 · marca laranja
    --------------------------------------------------------------------------
    Camada de tokens, portada de design-system/flowdoor-design-tokens.css.
    Aquele arquivo foi escrito para o protótipo em HTML + real-app.js, que não
    é este código: aqui não há styles.css nem blocos <style> injetados, e sim
-   Next.js com Tailwind v4. Então o que veio foram os TOKENS e as REGRAS —
-   as classes .real-* ficaram de fora porque não existe HTML que as use.
+   Next.js com Tailwind v4. Então o que veio foram os TOKENS e as REGRAS.
+   As classes .real-* ficaram de fora porque não existe HTML que as use.
 
    REGRA DE OURO: nenhum hex fora deste arquivo. Precisou de uma cor, espaço,
    raio ou sombra que não existe? O token entra aqui primeiro.
 
    A regra que mais muda em relação ao teal: o laranja da marca carrega texto
-   ESCURO (4,88:1), nunca branco (2,74:1 — reprova).
+   ESCURO (4,88:1), nunca branco (2,74:1, reprova).
    ========================================================================== */
 
 :root {
@@ -28,7 +28,7 @@
   --fd-orange-300: #fdb168;   /* borda de campo em foco */
   --fd-orange-400: #ff8c1f;   /* HOVER do botão: clareia (4,88 → 5,75) */
   --fd-orange-500: #f67901;   /* MARCA. Preenchimento, ícone, moldura */
-  --fd-orange-700: #974b02;   /* laranja COMO TEXTO — 6,32:1 no branco */
+  --fd-orange-700: #974b02;   /* laranja COMO TEXTO: 6,32:1 no branco */
   --fd-orange-900: #572c02;   /* texto sobre orange-200 */
 
   /* ---- neutros de viés quente ------------------------------------------- */
@@ -128,7 +128,7 @@
 
 /* --------------------------------------------------------------------------
    Ponte para o Tailwind. Os nomes semânticos que o código já usa passam a
-   apontar para os tokens do design system — nenhum hex aqui, só referência.
+   apontar para os tokens do design system. Nenhum hex aqui, só referência.
    -------------------------------------------------------------------------- */
 @theme {
   --color-ink:    var(--fd-ink-900);
@@ -144,7 +144,7 @@
 
   /* A marca em três papéis separados, que é o ponto da v2:
      accent      preenchimento (fundo)
-     on-accent   o que se escreve EM CIMA do laranja — escuro, nunca branco
+     on-accent   o que se escreve EM CIMA do laranja: escuro, nunca branco
      accent-ink  o laranja quando ele precisa SER texto */
   --color-accent:       var(--fd-orange-500);
   --color-accent-hover: var(--fd-orange-400);
@@ -233,7 +233,7 @@ button, [role="button"] { touch-action: manipulation; }
 /* ==========================================================================
    CAMADA DE COMPONENTES
    --------------------------------------------------------------------------
-   Portada de design-system/flowdoor-design-system.html — as amostras .ft-*
+   Portada de design-system/flowdoor-design-system.html. São as amostras .ft-*
    daquela página, reescritas sobre os tokens --fd-*. Nenhum hex aqui.
 
    Por que CSS e não utilitários soltos: a mesma peça aparece em 30 telas. Com
@@ -345,7 +345,7 @@ button, [role="button"] { touch-action: manipulation; }
   .fd-card > legend { float: left; width: 100%; padding: 0; }
   .fd-card > legend + * { clear: both; }
   /* Só levanta o que é clicável. Movimento sem destino ensina a ignorar
-     movimento — é o achado C-4 da auditoria. */
+     movimento. É o achado C-4 da auditoria. */
   .fd-card.is-interactive {
     display: block; cursor: pointer;
     transition: transform var(--fd-duration-base) var(--fd-ease),
@@ -355,7 +355,7 @@ button, [role="button"] { touch-action: manipulation; }
     transform: translateY(-2px); box-shadow: var(--fd-shadow-lg);
   }
   /* Lista com divisores. A superfície é a lista inteira; a linha só tem
-     padding — card por linha vira uma escada de sombras. */
+     padding. Card por linha vira uma escada de sombras. */
   .fd-list {
     background: var(--fd-surface-000); border-radius: var(--fd-radius-xl);
     box-shadow: var(--fd-shadow-md); overflow: hidden;
@@ -363,7 +363,7 @@ button, [role="button"] { touch-action: manipulation; }
   .fd-list > * + * { border-top: 1px solid var(--fd-line-200); }
   .fd-list > * { padding: var(--fd-space-4) var(--fd-space-6); }
 
-  /* Bloco dentro de um card — sem sombra, para não empilhar elevação. */
+  /* Bloco dentro de um card, sem sombra, para não empilhar elevação. */
   .fd-inset {
     background: var(--fd-surface-100); border-radius: var(--fd-radius-lg);
     padding: var(--fd-space-4);
@@ -371,7 +371,7 @@ button, [role="button"] { touch-action: manipulation; }
 
   /* ---- tag e status ----------------------------------------------------- */
   /* Padrão é VERDE: marca estado positivo. Laranja aqui competiria com o
-     botão primário na mesma tela — laranja é marca, não estado. */
+     botão primário na mesma tela. Laranja é marca, não estado. */
   .fd-tag {
     display: inline-block; padding: var(--fd-space-1) var(--fd-space-2);
     border-radius: var(--fd-radius-sm);
@@ -478,7 +478,7 @@ button, [role="button"] { touch-action: manipulation; }
     font-size: var(--fd-text-h4); line-height: 1; cursor: pointer;
   }
   /* Faixa de métricas: rótulo pequeno em cima, valor embaixo. Vale para
-     <div><small><b> e para <div><dt><dd> — as duas marcações aparecem. */
+     <div><small><b> e para <div><dt><dd>: as duas marcações aparecem. */
   .fd-metrics {
     display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: var(--fd-space-3);
@@ -506,7 +506,7 @@ button, [role="button"] { touch-action: manipulation; }
    --------------------------------------------------------------------------
    O que dá cara de produto não é o botão isolado: é o hero com a arte, o
    trilho de navegação no meio e o card com marcador. Estas são as peças
-   compostas — mesmas regras, mesmos tokens.
+   compostas, com as mesmas regras e os mesmos tokens.
    ========================================================================== */
 @layer components {
 
@@ -616,7 +616,7 @@ button, [role="button"] { touch-action: manipulation; }
   }
 
   /* Mesmo desenho do segmentado, mas em <button>: escolha que não navega.
-     aria-pressed é o estado certo aqui — aria-current="page" mente. */
+     aria-pressed é o estado certo aqui. O aria-current="page" mente. */
   .fd-seg-item { border: 0; background: transparent; cursor: pointer; font-family: inherit; }
   .fd-seg-item[aria-pressed="true"] {
     background: var(--fd-surface-000); color: var(--fd-orange-700);
@@ -708,7 +708,7 @@ button, [role="button"] { touch-action: manipulation; }
    Sete destinos numa fileira de pastilhas viram uma corrente sem hierarquia:
    "Visão geral" e "Plataforma" pesavam igual, e em tablet o trilho era
    cortado no meio. O trilho vertical agrupa por assunto, cabe crescer, e
-   deixa o rodapé para o que é identidade — empresa e conta.
+   deixa o rodapé para o que é identidade: empresa e conta.
    ========================================================================== */
 @layer components {
 
@@ -717,7 +717,7 @@ button, [role="button"] { touch-action: manipulation; }
   /* ---- barra superior ---------------------------------------------------
      Divisão de trabalho com o trilho: o trilho responde "para onde vou", a
      barra responde "onde estou, quem sou e o que precisa de mim". Empresa,
-     avisos e conta são contexto — não são destino, e por isso não moram no
+     avisos e conta são contexto. Não são destino, e por isso não moram no
      meio da lista de destinos. */
   .fd-barra {
     position: sticky; top: 0; z-index: 45;
@@ -771,7 +771,7 @@ button, [role="button"] { touch-action: manipulation; }
                 color var(--fd-duration-fast) ease;
   }
   .fd-rail-item:hover { background: var(--fd-surface-000); color: var(--fd-ink-900); }
-  /* O "você está aqui" é a pastilha branca com elevação mínima — a mesma
+  /* O "você está aqui" é a pastilha branca com elevação mínima, a mesma
      linguagem do trilho de pastilhas que existia antes. */
   .fd-rail-item[aria-current="page"] {
     background: var(--fd-surface-000); color: var(--fd-orange-700);

@@ -37,7 +37,7 @@ export default async function ClientesPage() {
       {ativos.length === 0 ? (
         <div className="mt-6">
           <Empty titulo="Nenhum anunciante ativo.">
-            O anunciante é quem paga a campanha — sem ele o pedido não tem dono.
+            O anunciante é quem paga a campanha. Sem ele o pedido não tem dono.
           </Empty>
         </div>
       ) : (

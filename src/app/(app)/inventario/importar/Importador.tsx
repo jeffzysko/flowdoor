@@ -24,11 +24,9 @@ type Prevista = {
 /**
  * Importação em três passos, com a prévia no meio.
  *
- * A prévia não é enfeite: importação recorrente é a operação que mais
- * destrói cadastro em sistema de inventário, porque um de-para errado passa
- * despercebido até alguém reparar que setenta e oito faces mudaram de preço.
- * Ver quantas serão criadas e quantas alteradas, antes de gravar, é o que
- * separa a ferramenta útil da armadilha.
+ * A prévia existe porque um de-para errado passa despercebido até alguém
+ * reparar que dezenas de faces mudaram de preço. Antes de gravar, a tela
+ * mostra quantas faces serão criadas e quantas serão alteradas.
  */
 export function Importador({
   orgId,
@@ -172,7 +170,7 @@ export function Importador({
       <section className="fd-card mt-6">
         <h2 className="fd-h4">1. O arquivo</h2>
         <p className="mt-1 text-sm text-ink-2 fd-prose">
-          CSV separado por ponto e vírgula — no Excel é{" "}
+          CSV separado por ponto e vírgula. No Excel é{" "}
           <b>Arquivo → Salvar como → CSV</b>. Se você já tem a sua planilha, não
           precisa reorganizar nada: o próximo passo pergunta qual coluna é
           qual.
@@ -209,8 +207,8 @@ export function Importador({
         <section className="fd-card mt-6">
           <h2 className="fd-h4">2. Qual coluna é qual</h2>
           <p className="mt-1 text-sm text-ink-2 fd-prose">
-            Adivinhei pelo nome do cabeçalho. Confira as marcadas com
-            obrigatório — o resto pode ficar em branco, e campo em branco não
+            Adivinhei pelo nome do cabeçalho. Confira as marcadas como
+            obrigatório. O resto pode ficar em branco, e campo em branco não
             apaga o que já está cadastrado.
           </p>
 
@@ -246,7 +244,7 @@ export function Importador({
                       }
                       className="fd-input"
                     >
-                      <option value="">— não tenho —</option>
+                      <option value="">não tenho</option>
                       {cabecalho.map((h, i) => (
                         <option key={`${h}-${i}`} value={i}>
                           {h || `coluna ${i + 1}`}
@@ -284,9 +282,9 @@ export function Importador({
 
               {facesAlteradas > 0 && (
                 <p className="fd-hint fd-prose">
-                  Atualizar mexe em face que já existe — inclusive em preço de
+                  Atualizar mexe em face que já existe, inclusive no preço de
                   tabela. Reserva feita continua valendo pelo valor que estava
-                  no pedido; o preço novo só vale para venda nova.
+                  no pedido. O preço novo só vale para venda nova.
                 </p>
               )}
 
@@ -325,14 +323,14 @@ export function Importador({
                     {previstas.slice(0, 25).map((p) => (
                       <tr key={p.n}>
                         <td className="tabular-nums text-ink-3">{p.n}</td>
-                        <td className="tabular-nums">{String(p.dados.site_code ?? "—")}</td>
-                        <td className="tabular-nums">{String(p.dados.face_code ?? "—")}</td>
+                        <td className="tabular-nums">{String(p.dados.site_code ?? "-")}</td>
+                        <td className="tabular-nums">{String(p.dados.face_code ?? "-")}</td>
                         <td className="max-w-[28ch] truncate">
-                          {String(p.dados.address ?? "—")}
+                          {String(p.dados.address ?? "-")}
                         </td>
-                        <td>{String(p.dados.kind ?? "—")}</td>
+                        <td>{String(p.dados.kind ?? "-")}</td>
                         <td className="tabular-nums">
-                          {p.dados.base_price === null ? "—" : String(p.dados.base_price)}
+                          {p.dados.base_price === null ? "-" : String(p.dados.base_price)}
                         </td>
                         <td>
                           {p.erro ? (

@@ -108,11 +108,10 @@ export function Execution({
   /**
    * A posição fica sendo acompanhada enquanto a pessoa se aproxima.
    *
-   * O detalhe que importa: a primeira leitura do GPS quase sempre vem com
-   * precisão de centenas de metros e melhora sozinha em 15 a 40 segundos.
-   * Usar só a leitura mais recente faz a tela recusar quem está no lugar
-   * certo — e é isso que vira ligação para o suporte. Por isso guardamos a
-   * janela e usamos a MELHOR leitura dela.
+   * A primeira leitura do GPS quase sempre vem com precisão de centenas de
+   * metros e melhora sozinha em 15 a 40 segundos. Usar só a leitura mais
+   * recente faria a tela recusar quem está no lugar certo. Por isso guardamos
+   * a janela e usamos a MELHOR leitura dela.
    */
   useEffect(() => {
     if (etapa !== "chegada" || !navigator.geolocation) return;
@@ -148,14 +147,15 @@ export function Execution({
     ? leituras.reduce((a, b) => (b.accuracy < a.accuracy ? b : a))
     : null;
 
-  // A conta é a mesma do servidor. Se divergir, a tela mente.
+  // A conta é a mesma que o servidor faz. Se divergir, a tela mostra um
+  // resultado que o servidor não aceita.
   const distancia =
     posicao && siteLat != null && siteLng != null
       ? distanceMeters(posicao.lat, posicao.lng, siteLat, siteLng)
       : null;
 
   // A margem acompanha a imprecisão que o aparelho informa, com o mesmo teto
-  // que o banco aplica — senão a tela libera o que o servidor recusa.
+  // que o banco aplica. Senão a tela libera o que o servidor recusa.
   const margem = Math.min(posicao?.accuracy ?? 0, accuracyMarginMaxM);
 
   const travado =
@@ -164,8 +164,8 @@ export function Execution({
     siteLng != null &&
     (distancia == null || distancia - margem > startRadiusM);
 
-  // O escape só aparece depois que a tela insistiu no GPS por tempo bastante.
-  // Oferecer antes disso ensina a pular a trava.
+  // O escape só aparece depois que a tela insistiu no GPS por tempo suficiente.
+  // Oferecer antes disso vira atalho para pular a trava.
   const podeEscapar =
     travado && allowOverride && segundos >= overrideAfterSeconds;
 
@@ -196,7 +196,7 @@ export function Execution({
         } catch (e) {
           setAviso(
             (e instanceof Error ? e.message : "Sem localização.") +
-              " A chegada vai sem coordenada — a conferência vai apontar isso."
+              " A chegada vai sem coordenada. A conferência vai apontar isso."
           );
         }
 
@@ -331,8 +331,8 @@ export function Execution({
         </p>
         <h2 className="fd-h3 mt-2">Foto em conferência.</h2>
         <p className="mt-2 text-ink-2">
-          Estamos checando o local, o horário, a peça e se a imagem já foi
-          enviada antes. Passando, a próxima parada abre sozinha.
+          A gente checa o local, o horário, a peça e se a imagem já foi enviada
+          antes. Se passar, a próxima parada abre sozinha.
         </p>
         <a
           href="/campo"
@@ -374,7 +374,7 @@ export function Execution({
               {geoNegado ? (
                 <p className="text-sm text-warn">
                   A localização está bloqueada neste navegador. Libere o acesso
-                  para registrar a chegada — sem coordenada não há comprovante.
+                  para registrar a chegada. Sem coordenada não há comprovante.
                 </p>
               ) : distancia == null ? (
                 <>
@@ -432,10 +432,10 @@ export function Execution({
           </button>
 
           {/*
-            O escape existe para o caso real de GPS que não fixa: garagem,
-            prédio alto, aparelho velho. Aparece tarde de propósito — oferecer
-            cedo ensina a pular a trava — e cobra o preço de ir para revisão
-            manual, dito na cara antes de a pessoa escolher.
+            O escape existe para o GPS que não fixa: garagem, prédio alto,
+            aparelho velho. Aparece tarde de propósito, para não virar atalho.
+            O preço é ir para revisão manual, e isso fica dito antes de a
+            pessoa escolher.
           */}
           {podeEscapar && !escapeAberto && (
             <button
@@ -450,9 +450,9 @@ export function Execution({
             <section className="fd-alert fd-alert-warn mt-4">
               <h3 className="text-sm font-bold">Registrar sem confirmar por GPS</h3>
               <p className="mt-1 text-sm text-ink-2">
-                Dá para seguir, mas esta parada não vai ser aprovada sozinha:
-                ela vai para conferência manual da operação, e o motivo fica
-                registrado no seu nome.
+                Dá para seguir, mas esta parada não é aprovada sozinha. Ela vai
+                para conferência manual da operação, e o motivo fica registrado
+                no seu nome.
               </p>
 
               <div className="mt-3 space-y-2">
@@ -585,7 +585,7 @@ export function Execution({
             }`}
           >
             {foto.sharpness < NITIDEZ_MINIMA
-              ? "A foto ficou pouco nítida. Vale repetir — é ela que o cliente vai ver."
+              ? "A foto ficou pouco nítida. Refaça, porque é ela que o cliente vê."
               : "Nitidez boa."}{" "}
             {foto.width}×{foto.height}px
           </p>

@@ -8,9 +8,9 @@ const ITENS = [
 ];
 
 /**
- * Barra do aplicador. Duas telas só — daí o trilho de duas pastilhas, que
- * funciona com o polegar e não some no sol. Aqui não entra o trilho vertical
- * do escritório: quem usa isto está de pé, com uma mão, na rua.
+ * Barra do aplicador. São só duas telas, então o trilho tem duas pastilhas
+ * grandes, que funcionam com o polegar e não somem no sol. Aqui não entra o
+ * trilho vertical do escritório. Quem usa isto está de pé, com uma mão, na rua.
  */
 export function CampoHeader({
   nome,

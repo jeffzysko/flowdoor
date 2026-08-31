@@ -57,8 +57,8 @@ export default async function EmpresaPage() {
       />
 
       <p className="mt-4 text-sm text-ink-2 fd-prose">
-        As regras que o campo precisa cumprir — raio de chegada, tolerância de
-        horário e os sinais de fraude — ficam em{" "}
+        As regras que o campo precisa cumprir (raio de chegada, tolerância de
+        horário e sinais de fraude) ficam em{" "}
         <Link href={"/empresa/campo" as never} className="fd-link fd-link-sm">
           regras de campo
         </Link>
@@ -105,7 +105,7 @@ export default async function EmpresaPage() {
       ) : (
         <div className="mt-6">
           <Empty titulo="Você não edita os dados desta empresa.">
-            Peça ao titular ou a um administrador — são eles que respondem pelo
+            Peça ao titular ou a um administrador. São eles que respondem pelo
             cadastro que vai no contrato e na nota.
           </Empty>
         </div>

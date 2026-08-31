@@ -1,9 +1,8 @@
 /**
- * Ícones do trilho. Traço, 18px, herdando a cor — nenhuma dependência: uma
- * biblioteca de ícones inteira para nove desenhos é peso que o aplicador
- * baixa no 3G da rua.
+ * Ícones do trilho. Traço, 18px, herdando a cor, sem dependência externa.
+ * Uma biblioteca inteira para nove desenhos pesaria no 3G da rua.
  *
- * O rótulo ao lado é o nome acessível; o desenho é decoração e fica
+ * O rótulo ao lado é o nome acessível. O desenho é decoração e fica
  * aria-hidden. Ícone sem rótulo foi um dos achados da auditoria.
  */
 const TRACADOS: Record<string, string> = {

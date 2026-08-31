@@ -68,14 +68,14 @@ export function AcoesAtivo({
             {alvo === "contrato" ? (
               <>
                 Limpar o contrato de <b>{code}</b> apaga proprietário, vigência,
-                aluguel e índice de reajuste. O ponto continua no inventário —
-                a estrutura continua de pé na rua.
+                aluguel e índice de reajuste. O ponto continua no inventário.
+                A estrutura segue de pé na rua.
               </>
             ) : (
               <>
-                Limpar a licença de <b>{code}</b> apaga número e validade, e a
+                Limpar a licença de <b>{code}</b> apaga número e validade. A
                 situação volta para desconhecida. Use quando a prefeitura
-                dispensou ou o alvará foi refeito do zero.
+                dispensou a licença ou o alvará foi refeito do zero.
               </>
             )}
           </p>
@@ -92,7 +92,7 @@ export function AcoesAtivo({
               {ocupado ? "Limpando…" : "Limpar"}
             </button>
             <button onClick={() => setAlvo("")} className="fd-link fd-link-sm">
-              Deixa pra lá
+              Cancelar
             </button>
           </div>
         </div>

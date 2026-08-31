@@ -17,7 +17,7 @@ const d = (v: string) => new Date(v + "T12:00:00").toLocaleDateString("pt-BR");
 const o_artwork = (p: unknown) =>
   (p as { artwork_path: string | null } | null)?.artwork_path ?? null;
 const dt = (v: string | null) =>
-  v ? new Date(v).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : "—";
+  v ? new Date(v).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : "-";
 
 type Evento = {
   id: string;
@@ -58,9 +58,9 @@ export default async function PedidoPage({
         .select(
           "id, status, face_id, assignee_id, estimated_minutes, scheduled_for, started_at, finished_at, " +
             // profiles precisa do nome da chave: field_events aponta para
-            // profiles por assignee_id E por created_by. Sem desempatar, o
-            // PostgREST recusa a consulta inteira (PGRST201) e a tela mostrava
-            // o pedido com zero faces, como se a venda nao tivesse acontecido.
+            // profiles por assignee_id e por created_by. Sem desempatar, o
+            // PostgREST recusa a consulta inteira (PGRST201) e a tela mostra o
+            // pedido com zero faces.
             "faces(code, sites(address, city, latitude, longitude)), profiles!field_events_assignee_id_fkey(full_name)"
         )
         .eq("order_id", id)
@@ -200,13 +200,13 @@ export default async function PedidoPage({
       <section className="mt-10">
         <h2 className="fd-h4">Aplicações</h2>
 
-        {/* Lista vazia por falha de consulta e lista vazia de verdade parecem
-            a mesma coisa na tela. Se a busca falhou, isso precisa aparecer. */}
+        {/* Lista vazia por falha de consulta e lista vazia de verdade ficam
+            iguais na tela. Se a busca falhou, precisa aparecer. */}
         {erroEventos && (
           <div className="mt-3">
             <Alerta tom="erro">
-              Não consegui carregar as aplicações deste pedido. As faces continuam
-              reservadas; é a leitura da tela que falhou. ({erroEventos.code})
+              Não deu para carregar as aplicações deste pedido. As faces continuam
+              reservadas. Foi a leitura da tela que falhou. ({erroEventos.code})
             </Alerta>
           </div>
         )}

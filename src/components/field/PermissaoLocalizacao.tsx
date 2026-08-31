@@ -7,11 +7,10 @@ type Estado = "checando" | "ok" | "perguntar" | "negada" | "indisponivel";
 /**
  * Pede a localização no começo do dia, não no pé do outdoor.
  *
- * O chamado "não consigo registrar chegada" quase sempre é permissão negada,
- * e ela é descoberta no pior momento possível: depois de dirigir até o ponto,
- * na rua, com o cliente esperando. Aqui a pergunta acontece assim que a
- * pessoa abre a fila, e o conserto — que é fora do navegador, no sistema —
- * vem com o passo a passo do aparelho dela.
+ * O chamado "não consigo registrar chegada" quase sempre é permissão negada.
+ * Sem isto, a pessoa só descobre depois de dirigir até o ponto. Aqui a
+ * pergunta aparece assim que ela abre a fila. O ajuste é fora do navegador,
+ * nas configurações do aparelho, então mostramos o passo a passo de cada um.
  */
 export function PermissaoLocalizacao() {
   const [estado, setEstado] = useState<Estado>("checando");
@@ -23,7 +22,7 @@ export function PermissaoLocalizacao() {
     }
 
     // Safari antigo não tem a Permissions API para geolocation. Sem ela, a
-    // única forma de saber é pedindo — e pedir é justamente o que queremos.
+    // única forma de saber é pedindo, que é o que queremos mesmo.
     if (!navigator.permissions?.query) {
       setEstado("perguntar");
       return;
@@ -67,8 +66,8 @@ export function PermissaoLocalizacao() {
       <section className="fd-card mb-5 bg-accent-soft">
         <h2 className="text-sm font-bold">Libere a localização antes de sair</h2>
         <p className="mt-1 text-sm text-ink-2">
-          A chegada em cada ponto é registrada pela posição do seu aparelho.
-          Resolver isso agora evita descobrir na rua que não dá para registrar.
+          O app usa a posição do seu aparelho para registrar a chegada em cada
+          ponto. Resolva agora e não fique preso na rua depois.
         </p>
         <button
           onClick={pedir}

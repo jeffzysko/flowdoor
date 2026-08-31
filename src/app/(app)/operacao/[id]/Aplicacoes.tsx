@@ -23,7 +23,7 @@ export type Aplicacao = {
 const dt = (v: string | null) =>
   v
     ? new Date(v).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })
-    : "—";
+    : "-";
 
 const porExtenso = (v: string | null) =>
   v
@@ -41,9 +41,8 @@ const tom = (s: string) =>
   s === "concluido" ? "bom" : s === "em_andamento" ? "aviso" : s === "cancelado" ? "risco" : "neutro";
 
 /**
- * Lista de aplicações do pedido. A linha abre o detalhe em modal: o operador
- * precisa conferir uma aplicação sem perder a lista de vista — sair da página
- * e voltar custa uma consulta e o lugar onde ele estava.
+ * Lista de aplicações do pedido. A linha abre o detalhe em modal.
+ * Assim o operador confere uma aplicação sem sair da lista.
  */
 export function Aplicacoes({
   itens,
@@ -70,10 +69,10 @@ export function Aplicacoes({
               <small>Ver aplicação</small>
             </td>
             <td>
-              {e.endereco ?? "—"}
+              {e.endereco ?? "-"}
               <small>{e.cidade}</small>
             </td>
-            <td>{e.aplicador ?? "—"}</td>
+            <td>{e.aplicador ?? "-"}</td>
             <td className="tabular-nums">{dt(e.scheduled_for)}</td>
             <td className="tabular-nums">{dt(e.started_at)}</td>
             <td className="tabular-nums">{dt(e.finished_at)}</td>
@@ -106,7 +105,7 @@ export function Aplicacoes({
             <div className="fd-metrics mt-6">
               <div>
                 <small>Duração prevista</small>
-                <b>{aberta.estimated_minutes ? `${aberta.estimated_minutes} min` : "—"}</b>
+                <b>{aberta.estimated_minutes ? `${aberta.estimated_minutes} min` : "-"}</b>
               </div>
               <div>
                 <small>Chegada</small>
@@ -151,7 +150,7 @@ export function Aplicacoes({
               <section className="mt-8 border-t border-line pt-6">
                 <h3 className="fd-h4">Arte da campanha</h3>
                 <p className="mt-2 text-sm text-ink-3">
-                  É esta arte que a foto de comprovação precisa mostrar na face.
+                  A foto de comprovação precisa mostrar esta arte na face.
                 </p>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img

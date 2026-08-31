@@ -46,9 +46,9 @@ export function PublicarComprovante({
       <h2 className="fd-h4">Comprovante do anunciante</h2>
       <p className="mt-1 text-ink-2 fd-prose">
         Uma página pública, sem login, com a foto de cada face, o horário da
-        chegada e a coordenada registrada no aparelho do aplicador. O conteúdo é
-        congelado no momento da publicação — editar o pedido depois não reescreve
-        o que o cliente já viu.
+        chegada e a coordenada registrada no aparelho do aplicador. O conteúdo
+        congela no momento da publicação. Editar o pedido depois não muda o que
+        o cliente já viu.
       </p>
 
       {parcial && (

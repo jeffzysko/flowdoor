@@ -73,7 +73,7 @@ export function RevisarFoto({
 
         <label className="block">
           <span className="fd-label">
-            Observação — obrigatória para pedir nova foto
+            Observação (obrigatória para pedir nova foto)
           </span>
           <textarea
             name="notas"

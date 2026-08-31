@@ -37,7 +37,7 @@ export default async function HistoricoPage() {
       <Hero
         eyebrow="Campo"
         title="Minha agenda"
-        lead="Chegada registrada por localização e foto obrigatória na conclusão. A sequência segue a data programada."
+        lead="Cada parada registra a sua localização na chegada e pede foto na conclusão. A ordem segue a data programada."
         kpi={{ label: "Concluídas", value: rows.length }}
         acao={
           <Link href="/campo" className="fd-btn">
@@ -56,7 +56,7 @@ export default async function HistoricoPage() {
         <ul className="fd-list mt-6">
           {rows.map((r) => (
             <li key={r.id} >
-              <p className="font-medium">{r.faces?.sites?.address ?? "—"}</p>
+              <p className="font-medium">{r.faces?.sites?.address ?? "sem endereço"}</p>
               <p className="tabular-nums text-xs text-ink-3">
                 {r.faces?.sites?.city} · {r.faces?.code}
                 {r.orders ? ` · ${r.orders.code}` : ""} ·{" "}
@@ -65,7 +65,7 @@ export default async function HistoricoPage() {
                       dateStyle: "short",
                       timeStyle: "short",
                     })
-                  : "—"}
+                  : "sem data"}
               </p>
             </li>
           ))}

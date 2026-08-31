@@ -1,10 +1,10 @@
 /**
  * Documentos e contatos brasileiros: validação e máscara.
  *
- * Validar CPF/CNPJ no cliente não é segurança — é evitar que o vendedor
- * descubra o erro de digitação três semanas depois, na hora de emitir a nota.
- * O dígito verificador pega troca de número e dígito repetido, que é o grosso
- * do que acontece na prática.
+ * Validar CPF/CNPJ no cliente não serve como segurança. Serve para o vendedor
+ * não descobrir o erro de digitação três semanas depois, na hora de emitir a
+ * nota. O dígito verificador pega troca de número e dígito repetido, que é o
+ * grosso do que acontece na prática.
  */
 
 export const digitos = (v: string) => (v ?? "").replace(/\D/g, "");
@@ -78,8 +78,8 @@ const DDDS_VALIDOS = new Set([
 
 /**
  * Aceita fixo (10 dígitos) e celular (11, começando com 9 depois do DDD).
- * DDD é conferido contra a lista real: "00" e "10" não existem, e digitar o
- * telefone sem DDD é o erro mais comum de todos.
+ * O DDD é conferido contra a lista real, porque "00" e "10" não existem.
+ * Digitar o telefone sem DDD é o erro mais comum aqui.
  */
 export function validaTelefone(valor: string): boolean {
   const t = digitos(valor);
@@ -100,8 +100,8 @@ export function formataTelefone(valor: string): string {
 
 // ---------------------------------------------------------------- e-mail
 /**
- * Não é a gramática completa do RFC: é o que separa endereço digitado errado
- * de endereço digitado certo. Um e-mail só se confirma entregando nele.
+ * Não é a gramática completa do RFC. Só pega endereço digitado errado.
+ * Um e-mail só se confirma de verdade quando a mensagem chega nele.
  */
 export function validaEmail(valor: string): boolean {
   const v = (valor ?? "").trim();

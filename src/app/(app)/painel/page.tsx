@@ -67,8 +67,8 @@ export default async function PainelPage() {
         .lte("starts_on", hoje).gte("ends_on", hoje).maybeSingle(),
     ]);
 
-  // Ocupação do ciclo corrente: o número que um dono de outdoor olha
-  // antes de qualquer outro, e que não aparecia em lugar nenhum do painel.
+  // Ocupação do ciclo corrente: quantas faces do inventário estão vendidas
+  // no período que corre hoje.
   const periodo = periodoAtual.data as
     | { id: string; seq: number; starts_on: string; ends_on: string }
     | null;
@@ -99,13 +99,10 @@ export default async function PainelPage() {
   const urgentes = lista_avisos.filter((a) => a.level === "urgente").length;
   const podeDispensar = canSell(ctx.current.role) || canReview(ctx.current.role);
 
-  // A visão geral sempre termina dizendo o que fazer em seguida. O texto muda
-  // com o estado: sem base, "cadastre"; com base e sem pedido, "venda"; com
-  // pedido na rua, "confira". É o traço de UX mais forte do produto.
-  // O número grande do hero e o botão ao lado precisam falar da mesma coisa.
-  // Antes o indicador dizia "aplicações abertas" e o botão dizia "abrir
-  // conferência" — dois assuntos diferentes lado a lado, cada um puxando para
-  // um lugar.
+  // A visão geral sempre diz o que fazer em seguida. O texto muda com o
+  // estado: sem base, "cadastre"; com base e sem pedido, "venda"; com pedido
+  // na rua, "confira". O número grande do hero e o botão ao lado precisam
+  // falar da mesma coisa.
   const proxima =
     (sites.count ?? 0) === 0
       ? {
@@ -119,7 +116,7 @@ export default async function PainelPage() {
       : (advertisers.count ?? 0) === 0
         ? {
             titulo: "Cadastre o primeiro anunciante.",
-            texto: "Sem cliente final não há pedido — é ele que paga a campanha.",
+            texto: "Sem cliente final não existe pedido. É ele que paga a campanha.",
             href: "/clientes" as Route,
             botao: "Cadastrar anunciante",
             kpi: { label: "Anunciantes", value: advertisers.count ?? 0 },
@@ -156,7 +153,7 @@ export default async function PainelPage() {
       <Hero
         eyebrow={ctx.current.organizations.name}
         title="Visão geral"
-        lead="A operação de hoje, e o que vence antes de você lembrar. Pedidos, inventário e as fotos que ainda precisam de conferência."
+        lead="A operação de hoje em uma tela. Pedidos, inventário, o que está vencendo e as fotos que ainda precisam de conferência."
         kpi={proxima.kpi}
         acao={
           <Link href={proxima.href} className="fd-btn">
@@ -166,11 +163,9 @@ export default async function PainelPage() {
       />
 
       {/* ----------------------------------------------- filas de hoje
-          Três perguntas diferentes, três destinos diferentes. Antes eram três
-          cards que resumiam a própria página — o de avisos repetia a seção de
-          avisos, o de pedidos repetia a tabela de pedidos, e os três botões
-          levavam para /operacao. Resumo só ajuda quando não dá para ver tudo
-          de uma vez; aqui dava. */}
+          Três perguntas diferentes, três destinos diferentes. Cada card leva
+          para a página que resolve aquela fila, e nenhum repete uma seção que
+          já aparece abaixo. */}
       <section className="fd-cards-lg mt-6">
         <CardDestaque
           marcador="Na rua hoje"
@@ -211,7 +206,7 @@ export default async function PainelPage() {
           }
           lead={
             (opcoesVencendo.count ?? 0) > 0
-              ? `${opcoesVencendo.count} vence${(opcoesVencendo.count ?? 0) > 1 ? "m" : ""} em 48 horas. Opção que vence sem telefonema é venda perdida em silêncio.`
+              ? `${opcoesVencendo.count} vence${(opcoesVencendo.count ?? 0) > 1 ? "m" : ""} em 48 horas. Ligue para o cliente antes do prazo acabar.`
               : "Faces seguradas para cliente que ainda não fechou."
           }
           href={"/opcoes" as Route}
@@ -220,9 +215,8 @@ export default async function PainelPage() {
       </section>
 
       {/* --------------------------------------------- porte da operação
-          Escala e ocupação — o que não muda de hora em hora. Avisos e
-          aplicações abertas saíram daqui: são fila, não porte, e já têm o
-          lugar delas acima. */}
+          Escala e ocupação, o que não muda de hora em hora. Avisos e
+          aplicações abertas ficam nos cards acima, porque são fila. */}
       <section className="fd-cards mt-4">
         <Stat label="Pontos" value={sites.count ?? 0} hint="Estruturas ativas" href="/inventario" />
         <Stat label="Faces" value={totalFaces} hint="Inventário ativo" href="/disponibilidade" />
@@ -249,15 +243,15 @@ export default async function PainelPage() {
         <h2 className="fd-h4">Avisos</h2>
         <p className="fd-prose mt-2 text-ink-2">
           Gerados todo dia às 8h por uma tarefa que roda sozinha no banco.
-          Licença vencida vira multa e ponto lacrado; contrato de terreno
-          vencido vira estrutura removida; foto parada em conferência é uma
-          aplicação que ninguém está olhando.
+          Licença vencida dá multa e ponto lacrado. Contrato de terreno vencido
+          dá estrutura removida. Foto parada em conferência é aplicação que
+          ninguém conferiu.
         </p>
         {lista_avisos.length === 0 ? (
           <div className="mt-5">
             <Empty titulo="Nenhum aviso aberto.">
               Quando uma licença vencer, um contrato atrasar ou uma foto travar
-              em conferência, o aviso aparece aqui sem ninguém precisar procurar.
+              em conferência, o aviso aparece aqui.
             </Empty>
           </div>
         ) : (
@@ -277,7 +271,7 @@ export default async function PainelPage() {
                 </Link>
               }
             >
-              O pedido é o que reserva a face e gera a agenda do aplicador.
+              O pedido reserva a face e gera a agenda do aplicador.
             </Empty>
           </div>
         ) : (
@@ -289,9 +283,9 @@ export default async function PainelPage() {
                     {o.code}
                   </LinhaTitulo>
                 </td>
-                <td>{o.advertisers?.name ?? "—"}</td>
+                <td>{o.advertisers?.name ?? "-"}</td>
                 <td className="tabular-nums">
-                  {d(o.starts_on)} – {d(o.ends_on)}
+                  {d(o.starts_on)} a {d(o.ends_on)}
                 </td>
                 <td>
                   <Chip tone={o.status === "concluido" ? "bom" : "neutro"}>

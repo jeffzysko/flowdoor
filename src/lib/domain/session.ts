@@ -6,17 +6,17 @@ import type { Membership, SessionContext } from "./types";
 export const COOKIE_ORG = "flowdoor_org";
 
 /**
- * Contexto de sessão para Server Components.
- * Uma chamada, um lugar: papel, organização atual e flag de plataforma.
+ * Contexto de sessão para Server Components. Numa chamada só: papel, empresa
+ * atual e se a pessoa responde pela plataforma.
  *
- * Quem responde pela plataforma enxerga TODAS as empresas, não só aquelas em
- * que tem vínculo. Antes a lista vinha só de org_members e a atual era o
- * primeiro item dela — quem tinha duas empresas ficava preso na que o banco
- * devolvesse primeiro, sem nenhum jeito de chegar na outra pela interface.
+ * Quem responde pela plataforma enxerga TODAS as empresas, não só as em que
+ * tem vínculo. Antes a lista vinha só de org_members, e a empresa atual era o
+ * primeiro item dela. Quem tinha duas empresas ficava preso na que o banco
+ * devolvesse primeiro, sem jeito de chegar na outra pela interface.
  *
- * A escolha vive num cookie. Ela não concede nada: o RLS decide o que a pessoa
- * pode ler, e uma empresa fora do alcance dela simplesmente não aparece aqui
- * para ser escolhida.
+ * A escolha fica num cookie e não concede nada. O RLS decide o que a pessoa
+ * pode ler, e empresa fora do alcance dela nem aparece aqui para ser
+ * escolhida.
  */
 export async function getSessionContext(
   preferredOrgId?: string
@@ -57,8 +57,8 @@ export async function getSessionContext(
       .filter((o) => !jaTem.has(o.id))
       .map((o) => ({
         org_id: o.id,
-        // Responsável pela plataforma passa por cima do RLS no banco; mostrar
-        // qualquer papel menor aqui esconderia telas que ele de fato abre.
+        // Quem responde pela plataforma passa por cima do RLS no banco. Um
+        // papel menor aqui esconderia telas que essa pessoa de fato abre.
         role: "owner" as const,
         viaPlataforma: true,
         organizations: o as Membership["organizations"],

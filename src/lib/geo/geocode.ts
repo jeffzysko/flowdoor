@@ -1,14 +1,14 @@
 /**
  * Geocodificação de pontos de mídia exterior.
  *
- * O cliente entrega o inventário como a Plannus entregou: uma lista de
- * referências visuais, não de endereços. "Rodovia BR 277 - próx. Metalúrgica
- * Gans" não é endereço — é um lugar que alguém sabe achar dirigindo. Buscar
- * só a via devolve o centroide da BR-277, que atravessa o estado.
+ * O cliente entrega o inventário como uma lista de referências visuais, não de
+ * endereços. "Rodovia BR 277 - próx. Metalúrgica Gans" não é endereço. É um
+ * lugar que alguém sabe achar dirigindo. Buscar só a via devolve o centroide
+ * da BR-277, que atravessa o estado.
  *
  * Por isso a ordem aqui é: primeiro o LUGAR citado, depois o cruzamento,
- * depois a via. E cada resultado volta dizendo o quanto vale, porque é a
- * precisão que decide se a trava de chegada arma (ver sites.geo_precision).
+ * depois a via. Cada resultado volta dizendo o quanto vale, porque a precisão
+ * decide se a trava de chegada arma (ver sites.geo_precision).
  */
 
 import type { GeoPrecision } from "@/lib/domain/types";
@@ -31,11 +31,11 @@ export type FalhaGeo = { erro: "sem_chave" | "sem_resultado" | "recusado" | "red
  * O `location_type` do Google diz o que ele achou de verdade:
  *   ROOFTOP            o imóvel
  *   RANGE_INTERPOLATED número interpolado no quarteirão
- *   GEOMETRIC_CENTER   centro de uma via ou polígono  <- aqui mora o perigo
+ *   GEOMETRIC_CENTER   centro de uma via ou polígono  <- cuidado com este
  *   APPROXIMATE        região
  * Só os dois primeiros valem como 'exata'. GEOMETRIC_CENTER numa rua curta é
- * razoável e numa rodovia é inútil, e daqui não dá para distinguir — então
- * ele nunca arma a trava sozinho.
+ * razoável e numa rodovia é inútil, e daqui não dá para saber qual é o caso.
+ * Por isso ele nunca arma a trava sozinho.
  */
 function precisaoDoGeocoding(locationType?: string): GeoPrecision {
   switch (locationType) {
@@ -90,8 +90,8 @@ async function porLugar(
     return {
       lat: p.location.latitude,
       lng: p.location.longitude,
-      // Estabelecimento encontrado pelo nome é o próprio lugar: o outdoor está
-      // ao lado dele, dentro de qualquer raio de chegada razoável. Mas só vale
+      // Estabelecimento achado pelo nome é o próprio lugar: o outdoor fica ao
+      // lado dele, dentro de qualquer raio de chegada razoável. Mas só vale
       // como exata se o que voltou for mesmo o que foi pedido.
       precisao: combina(termo, rotulo) && !tetoAproximada ? "exata" : "aproximada",
       fonte: "google_places",
@@ -146,12 +146,11 @@ async function porEndereco(
 /**
  * Extrai o ponto de referência de dentro da descrição do cliente.
  *
- * Isso é o que separa acerto de palpite. Mandar a descrição inteira ao Places
- * — "Painel rodoviário. Rodovia BR 277 - próx. Igreja Rondinha - sentido
- * Curitiba / Campo Largo" — faz ele responder alguma coisa sobre a BR-277 e
- * ignorar a igreja. Quatro painéis distintos vieram na mesma coordenada assim,
- * e um deles a 20 km do lugar. Mandando só "Igreja Rondinha", ele acha a
- * igreja.
+ * Isso é o que separa acerto de palpite. Com a descrição inteira ("Painel
+ * rodoviário. Rodovia BR 277 - próx. Igreja Rondinha - sentido Curitiba /
+ * Campo Largo"), o Places responde alguma coisa sobre a BR-277 e ignora a
+ * igreja. Quatro painéis diferentes vieram na mesma coordenada assim, um deles
+ * a 20 km do lugar. Mandando só "Igreja Rondinha", ele acha a igreja.
  */
 export function referenciaDe(descricao: string | null | undefined): string | null {
   if (!descricao) return null;
@@ -187,7 +186,7 @@ export function referenciaDe(descricao: string | null | undefined): string | nul
  * O lugar que voltou tem a ver com o que foi pedido?
  *
  * O Places responde alguma coisa para quase qualquer texto. Sem esta
- * conferência, "achou algo" virava "exata" — e foi assim que a Balança de São
+ * conferência, "achou algo" virava "exata". Foi assim que a Balança de São
  * Luiz do Purunã foi parar no centro de Campo Largo.
  */
 function combina(pedido: string, devolvido: string | undefined): boolean {
@@ -209,9 +208,9 @@ export function ehCoordenada(x: Coordenada | FalhaGeo): x is Coordenada {
 }
 
 /**
- * Tenta na ordem que dá o melhor resultado para inventário de OOH, e para na
- * primeira resposta 'exata'. Uma resposta fraca não descarta a próxima
- * tentativa, mas é guardada: melhor coordenada aproximada do que nenhuma.
+ * Tenta na ordem que dá o melhor resultado para inventário de mídia exterior e
+ * para na primeira resposta 'exata'. Resposta fraca não impede a tentativa
+ * seguinte, mas fica guardada: coordenada aproximada é melhor que nenhuma.
  */
 export async function geocodificarPonto(entrada: {
   endereco: string;
@@ -233,11 +232,11 @@ export async function geocodificarPonto(entrada: {
     const ref = entrada.referencia.trim();
     tentativas.push(() => porLugar(ref, cidade, uf, chave));
 
-    // Ponto de rodovia costuma referenciar lugar do municipio vizinho — a
-    // "Balança em São Luiz do Purunã" fica em Balsa Nova, e a busca presa em
-    // Campo Largo não a encontra. Uma segunda tentativa no estado inteiro
-    // resolve, mas nunca vale como exata: sem a cidade para desempatar, um
-    // homônimo em outra ponta do Paraná passaria batido.
+    // Ponto de rodovia costuma citar lugar do municipio vizinho. A "Balança em
+    // São Luiz do Purunã" fica em Balsa Nova, e a busca presa em Campo Largo
+    // não acha. Uma segunda tentativa no estado inteiro resolve, mas nunca
+    // vale como exata: sem a cidade para desempatar, um homônimo em outra
+    // ponta do Paraná passaria batido.
     tentativas.push(() => porLugar(ref, "", uf, chave, true));
   }
   if (entrada.cruzamento?.trim()) {

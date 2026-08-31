@@ -18,13 +18,13 @@ export type RespostaCnpj =
 /**
  * Consulta pública de CNPJ na BrasilAPI, que serve os dados da Receita.
  *
- * Roda no servidor de propósito: no navegador dependeria do CORS de terceiro e
- * ficaria refém do bloqueador de anúncio do vendedor. Timeout curto e falha
- * silenciosa — não achar o CNPJ nunca pode impedir o cadastro manual.
+ * Roda no servidor de propósito. No navegador dependeria do CORS de terceiro e
+ * do bloqueador de anúncio do vendedor. Timeout curto e falha silenciosa: não
+ * achar o CNPJ nunca pode impedir o cadastro à mão.
  */
 export async function consultarCnpj(valor: string): Promise<RespostaCnpj> {
   const cnpj = digitos(valor);
-  if (!validaCNPJ(cnpj)) return { ok: false, message: "CNPJ inválido." };
+  if (!validaCNPJ(cnpj)) return { ok: false, message: "CNPJ inválido. Confira os números." };
 
   try {
     const r = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`, {

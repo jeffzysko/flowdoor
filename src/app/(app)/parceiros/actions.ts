@@ -17,10 +17,9 @@ export type ParceiroState = {
 export type TipoParceria = "agencia" | "representacao";
 
 /**
- * Convidar parceiro cria uma organização nova quando o convite é aceito — não
- * um membro. Por isso o formulário pergunta o nome da empresa parceira: é ele
- * que vira o nome da organização dela, e é como a exibidora vai reconhecê-la
- * na lista.
+ * Aceitar o convite cria uma organização nova, não um membro. Por isso o
+ * formulário pede o nome da empresa parceira: ele vira o nome da organização
+ * dela e é como a exibidora a reconhece na lista.
  */
 export async function criarConviteParceiro(
   _prev: ParceiroState,
@@ -39,8 +38,8 @@ export async function criarConviteParceiro(
   }
   if (!validaEmail(email)) return { ok: false, message: "E-mail inválido." };
 
-  // Escopo vazio = inventário inteiro. É a diferença entre a agência que
-  // representa a praça toda e a que cuida de dez placas.
+  // Escopo vazio = inventário inteiro. Com escopo, o parceiro só enxerga os
+  // pontos escolhidos.
   const escopo = escopoBruto ? escopoBruto.split(",").filter(Boolean) : null;
 
   const supabase = await createClient();
@@ -134,10 +133,10 @@ export async function cancelarConviteParceiro(id: string): Promise<ParceiroState
 /**
  * Mudar permissão ou situação da parceria.
  *
- * Escrita direta na tabela de propósito: a policy `org_rel_write` já exige
- * papel de titular ou administrador NA EXIBIDORA, então o parceiro não
- * consegue liberar a si mesmo. Regra que o RLS já garante não precisa de RPC
- * para repetir.
+ * A escrita é direta na tabela, de propósito. A policy `org_rel_write` já
+ * exige papel de titular ou administrador na exibidora, então o parceiro não
+ * consegue liberar a si mesmo. Não precisa de RPC para repetir o que o RLS
+ * já garante.
  */
 export async function atualizarParceria(
   relId: string,

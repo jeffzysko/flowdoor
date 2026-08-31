@@ -59,7 +59,7 @@ export default async function OperacaoPage() {
               </Link>
             }
           >
-            O pedido depende de inventário e equipe: cadastre ao menos um ponto
+            O pedido depende de inventário e equipe. Cadastre ao menos um ponto
             e um aplicador antes de vender.
           </Empty>
         </div>
@@ -72,8 +72,8 @@ export default async function OperacaoPage() {
                   {o.code}
                 </LinhaTitulo>
               </td>
-              <td>{o.advertisers?.name ?? "—"}</td>
-              <td className="tabular-nums">{d(o.starts_on)} – {d(o.ends_on)}</td>
+              <td>{o.advertisers?.name ?? "-"}</td>
+              <td className="tabular-nums">{d(o.starts_on)} a {d(o.ends_on)}</td>
               <td className="tabular-nums">{o.order_items?.length ?? 0}</td>
               <td className="text-right tabular-nums">
                 {reais(o.total_amount)}
