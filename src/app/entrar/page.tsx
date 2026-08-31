@@ -11,7 +11,7 @@ export default function EntrarPage() {
   return (
     <main className="grid min-h-dvh lg:grid-cols-2">
       <section className="flex items-center justify-center px-6 py-16">
-        <div className="w-full max-w-sm">
+        <div className="fd-card w-full max-w-md">
           <Logo className="w-[148px]" />
           <h1 className="fd-h2 mt-6">
             Entrar na operação
@@ -33,12 +33,12 @@ export default function EntrarPage() {
         </div>
       </section>
 
-      <aside className="hidden items-center justify-center bg-ink px-10 lg:flex">
-        <blockquote className="max-w-md text-white">
+      <aside className="hidden items-center justify-center bg-charcoal px-12 lg:flex">
+        <blockquote className="max-w-md text-surface">
           <p className="fd-h3 leading-snug">
             A peça está no ar. Com hora, coordenada e foto.
           </p>
-          <p className="mt-4 text-white/70">
+          <p className="mt-4 text-on-dark">
             Cada aplicação registra a posição do aparelho na chegada e sai com a
             foto carimbada com data, hora e coordenada. O comprovante que o
             anunciante recebe não é uma foto solta no WhatsApp.
@@ -150,7 +150,7 @@ function Formulario() {
       <button
         type="submit"
         disabled={carregando}
-        className="fd-btn w-full hover:opacity-90"
+        className="fd-btn fd-btn-block"
       >
         {carregando ? "Entrando…" : "Entrar"}
       </button>

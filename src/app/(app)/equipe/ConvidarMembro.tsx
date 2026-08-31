@@ -32,7 +32,7 @@ export function ConvidarMembro({ orgId }: { orgId: string }) {
   }
 
   return (
-    <section className="mt-8 fd-card">
+    <section className="fd-card mt-10">
       <h2 className="fd-h4">Convidar para a equipe</h2>
       <p className="mt-1 text-sm text-ink-2">
         O convite vai por e-mail para a pessoa. O link também aparece aqui,
@@ -93,7 +93,7 @@ export function ConvidarMembro({ orgId }: { orgId: string }) {
       )}
 
       {state.ok && state.link && (
-        <div className="mt-5 border border-accent bg-accent-soft px-4 py-3">
+        <div className="fd-inset mt-5 bg-accent-soft">
           <p className="fd-overline">
             {state.enviadoPara
               ? `Convite enviado para ${state.enviadoPara} · vale 14 dias`

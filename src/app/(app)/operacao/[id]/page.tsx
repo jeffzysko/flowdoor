@@ -3,7 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionContext } from "@/lib/domain/session";
 import { canSell } from "@/lib/domain/permissions";
-import { Chip, Table } from "@/components/ui";
+import { Alerta } from "@/components/ui";
+import { Aplicacoes, type Aplicacao } from "./Aplicacoes";
 import { PublicarComprovante } from "./PublicarComprovante";
 import { EditarPedido, type LinhaAtual } from "./EditarPedido";
 import { rotulo } from "@/lib/domain/rotulos";
@@ -13,6 +14,8 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Pedido" };
 
 const d = (v: string) => new Date(v + "T12:00:00").toLocaleDateString("pt-BR");
+const o_artwork = (p: unknown) =>
+  (p as { artwork_path: string | null } | null)?.artwork_path ?? null;
 const dt = (v: string | null) =>
   v ? new Date(v).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : "—";
 
@@ -25,7 +28,10 @@ type Evento = {
   scheduled_for: string | null;
   started_at: string | null;
   finished_at: string | null;
-  faces: { code: string; sites: { address: string; city: string } | null } | null;
+  faces: {
+    code: string;
+    sites: { address: string; city: string; latitude: number | null; longitude: number | null } | null;
+  } | null;
   profiles: { full_name: string } | null;
 };
 
@@ -55,7 +61,7 @@ export default async function PedidoPage({
             // profiles por assignee_id E por created_by. Sem desempatar, o
             // PostgREST recusa a consulta inteira (PGRST201) e a tela mostrava
             // o pedido com zero faces, como se a venda nao tivesse acontecido.
-            "faces(code, sites(address, city)), profiles!field_events_assignee_id_fkey(full_name)"
+            "faces(code, sites(address, city, latitude, longitude)), profiles!field_events_assignee_id_fkey(full_name)"
         )
         .eq("order_id", id)
         .order("scheduled_for", { ascending: true, nullsFirst: false }),
@@ -73,6 +79,30 @@ export default async function PedidoPage({
   };
 
   const lista = (eventos ?? []) as unknown as Evento[];
+
+  // A arte vive em bucket privado; o modal precisa de uma URL assinada.
+  let arteUrl: string | null = null;
+  if (o_artwork(pedido)) {
+    const { data: assinada } = await supabase.storage
+      .from("artworks")
+      .createSignedUrl(o_artwork(pedido)!, 60 * 60);
+    arteUrl = assinada?.signedUrl ?? null;
+  }
+
+  const aplicacoes: Aplicacao[] = lista.map((e) => ({
+    id: e.id,
+    status: e.status,
+    estimated_minutes: e.estimated_minutes,
+    scheduled_for: e.scheduled_for,
+    started_at: e.started_at,
+    finished_at: e.finished_at,
+    face_code: e.faces?.code ?? "?",
+    endereco: e.faces?.sites?.address ?? null,
+    cidade: e.faces?.sites?.city ?? null,
+    aplicador: e.profiles?.full_name ?? null,
+    latitude: e.faces?.sites?.latitude ?? null,
+    longitude: e.faces?.sites?.longitude ?? null,
+  }));
   const concluidas = lista.filter((e) => e.status === "concluido").length;
   const podeVender = canSell(ctx.current.role);
 
@@ -136,19 +166,15 @@ export default async function PedidoPage({
         ← Pedidos
       </Link>
 
-      <header className="mt-4 border-b border-line pb-5">
-        <p className="fd-overline">
-          {o.code}
-        </p>
-        <h1 className="fd-h2 mt-2">
-          {o.advertisers?.name ?? "Anunciante"}
-        </h1>
-        <p className="mt-1 text-ink-2">
+      <header className="fd-card mt-4">
+        <p className="fd-overline">{o.code}</p>
+        <h1 className="fd-h1 mt-2">{o.advertisers?.name ?? "Anunciante"}</h1>
+        <p className="mt-2 text-ink-3">
           {o.title ? `${o.title} · ` : ""}
           {d(o.starts_on)} até {d(o.ends_on)}
         </p>
 
-        <dl className="mt-5 grid grid-cols-2 gap-px border border-line bg-line sm:grid-cols-5">
+        <dl className="fd-metrics mt-6">
           {[
             ["Status", rotulo("order_status", o.status)],
             ["Faces", String(lista.length)],
@@ -156,61 +182,35 @@ export default async function PedidoPage({
             ["Valor", reais(o.total_amount)],
             ["Arte", o.artwork_path ? "enviada" : "pendente"],
           ].map(([k, v]) => (
-            <div key={k} className="bg-surface px-4 py-3">
-              <dt className="fd-label">{k}</dt>
-              <dd className="mt-1 font-mono text-lg">{v}</dd>
+            <div key={k}>
+              <dt>{k}</dt>
+              <dd>{v}</dd>
             </div>
           ))}
         </dl>
       </header>
 
       {o.instructions && (
-        <section className="mt-6 border-l-3 border-accent bg-surface px-4 py-3">
-          <h2 className="fd-label">
-            Instruções técnicas
-          </h2>
-          <p className="mt-1 whitespace-pre-wrap text-sm">{o.instructions}</p>
+        <section className="fd-card mt-6">
+          <h2 className="fd-h4">Instruções técnicas</h2>
+          <p className="fd-inset mt-3 whitespace-pre-wrap text-sm">{o.instructions}</p>
         </section>
       )}
 
-      <section className="mt-8">
+      <section className="mt-10">
         <h2 className="fd-h4">Aplicações</h2>
 
         {/* Lista vazia por falha de consulta e lista vazia de verdade parecem
             a mesma coisa na tela. Se a busca falhou, isso precisa aparecer. */}
         {erroEventos && (
-          <p
-            role="alert"
-            className="fd-alert fd-alert-error mt-3"
-          >
-            Não consegui carregar as aplicações deste pedido. As faces continuam
-            reservadas; é a leitura da tela que falhou. ({erroEventos.code})
-          </p>
+          <div className="mt-3">
+            <Alerta tom="erro">
+              Não consegui carregar as aplicações deste pedido. As faces continuam
+              reservadas; é a leitura da tela que falhou. ({erroEventos.code})
+            </Alerta>
+          </div>
         )}
-        <Table head={["Face", "Endereço", "Aplicador", "Agendada", "Chegada", "Conclusão", "Status"]}>
-          {lista.map((e) => (
-            <tr key={e.id}>
-              <td className="font-mono text-xs">{e.faces?.code}</td>
-              <td>
-                {e.faces?.sites?.address}
-                <span className="block text-xs text-ink-3">{e.faces?.sites?.city}</span>
-              </td>
-              <td>{e.profiles?.full_name ?? "—"}</td>
-              <td className="font-mono text-xs">{dt(e.scheduled_for)}</td>
-              <td className="font-mono text-xs">{dt(e.started_at)}</td>
-              <td className="font-mono text-xs">{dt(e.finished_at)}</td>
-              <td>
-                <Chip
-                  tone={
-                    e.status === "concluido" ? "bom" : e.status === "em_andamento" ? "aviso" : "neutro"
-                  }
-                >
-                  {rotulo("field_event_status", e.status)}
-                </Chip>
-              </td>
-            </tr>
-          ))}
-        </Table>
+        <Aplicacoes itens={aplicacoes} instrucoes={o.instructions} arteUrl={arteUrl} />
       </section>
 
       {podeVender && (

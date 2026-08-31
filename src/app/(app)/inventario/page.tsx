@@ -80,8 +80,8 @@ export default async function InventarioPage() {
         <Table head={["Face", "Ponto", "Endereço", "Local", "Tipo", "Medida", "Bi-semana", "Status"]}>
           {faces.map((f) => (
             <tr key={f.id}>
-              <td className="font-mono text-xs">{f.code}</td>
-              <td className="font-mono text-xs text-ink-3">{f.sites?.code}</td>
+              <td className="tabular-nums">{f.code}</td>
+              <td className="tabular-nums text-ink-3">{f.sites?.code}</td>
               <td>
                 {f.sites?.id ? (
                   <LinhaTitulo href={`/inventario/${f.sites.id}` as Route}>
@@ -113,10 +113,10 @@ export default async function InventarioPage() {
               <td>
                 <Chip tone={f.medium === "digital" ? "bom" : "neutro"}>{rotuloDoFormato(f.kind)}</Chip>
               </td>
-              <td className="font-mono text-xs">
+              <td className="tabular-nums">
                 {f.width_m && f.height_m ? `${f.width_m}×${f.height_m}m` : "—"}
               </td>
-              <td className="text-right font-mono text-xs tabular-nums">
+              <td className="text-right tabular-nums">
                 {reais(f.base_price)}
               </td>
               <td>

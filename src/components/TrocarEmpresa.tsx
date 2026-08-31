@@ -46,7 +46,7 @@ export function TrocarEmpresa({
         <span className="hidden text-right sm:block">
           <span className="block text-sm font-bold leading-tight">
             {atual.organizations.name}
-            <span aria-hidden className="ml-1.5 text-ink-3">▾</span>
+            <span aria-hidden className="ml-2 text-ink-3">▾</span>
           </span>
           <span className="block text-xs text-ink-3">
             {trocando
@@ -85,14 +85,14 @@ export function TrocarEmpresa({
                       })
                     }
                     className={
-                      "block w-full px-4 py-2.5 text-left text-sm transition " +
+                      "block w-full px-4 py-3 text-left text-sm transition " +
                       (ehAtual
                         ? "bg-accent-soft font-medium text-accent-ink"
                         : "hover:bg-line/40")
                     }
                   >
                     {e.organizations.name}
-                    <span className="ml-2 font-mono text-[10px] uppercase tracking-[0.1em] text-ink-3">
+                    <span className="ml-2 text-xs text-ink-3">
                       {e.viaPlataforma ? "plataforma" : ROLE_LABEL[e.role]}
                     </span>
                   </button>

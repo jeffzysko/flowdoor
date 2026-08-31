@@ -148,7 +148,9 @@
   --color-danger-solid: var(--fd-danger-solid);
   --color-danger-soft:  var(--fd-danger-bg);
 
-  --color-night: var(--fd-night-900);
+  --color-night:    var(--fd-night-900);
+  --color-charcoal: var(--fd-charcoal-900);   /* superfície escura institucional */
+  --color-on-dark:  var(--fd-ink-300);        /* apoio SOBRE fundo escuro */
   --color-cam-frame: var(--fd-cam-frame);
   --color-cam-ready: var(--fd-cam-ready);
   --color-cam-hint:  var(--fd-cam-hint);
@@ -340,6 +342,15 @@ button, [role="button"] { touch-action: manipulation; }
     background: var(--fd-surface-000); border-radius: var(--fd-radius-lg);
     padding: var(--fd-space-5); box-shadow: var(--fd-shadow-sm);
   }
+  /* Lista com divisores. A superfície é a lista inteira; a linha só tem
+     padding — card por linha vira uma escada de sombras. */
+  .fd-list {
+    background: var(--fd-surface-000); border-radius: var(--fd-radius-xl);
+    box-shadow: var(--fd-shadow-md); overflow: hidden;
+  }
+  .fd-list > * + * { border-top: 1px solid var(--fd-line-200); }
+  .fd-list > * { padding: var(--fd-space-4) var(--fd-space-6); }
+
   /* Bloco dentro de um card — sem sombra, para não empilhar elevação. */
   .fd-inset {
     background: var(--fd-surface-100); border-radius: var(--fd-radius-lg);
@@ -451,14 +462,28 @@ button, [role="button"] { touch-action: manipulation; }
     background: var(--fd-surface-100); color: var(--fd-ink-600);
     font-size: var(--fd-text-h4); line-height: 1; cursor: pointer;
   }
+  /* Faixa de métricas: rótulo pequeno em cima, valor embaixo. Vale para
+     <div><small><b> e para <div><dt><dd> — as duas marcações aparecem. */
   .fd-metrics {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: var(--fd-space-3);
   }
   .fd-metrics > * {
     padding: var(--fd-space-4); border-radius: var(--fd-radius-lg);
     background: var(--fd-surface-100);
   }
+  .fd-metrics small, .fd-metrics dt {
+    display: block; font-size: var(--fd-text-caption); font-weight: var(--fd-weight-regular);
+    color: var(--fd-ink-500);
+  }
+  .fd-metrics b, .fd-metrics dd {
+    display: block; margin: var(--fd-space-2) 0 0;
+    font-family: var(--fd-font-display); font-size: var(--fd-text-lead);
+    font-weight: var(--fd-weight-medium); color: var(--fd-ink-900);
+    font-variant-numeric: tabular-nums;
+  }
+  /* Número puro pede corpo maior; texto de estado, não. */
+  .fd-metrics .num { font-size: var(--fd-text-h3); letter-spacing: var(--fd-tracking-tight); }
 }
 
 /* ==========================================================================

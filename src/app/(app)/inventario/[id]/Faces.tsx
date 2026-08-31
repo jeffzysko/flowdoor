@@ -88,10 +88,10 @@ function LinhaFace({ face, siteId }: { face: Face; siteId: string }) {
     return (
       <li className="flex flex-wrap items-center justify-between gap-3 fd-card">
         <div className="flex flex-wrap items-center gap-3">
-          <span className="font-mono text-sm font-medium">{face.code}</span>
+          <span className="tabular-nums text-sm font-medium">{face.code}</span>
           <Chip tone={face.medium === "digital" ? "bom" : "neutro"}>{rotuloDoFormato(face.kind)}</Chip>
           <Chip tone={face.status === "ativa" ? "bom" : "aviso"}>{rotulo("face_status", face.status)}</Chip>
-          <span className="font-mono text-xs text-ink-3">
+          <span className="tabular-nums text-xs text-ink-3">
             {face.width_m && face.height_m ? `${face.width_m}×${face.height_m} m` : "sem medida"}
             {face.orientation ? ` · ${face.orientation}` : ""}
             {face.base_price ? ` · ${reais(face.base_price)}/bi-semana` : ""}
@@ -110,7 +110,7 @@ function LinhaFace({ face, siteId }: { face: Face; siteId: string }) {
   }
 
   return (
-    <li className="border border-accent bg-surface px-4 py-4">
+    <li className="fd-card">
       <FormFace face={face} siteId={siteId} aoFechar={() => setAberto(false)} />
     </li>
   );
@@ -247,7 +247,7 @@ function NovaFace({
   }
 
   return (
-    <form action={action} className="mt-5 border border-accent bg-surface px-5 py-5">
+    <form action={action} className="fd-card mt-5 max-w-[920px]">
       <input type="hidden" name="siteId" value={siteId} />
       <input type="hidden" name="orgId" value={orgId} />
 

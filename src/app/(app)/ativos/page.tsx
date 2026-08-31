@@ -48,7 +48,7 @@ export default async function AtivosPage() {
         <span className="fd-label">
           Custo mensal de locação somado
         </span>
-        <span className="fd-h2 mt-1 block font-mono">{brl(custoMes)}</span>
+        <span className="fd-h2 mt-1 block tabular-nums">{brl(custoMes)}</span>
       </p>
 
       {rows.length === 0 ? (
@@ -57,14 +57,14 @@ export default async function AtivosPage() {
         <Table head={["Ponto", "Endereço", "Proprietário", "Aluguel", "Contrato até", "Licença", "Licença até"]}>
           {rows.map((s) => (
             <tr key={s.id}>
-              <td className="font-mono text-xs">{s.code}</td>
+              <td className="tabular-nums">{s.code}</td>
               <td>{s.address} · {s.city}/{s.state}</td>
               <td>{s.owner_name ?? "—"}</td>
-              <td className="font-mono text-xs">{brl(s.lease_monthly_cost)}</td>
+              <td className="tabular-nums">{brl(s.lease_monthly_cost)}</td>
               <td>
                 <Chip tone={tone(s.lease_ends_on)}>{d(s.lease_ends_on)}</Chip>
               </td>
-              <td className="font-mono text-xs">{s.license_number ?? "—"}</td>
+              <td className="tabular-nums">{s.license_number ?? "—"}</td>
               <td>
                 <Chip tone={tone(s.license_expires_on)}>{d(s.license_expires_on)}</Chip>
               </td>

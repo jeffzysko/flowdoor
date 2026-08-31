@@ -34,11 +34,7 @@ export function QueueBanner() {
   return (
     <div
       role="status"
-      className={`mb-4 border px-4 py-3 text-sm ${
-        online
-          ? "border-warn/30 bg-warn/5 text-warn"
-          : "border-ink/20 bg-ink/5 text-ink"
-      }`}
+      className={`fd-alert mb-4 ${online ? "fd-alert-warn" : "fd-alert-info"}`}
     >
       {!online && (
         <p className="font-medium">

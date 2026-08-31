@@ -33,7 +33,7 @@ export default async function PlataformaPage() {
     // Já existe responsável e este usuário não é membro de nenhuma empresa:
     // redirecionar para "/" criaria laço, então a conversa acaba aqui.
     return (
-      <main className="mx-auto max-w-lg px-6 py-24 text-center">
+      <main className="mx-auto max-w-lg px-6 py-16 text-center">
         <h1 className="fd-h3">
           Sua conta ainda não está em nenhuma empresa
         </h1>
@@ -85,11 +85,11 @@ export default async function PlataformaPage() {
               <td className="font-medium">{o.name}</td>
               <td><Chip>{rotulo("org_kind", o.kind)}</Chip></td>
               <td>{o.city ? `${o.city}/${o.state}` : "—"}</td>
-              <td className="font-mono text-xs">{o.plan}</td>
+              <td className="tabular-nums">{o.plan}</td>
               <td>
                 <Chip tone={o.status === "ativa" ? "bom" : "aviso"}>{rotulo("org_status", o.status)}</Chip>
               </td>
-              <td className="font-mono text-xs">
+              <td className="tabular-nums">
                 {new Date(o.created_at).toLocaleDateString("pt-BR")}
               </td>
             </tr>

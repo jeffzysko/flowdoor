@@ -65,7 +65,7 @@ export default async function EquipePage() {
                 <td>{i.email}</td>
                 <td>{i.full_name ?? "—"}</td>
                 <td>{ROLE_LABEL[i.role]}</td>
-                <td className="font-mono text-xs">
+                <td className="tabular-nums">
                   {new Date(i.expires_at).toLocaleDateString("pt-BR")}
                 </td>
                 <td className="text-right">

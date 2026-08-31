@@ -131,7 +131,7 @@ export function EditarPedido({
   }
 
   return (
-    <section className="mt-8 fd-card">
+    <section className="fd-card mt-10">
       <h2 className="fd-h4">Editar {codigo}</h2>
       <p className="mt-1 max-w-2xl text-sm text-ink-2">
         Mudar o período move as reservas de todas as faces de uma vez. Se
@@ -160,7 +160,7 @@ export function EditarPedido({
         />
       </L>
 
-      <h3 className="fd-overline mt-7 border-b border-line pb-2">
+      <h3 className="fd-overline mt-8 border-b border-line pb-2">
         Faces e agendamento
       </h3>
 
@@ -169,7 +169,7 @@ export function EditarPedido({
           <li key={l.face_id} className="fd-btn fd-btn-ghost">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <span className="font-mono text-sm font-medium">{l.face_code}</span>
+                <span className="tabular-nums text-sm font-medium">{l.face_code}</span>
                 <span className="ml-3 text-sm text-ink-2">{l.endereco}</span>
               </div>
               {l.travada ? (
@@ -300,7 +300,7 @@ function CancelarPedido({ orderId, codigo }: { orderId: string; codigo: string }
     return (
       <button
         onClick={() => setConfirmando(true)}
-        className="border border-danger/40 px-4 py-2.5 font-medium text-danger"
+        className="fd-link fd-link-danger"
       >
         Cancelar pedido
       </button>
@@ -308,7 +308,7 @@ function CancelarPedido({ orderId, codigo }: { orderId: string; codigo: string }
   }
 
   return (
-    <div className="w-full border border-danger/40 bg-surface px-5 py-4">
+    <div className="fd-card w-full">
       <h3 className="font-bold">Cancelar {codigo}?</h3>
       <p className="mt-1 max-w-2xl text-sm text-ink-2">
         As reservas voltam para a disponibilidade e as aplicações que ainda não
@@ -352,7 +352,7 @@ function CancelarPedido({ orderId, codigo }: { orderId: string; codigo: string }
 }
 
 const campo =
-  "mt-1 w-full border border-line bg-surface px-3 py-2.5 outline-none focus:border-accent";
+  "fd-input";
 
 function L({
   rotulo,

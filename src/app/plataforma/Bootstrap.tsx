@@ -28,7 +28,7 @@ export function Bootstrap() {
   }
 
   return (
-    <main className="mx-auto max-w-md px-6 py-24 text-center">
+    <main className="mx-auto max-w-md px-6 py-16 text-center">
       <p className="fd-overline">
         Primeira execução
       </p>
@@ -49,7 +49,7 @@ export function Bootstrap() {
       <button
         onClick={assumir}
         disabled={ocupado}
-        className="fd-btn mt-7 w-full"
+        className="fd-btn mt-8 w-full"
       >
         {ocupado ? "Confirmando…" : "Sou o responsável"}
       </button>

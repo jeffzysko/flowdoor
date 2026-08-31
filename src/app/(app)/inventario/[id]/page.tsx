@@ -130,12 +130,12 @@ export default async function PontoPage({
           licença {rotulo("license_status", ponto.license_state)}
         </Chip>
         {ponto.license_expires_on && (
-          <span className="font-mono text-xs text-ink-3">
+          <span className="tabular-nums text-xs text-ink-3">
             vence {d(ponto.license_expires_on)}
           </span>
         )}
         {ponto.lease_ends_on && (
-          <span className="font-mono text-xs text-ink-3">
+          <span className="tabular-nums text-xs text-ink-3">
             contrato até {d(ponto.lease_ends_on)}
           </span>
         )}
@@ -181,7 +181,7 @@ export default async function PontoPage({
             {ponto.geo_query && (
               <p className="mt-2 text-xs text-ink-3">
                 Encontrado por {origem ?? ponto.geo_source} — buscamos{" "}
-                <span className="font-mono">{ponto.geo_query}</span>.
+                <span className="tabular-nums">{ponto.geo_query}</span>.
                 {sit === "parcial" &&
                   " Se este não é o lugar, corrija a coordenada abaixo: coordenada digitada à mão passa a valer e trava a chegada."}
               </p>
@@ -222,7 +222,7 @@ export default async function PontoPage({
           <ul className="mt-4 space-y-2">
             {faces.map((f) => (
               <li key={f.id} className="flex flex-wrap items-center gap-3 fd-card">
-                <span className="font-mono text-sm">{f.code}</span>
+                <span className="tabular-nums text-sm">{f.code}</span>
                 <Chip tone={f.medium === "digital" ? "bom" : "neutro"}>{rotuloDoFormato(f.kind)}</Chip>
                 <Chip tone={f.status === "ativa" ? "bom" : "aviso"}>{rotulo("face_status", f.status)}</Chip>
               </li>
@@ -231,7 +231,7 @@ export default async function PontoPage({
         </section>
       )}
 
-      <section className="mt-12">
+      <section className="mt-10">
         <h2 className="fd-h4">Últimas passagens</h2>
         <p className="mt-1 text-sm text-ink-2">
           Tudo que já foi agendado ou executado nas faces deste ponto.
@@ -242,15 +242,15 @@ export default async function PontoPage({
             <Empty titulo="Nenhuma aplicação neste ponto.">Quando um pedido reservar uma face daqui, a agenda do aplicador aparece nesta lista.</Empty>
           </div>
         ) : (
-          <ul className="mt-4 divide-y divide-line bg-surface rounded-xl shadow-md">
+          <ul className="fd-list mt-4">
             {eventos.map((e) => (
-              <li key={e.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+              <li key={e.id} className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="text-sm font-medium">
                     {e.orders?.title ?? e.orders?.code ?? "Sem pedido"}
-                    <span className="ml-2 font-mono text-xs text-ink-3">{e.faces?.code}</span>
+                    <span className="ml-2 tabular-nums text-xs text-ink-3">{e.faces?.code}</span>
                   </p>
-                  <p className="mt-0.5 font-mono text-xs text-ink-3">
+                  <p className="mt-1 tabular-nums text-xs text-ink-3">
                     {rotulo("field_event_kind", e.kind)} · agendado {dt(e.scheduled_for)}
                     {e.finished_at ? ` · concluído ${dt(e.finished_at)}` : ""}
                   </p>

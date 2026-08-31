@@ -78,8 +78,8 @@ export default async function DisponibilidadePage() {
               {listaFaces.map((f) => (
                 <tr key={f.id}>
                   <td className="sticky left-0 z-10 whitespace-nowrap bg-surface px-4 py-2">
-                    <span className="font-mono text-xs">{f.code}</span>
-                    <span className="block text-[11px] text-ink-3">{f.sites?.city}</span>
+                    <span className="tabular-nums text-xs">{f.code}</span>
+                    <span className="block text-xs text-ink-3">{f.sites?.city}</span>
                   </td>
                   {visiveis.map((p) => {
                     const taken = ocupado(f.id, p.starts_on, p.ends_on);

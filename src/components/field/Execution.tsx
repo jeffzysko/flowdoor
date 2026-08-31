@@ -325,7 +325,7 @@ export function Execution({
   // ============================================================ render
   if (etapa === "pronto") {
     return (
-      <section className="mt-8 border border-accent bg-accent-soft px-5 py-8 text-center">
+      <section className="fd-card mt-8 bg-accent-soft text-center">
         <p className="fd-overline">
           Enviado
         </p>
@@ -345,7 +345,7 @@ export function Execution({
   }
 
   return (
-    <section className="mt-8">
+    <section className="mt-10">
       {erro && (
         <p role="alert" className="fd-alert fd-alert-error mb-4">
           {erro}
@@ -378,7 +378,7 @@ export function Execution({
                 </p>
               ) : distancia == null ? (
                 <>
-                  <p className="font-mono text-sm text-ink-2">
+                  <p className="tabular-nums text-sm text-ink-2">
                     Procurando o sinal do GPS… {segundos}s
                   </p>
                   <p className="mt-1 text-sm text-ink-3">
@@ -407,7 +407,7 @@ export function Execution({
                   </p>
 
                   {posicao && (
-                    <p className="mt-2 font-mono text-xs text-ink-3">
+                    <p className="mt-2 tabular-nums text-xs text-ink-3">
                       Precisão do sinal: ±{Math.round(posicao.accuracy)} m
                       {travado && posicao.accuracy > 60
                         ? ` · ainda melhorando (${segundos}s)`
@@ -459,7 +459,7 @@ export function Execution({
                 {MOTIVOS.map((m) => (
                   <label
                     key={m.valor}
-                    className={`flex cursor-pointer items-center gap-3 border px-3 py-2.5 text-sm ${
+                    className={`flex cursor-pointer items-center gap-3 border px-3 py-3 text-sm ${
                       motivoEscape === m.valor
                         ? "border-accent bg-accent-soft"
                         : "border-line bg-surface"

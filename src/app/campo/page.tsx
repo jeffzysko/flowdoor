@@ -83,7 +83,7 @@ export default async function CampoPage() {
     <div className="field-shell">
       <CampoHeader nome={ctx.fullName} />
 
-      <main className="mx-auto max-w-3xl px-4 pb-28 pt-4">
+      <main className="mx-auto max-w-3xl px-4 pb-16 pt-4">
       <QueueBanner />
       <PermissaoLocalizacao />
 

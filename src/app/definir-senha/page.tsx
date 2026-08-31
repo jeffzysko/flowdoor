@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { Logo } from "@/components/Logo";
 
 const MINIMO = 10;
 
@@ -42,11 +43,10 @@ export default function DefinirSenhaPage() {
   }
 
   return (
-    <main className="mx-auto max-w-sm px-6 py-24">
-      <p className="fd-overline">
-        Flowdoor
-      </p>
-      <h1 className="fd-h2 mt-3">Defina sua senha</h1>
+    <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-6 py-16">
+      <div className="fd-card">
+      <Logo className="w-[132px]" />
+      <h1 className="fd-h2 mt-6">Defina sua senha</h1>
       <p className="mt-2 text-ink-2">
         É com ela que você entra daqui em diante. Mínimo de {MINIMO} caracteres.
       </p>
@@ -77,11 +77,12 @@ export default function DefinirSenhaPage() {
         <button
           type="submit"
           disabled={ocupado}
-          className="fd-btn w-full"
+          className="fd-btn fd-btn-block"
         >
           {ocupado ? "Salvando…" : "Salvar e entrar"}
         </button>
       </form>
+      </div>
     </main>
   );
 }

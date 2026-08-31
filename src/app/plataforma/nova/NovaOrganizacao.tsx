@@ -22,7 +22,7 @@ export function NovaOrganizacao() {
 
   if (state.ok) {
     return (
-      <section className="mt-6 border border-accent bg-accent-soft px-6 py-10 text-center">
+      <section className="fd-card mt-6 bg-accent-soft text-center">
         <p className="fd-overline">
           Criada
         </p>
@@ -34,7 +34,7 @@ export function NovaOrganizacao() {
           <Link href="/painel" className="fd-btn">
             Ir para a operação
           </Link>
-          <Link href="/plataforma" className="fd-card">
+          <Link href="/plataforma" className="fd-btn fd-btn-ghost">
             Ver organizações
           </Link>
         </div>
@@ -50,7 +50,7 @@ export function NovaOrganizacao() {
         consomem inventário de terceiros.
       </p>
 
-      <div className="mt-7 grid gap-4 sm:grid-cols-2 fd-card">
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 fd-card">
         <label className="block sm:col-span-2">
           <Legend>Nome</Legend>
           <input

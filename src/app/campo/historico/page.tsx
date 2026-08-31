@@ -33,7 +33,7 @@ export default async function HistoricoPage() {
     <div className="field-shell">
       <CampoHeader nome={ctx.fullName} />
 
-      <main className="mx-auto max-w-3xl px-4 pb-24 pt-4">
+      <main className="mx-auto max-w-3xl px-4 pb-16 pt-4">
       <Hero
         eyebrow="Campo"
         title="Minha agenda"
@@ -53,11 +53,11 @@ export default async function HistoricoPage() {
           </Empty>
         </div>
       ) : (
-        <ul className="mt-6 divide-y divide-line bg-surface rounded-xl shadow-md">
+        <ul className="fd-list mt-6">
           {rows.map((r) => (
-            <li key={r.id} className="px-5 py-3">
+            <li key={r.id} >
               <p className="font-medium">{r.faces?.sites?.address ?? "—"}</p>
-              <p className="font-mono text-xs text-ink-3">
+              <p className="tabular-nums text-xs text-ink-3">
                 {r.faces?.sites?.city} · {r.faces?.code}
                 {r.orders ? ` · ${r.orders.code}` : ""} ·{" "}
                 {r.finished_at

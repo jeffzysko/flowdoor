@@ -26,7 +26,7 @@ export function NovoAnunciante({ orgId }: { orgId: string }) {
   }
 
   return (
-    <form action={action} className="mt-6 fd-card">
+    <form action={action} className="fd-card mt-6 max-w-[920px]">
       <input type="hidden" name="orgId" value={orgId} />
       <h2 className="fd-h4">Novo anunciante</h2>
       <p className="mt-1 text-sm text-ink-2">

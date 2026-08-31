@@ -98,7 +98,7 @@ export function RevisarFoto({
             name="acao"
             value="recusar"
             disabled={pendente}
-            className="flex-1 border border-danger/40 bg-surface px-3 py-2.5 text-sm font-medium text-danger disabled:opacity-50"
+            className="fd-btn fd-btn-danger fd-btn-sm flex-1"
           >
             Pedir nova foto
           </button>

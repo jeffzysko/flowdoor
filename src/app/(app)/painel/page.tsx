@@ -200,7 +200,7 @@ export default async function PainelPage() {
                   </LinhaTitulo>
                 </td>
                 <td>{o.advertisers?.name ?? "—"}</td>
-                <td className="font-mono text-xs">
+                <td className="tabular-nums">
                   {d(o.starts_on)} – {d(o.ends_on)}
                 </td>
                 <td>

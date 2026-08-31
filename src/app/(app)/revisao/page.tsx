@@ -155,7 +155,7 @@ export default async function RevisaoPage() {
         lead="O que a conferência automática não resolveu sozinha. Enquanto uma foto está aqui, a parada dela já foi concluída — a fila do campo não para."
       />
 
-      <div className="mt-6 grid gap-px bg-line sm:grid-cols-3">
+      <div className="mt-6 grid gap-4 sm:grid-cols-3">
         <Stat label="Em revisão" value={emRevisao} hint="a conferência ficou em dúvida" />
         <Stat
           label="Sem conferência"
@@ -182,7 +182,7 @@ export default async function RevisaoPage() {
 
             return (
               <li key={i.photo_id} className="fd-card">
-                <div className="flex flex-wrap items-start justify-between gap-3 border-b border-line px-5 py-4">
+                <div className="flex flex-wrap items-start justify-between gap-3 border-b border-line pb-4">
                   <div>
                     <p className="fd-overline">
                       {i.order_code ?? "Sem pedido"} · {i.face_code} ·{" "}
@@ -192,12 +192,12 @@ export default async function RevisaoPage() {
                       {i.address}
                       {i.district ? ` · ${i.district}` : ""}
                     </h2>
-                    <p className="mt-0.5 text-sm text-ink-2">
+                    <p className="mt-1 text-sm text-ink-2">
                       {i.city}/{i.state} · {i.assignee_name ?? "sem responsável"} ·{" "}
                       {dt(i.taken_at)}
                     </p>
                   </div>
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-2">
                     {i.verdict === "pendente" && <Chip tone="aviso">sem conferência</Chip>}
                     {i.watch_flag && <Chip tone="aviso">aplicador em observação</Chip>}
                     {i.arrival_override && <Chip tone="aviso">chegada sem GPS</Chip>}
@@ -226,7 +226,7 @@ export default async function RevisaoPage() {
 
                     {arte && (
                       <details className="mt-3">
-                        <summary className="cursor-pointer font-mono text-xs text-ink-3">
+                        <summary className="cursor-pointer tabular-nums text-xs text-ink-3">
                           Ver a arte aprovada da campanha
                         </summary>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -240,7 +240,7 @@ export default async function RevisaoPage() {
 
                     {gemea && (
                       <details className="mt-3" open>
-                        <summary className="cursor-pointer font-mono text-xs text-danger">
+                        <summary className="cursor-pointer tabular-nums text-xs text-danger">
                           Ver a foto parecida que já estava no sistema
                           {i.phash_distance != null
                             ? ` · distância ${i.phash_distance}`
@@ -250,14 +250,14 @@ export default async function RevisaoPage() {
                         <img
                           src={gemea}
                           alt="Foto anterior parecida"
-                          className="mt-2 w-full border border-danger/40 bg-paper"
+                          className="mt-2 w-full rounded-lg"
                         />
                       </details>
                     )}
                   </div>
 
                   <div>
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="flex flex-wrap gap-2">
                       {(
                         Object.keys(i.checks) as (keyof Item["checks"])[]
                       )
@@ -330,7 +330,7 @@ export default async function RevisaoPage() {
       )}
 
       {pontos.length > 0 && (
-        <section className="mt-14">
+        <section className="mt-10">
           <h2 className="fd-h4">
             Pontos com coordenada suspeita
           </h2>
@@ -351,13 +351,13 @@ export default async function RevisaoPage() {
                   <h3 className="font-bold">
                     {p.address} · {p.city}/{p.state}
                   </h3>
-                  <p className="mt-1 font-mono text-xs text-ink-3">
+                  <p className="mt-1 tabular-nums text-xs text-ink-3">
                     {p.code ? `${p.code} · ` : ""}
                     {p.chegadas} chegadas de {p.pessoas}{" "}
                     {p.pessoas === 1 ? "pessoa" : "pessoas"} · desvio{" "}
                     {p.desvio_m} m · espalhamento {p.espalhamento_m} m
                   </p>
-                  <p className="mt-1 font-mono text-xs text-ink-2">
+                  <p className="mt-1 tabular-nums text-xs text-ink-2">
                     cadastro {Number(p.lat_cadastro).toFixed(5)},{" "}
                     {Number(p.lng_cadastro).toFixed(5)} → sugerido{" "}
                     {Number(p.lat_sugerido).toFixed(5)},{" "}
@@ -388,7 +388,7 @@ function Linha({ k, v }: { k: string; v: string }) {
       <dt className="fd-label">
         {k}
       </dt>
-      <dd className="mt-0.5">{v}</dd>
+      <dd className="mt-1">{v}</dd>
     </div>
   );
 }

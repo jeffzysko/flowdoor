@@ -296,7 +296,7 @@ export function AceitarConvite({ token }: { token: string }) {
 
         <button
           type="submit"
-          className="fd-btn w-full"
+          className="fd-btn fd-btn-block"
         >
           Criar conta e entrar
         </button>
@@ -316,9 +316,11 @@ function traduzir(m: string) {
 
 function Moldura({ children }: { children: React.ReactNode }) {
   return (
-    <main className="mx-auto max-w-sm px-6 py-24">
-      <Logo className="w-[132px]" />
-      <div className="mt-6">{children}</div>
+    <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-6 py-16">
+      <div className="fd-card">
+        <Logo className="w-[132px]" />
+        <div className="mt-6">{children}</div>
+      </div>
     </main>
   );
 }

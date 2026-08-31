@@ -172,11 +172,11 @@ export function NovoPedido({
 
   if (state.ok && state.code) {
     return (
-      <section className="mt-6 border border-accent bg-accent-soft px-6 py-10 text-center">
+      <section className="fd-card mt-6 bg-accent-soft text-center">
         <p className="fd-overline">
           Pedido criado
         </p>
-        <h1 className="fd-h2 mt-2 font-mono">{state.code}</h1>
+        <h1 className="fd-h2 mt-2 tabular-nums">{state.code}</h1>
         <p className="mt-2 text-ink-2">
           As faces foram reservadas e cada uma entrou na fila do aplicador, uma
           parada por vez.
@@ -188,7 +188,7 @@ export function NovoPedido({
           >
             Ver o pedido
           </Link>
-          <Link href="/operacao" className="fd-card">
+          <Link href="/operacao" className="fd-btn fd-btn-ghost">
             Todos os pedidos
           </Link>
         </div>
@@ -197,7 +197,7 @@ export function NovoPedido({
   }
 
   return (
-    <form onSubmit={enviar} className="mt-5 pb-16">
+    <form onSubmit={enviar} className="mt-6 pb-16">
       <h1 className="fd-h2">Novo pedido</h1>
       <p className="mt-1 text-ink-2">
         Cada face escolhida vira uma reserva e uma aplicação em campo. Se alguma
@@ -206,7 +206,7 @@ export function NovoPedido({
       </p>
 
       {/* ---------------------------------------------------- campanha */}
-      <fieldset className="mt-7 fd-card">
+      <fieldset className="fd-card mt-8">
         <legend className="fd-overline">
           Campanha
         </legend>
@@ -299,7 +299,7 @@ export function NovoPedido({
       </fieldset>
 
       {/* ------------------------------------------------------- faces */}
-      <fieldset className="mt-6 fd-card">
+      <fieldset className="fd-card mt-6 max-w-[920px]">
         <legend className="fd-overline">
           Faces e aplicações
         </legend>
@@ -317,7 +317,7 @@ export function NovoPedido({
               (f) => !escolhidas.has(f.id) || f.id === l.face_id
             );
             return (
-              <li key={l.key} className="fd-card">
+              <li key={l.key} className="fd-btn fd-btn-ghost">
                 <div className="mb-3 flex items-center justify-between">
                   <span className="fd-label">
                     Face {i + 1}
@@ -422,7 +422,7 @@ export function NovoPedido({
                           placeholder={tabela !== null ? reais(tabela) : "sem tabela"}
                           className="fd-input text-right"
                         />
-                        <span className="mt-1 block text-right font-mono text-[10px] uppercase tracking-[0.1em] text-ink-3">
+                        <span className="fd-label mt-1 block text-right">
                           {!l.face_id
                             ? "escolha a face"
                             : tabela === null

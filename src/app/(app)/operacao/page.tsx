@@ -73,9 +73,9 @@ export default async function OperacaoPage() {
                 </LinhaTitulo>
               </td>
               <td>{o.advertisers?.name ?? "—"}</td>
-              <td className="font-mono text-xs">{d(o.starts_on)} – {d(o.ends_on)}</td>
-              <td className="font-mono">{o.order_items?.length ?? 0}</td>
-              <td className="text-right font-mono tabular-nums">
+              <td className="tabular-nums">{d(o.starts_on)} – {d(o.ends_on)}</td>
+              <td className="tabular-nums">{o.order_items?.length ?? 0}</td>
+              <td className="text-right tabular-nums">
                 {reais(o.total_amount)}
               </td>
               <td>

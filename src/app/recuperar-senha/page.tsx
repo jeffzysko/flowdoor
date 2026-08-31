@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { Logo } from "@/components/Logo";
 
 export default function RecuperarSenhaPage() {
   const [email, setEmail] = useState("");
@@ -40,14 +41,13 @@ export default function RecuperarSenhaPage() {
   }
 
   return (
-    <main className="mx-auto max-w-sm px-6 py-24">
-      <p className="fd-overline">
-        Flowdoor
-      </p>
+    <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-6 py-16">
+      <div className="fd-card">
+      <Logo className="w-[132px]" />
 
       {enviado ? (
         <>
-          <h1 className="fd-h2 mt-3">
+          <h1 className="fd-h2 mt-6">
             Confira seu e-mail
           </h1>
           <p className="mt-3 text-ink-2">
@@ -68,7 +68,7 @@ export default function RecuperarSenhaPage() {
         </>
       ) : (
         <>
-          <h1 className="fd-h2 mt-3">
+          <h1 className="fd-h2 mt-6">
             Esqueceu a senha?
           </h1>
           <p className="mt-2 text-ink-2">
@@ -103,7 +103,7 @@ export default function RecuperarSenhaPage() {
             <button
               type="submit"
               disabled={ocupado}
-              className="fd-btn w-full"
+              className="fd-btn fd-btn-block"
             >
               {ocupado ? "Enviando…" : "Enviar link"}
             </button>
@@ -117,6 +117,7 @@ export default function RecuperarSenhaPage() {
           </Link>
         </>
       )}
+      </div>
     </main>
   );
 }

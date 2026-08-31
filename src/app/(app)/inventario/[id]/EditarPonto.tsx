@@ -55,7 +55,7 @@ export function EditarPonto({ ponto, podeExcluir }: { ponto: Ponto; podeExcluir:
 
   return (
     <>
-    <form action={action} className="mt-6 fd-card">
+    <form action={action} className="fd-card mt-6 max-w-[920px]">
       <input type="hidden" name="siteId" value={ponto.id} />
 
       <h2 className="fd-h4">Dados do ponto</h2>
@@ -138,7 +138,7 @@ function ExcluirPonto({ siteId, code }: { siteId: string; code: string }) {
   const [state, action, pendente] = useActionState(excluirPonto, inicial);
 
   return (
-    <form action={action} className="mt-6 border border-danger/30 bg-surface px-5 py-5">
+    <form action={action} className="fd-card mt-6 max-w-[920px]">
       <input type="hidden" name="siteId" value={siteId} />
       <h3 className="fd-label">
         Excluir ponto
@@ -158,7 +158,7 @@ function ExcluirPonto({ siteId, code }: { siteId: string; code: string }) {
         <button
           type="button"
           onClick={() => setConfirmando(true)}
-          className="mt-3 border border-danger/40 px-4 py-2 text-sm font-medium text-danger"
+          className="fd-btn fd-btn-danger fd-btn-sm mt-3"
         >
           Excluir {code}
         </button>

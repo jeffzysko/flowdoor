@@ -64,7 +64,7 @@ export function PermissaoLocalizacao() {
 
   if (estado === "perguntar") {
     return (
-      <section className="mb-5 border border-accent bg-accent-soft px-4 py-4">
+      <section className="fd-card mb-5 bg-accent-soft">
         <h2 className="text-sm font-bold">Libere a localização antes de sair</h2>
         <p className="mt-1 text-sm text-ink-2">
           A chegada em cada ponto é registrada pela posição do seu aparelho.
@@ -90,7 +90,7 @@ export function PermissaoLocalizacao() {
       <Instrucoes />
       <button
         onClick={pedir}
-        className="mt-3 w-full border border-warn/40 bg-surface px-4 py-3 font-medium"
+        className="fd-btn fd-btn-ghost fd-btn-block mt-3"
       >
         Já ajustei, tentar de novo
       </button>
@@ -122,10 +122,10 @@ function Instrucoes() {
         ];
 
   return (
-    <ol className="mt-3 space-y-1.5 text-sm text-ink-2">
+    <ol className="mt-3 space-y-2 text-sm text-ink-2">
       {passos.map((p, i) => (
         <li key={i} className="flex gap-2">
-          <span className="font-mono text-xs text-ink-3">{i + 1}.</span>
+          <span className="tabular-nums text-xs text-ink-3">{i + 1}.</span>
           <span>{p}</span>
         </li>
       ))}

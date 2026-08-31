@@ -233,6 +233,23 @@ base nova, schema novo.
 35. **Estado vazio tem três partes: o que falta, por quê, e o botão que
    resolve.** Quem não tem permissão para resolver não vê botão — vê a frase
    dizendo a quem pedir.
+36. **Geometria não se escreve à mão.** Raio, sombra, padding e espaçamento
+   vêm da peça (`.fd-card`, `.fd-list`, `.fd-inset`, `.fd-metrics`) ou dos
+   degraus da escala — 4/8/12/16/20/24/32/40/48/64 no espaço, 8/12/16/24/32/
+   pílula no raio, xs/sm/md/lg/xl na sombra. Superfície não leva borda: leva
+   sombra. Borda no design system é divisor (`border-t`/`border-b`), não
+   moldura.
+37. **A fonte do produto é Manrope + DM Sans, e só.** Monoespaçada ficou para
+   o que é literalmente uma cadeia de caracteres — token, URL, coordenada.
+   Código de face e data alinham com `tabular-nums`, que é o que se queria da
+   monoespaçada sem trocar a família no meio da frase.
+38. **Modal do produto é acessível por contrato.** `role="dialog"`,
+   `aria-modal`, Esc fecha, foco preso dentro e devolvido ao gatilho, altura
+   em `dvh`. O componente `Modal` já faz isso; tela nova não abre camada
+   sobreposta por conta própria.
+39. **Formulário tem largura de leitura: 920px.** Campo de 1400px de largura é
+   um alvo que o olho perde entre o rótulo e o valor. Tabela e calendário
+   podem ocupar a largura toda; formulário, não.
 28. **A unidade de venda é a bi-semana.** `faces.base_price` é o valor de
    **14 dias**, não do mês nem do período do pedido — é como mídia exterior se
    vende no Brasil, e a tabela `periods` já modela isso (104 períodos de 14

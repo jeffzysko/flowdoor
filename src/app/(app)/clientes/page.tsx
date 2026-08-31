@@ -39,7 +39,7 @@ export default async function ClientesPage() {
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <p className="font-medium">{a.name}</p>
-                  <p className="mt-0.5 font-mono text-xs text-ink-3">
+                  <p className="mt-1 tabular-nums text-xs text-ink-3">
                     {a.tax_id ?? "sem CPF/CNPJ"}
                     {a.category ? ` · ${a.category}` : ""}
                   </p>

@@ -93,8 +93,8 @@ export default async function ProofPage({
 
   return (
     <main className="mx-auto max-w-4xl px-5 py-10 sm:px-8">
-      <header className="border-b-2 border-ink pb-6">
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-3">
+      <header className="border-b border-line pb-6">
+        <p className="fd-label">
           Comprovante de veiculação
         </p>
         <h1 className="fd-h1 mt-3 sm:text-5xl">
@@ -105,18 +105,16 @@ export default async function ProofPage({
           {d(snap.order.ends_on)}
         </p>
 
-        <dl className="mt-7 grid grid-cols-2 gap-px border-t border-line bg-line sm:grid-cols-4">
+        <dl className="fd-metrics mt-8">
           {[
             ["Pedido", snap.order.code],
             ["Faces", String(snap.items.length)],
             ["Aplicadas", `${done} de ${snap.items.length}`],
             ["Exibidora", snap.org?.name ?? "—"],
           ].map(([k, v]) => (
-            <div key={k} className="bg-paper px-4 py-3">
-              <dt className="fd-label">
-                {k}
-              </dt>
-              <dd className="mt-1 font-mono text-lg font-medium">{v}</dd>
+            <div key={k}>
+              <dt>{k}</dt>
+              <dd>{v}</dd>
             </div>
           ))}
         </dl>
@@ -132,27 +130,21 @@ export default async function ProofPage({
           return (
             <li
               key={`${item.face_code}-${idx}`}
-              className="overflow-hidden fd-card"
+              className="overflow-hidden rounded-xl bg-surface shadow-md"
             >
-              <div className="flex flex-wrap items-start justify-between gap-3 border-b border-line px-5 py-4">
+              <div className="flex flex-wrap items-start justify-between gap-3 border-b border-line px-6 py-5">
                 <div>
                   <h2 className="fd-h4">
                     {item.address}
                     {item.district ? ` · ${item.district}` : ""}
                   </h2>
-                  <p className="mt-0.5 text-sm text-ink-2">
+                  <p className="mt-1 text-sm text-ink-2">
                     {item.city}/{item.state}
                     {item.orientation ? ` · sentido ${item.orientation}` : ""} ·{" "}
-                    <span className="font-mono text-xs">{item.face_code}</span>
+                    <span className="tabular-nums text-xs">{item.face_code}</span>
                   </p>
                 </div>
-                <span
-                  className={`font-mono text-[10px] uppercase tracking-[0.1em] px-2 py-1 ${
-                    ok
-                      ? "bg-accent-soft text-accent-ink"
-                      : "bg-paper text-ink-3 border border-line"
-                  }`}
-                >
+                <span className={`fd-tag ${ok ? "fd-tag-brand" : "fd-tag-neutral"}`}>
                   {ok ? "Aplicado" : "Pendente"}
                 </span>
               </div>
@@ -167,7 +159,7 @@ export default async function ProofPage({
                 />
               )}
 
-              <dl className="grid grid-cols-2 gap-x-6 gap-y-3 px-5 py-4 text-sm sm:grid-cols-4">
+              <dl className="grid grid-cols-2 gap-x-6 gap-y-3 px-6 py-5 text-sm sm:grid-cols-4">
                 <Row k="Período" v={`${d(item.starts_on)} – ${d(item.ends_on)}`} />
                 <Row k="Chegada" v={dt(ev?.started_at ?? null)} />
                 <Row k="Conclusão" v={dt(ev?.finished_at ?? null)} />
@@ -182,7 +174,7 @@ export default async function ProofPage({
               </dl>
 
               {ev?.started_lat && ev?.started_lng && (
-                <div className="border-t border-line px-5 py-3">
+                <div className="border-t border-line px-6 py-4">
                   <a
                     className="fd-link fd-link-sm"
                     href={`https://www.google.com/maps/search/?api=1&query=${ev.started_lat},${ev.started_lng}`}
@@ -195,11 +187,11 @@ export default async function ProofPage({
               )}
 
               {photo?.sha256 && (
-                <div className="border-t border-line px-5 py-3">
+                <div className="border-t border-line px-6 py-4">
                   <dt className="fd-label">
                     Impressão digital da imagem · SHA-256
                   </dt>
-                  <dd className="mt-1 break-all font-mono text-[11px] leading-relaxed text-ink-2">
+                  <dd className="mt-1 break-all font-mono text-xs leading-relaxed text-ink-2">
                     {photo.sha256}
                   </dd>
                 </div>
@@ -209,7 +201,7 @@ export default async function ProofPage({
         })}
       </ol>
 
-      <footer className="mt-12 border-t-2 border-ink pt-5 font-mono text-[11px] text-ink-3">
+      <footer className="mt-12 border-t border-line pt-6 text-xs text-ink-3">
         <p>
           Publicado em {dt(snap.published_at)} · Registro imutável emitido por{" "}
           {snap.org?.name ?? "Flowdoor"} via Flowdoor.
@@ -235,7 +227,7 @@ function Row({ k, v }: { k: string; v: string }) {
       <dt className="fd-label">
         {k}
       </dt>
-      <dd className="mt-0.5 font-mono">{v}</dd>
+      <dd className="mt-1 tabular-nums">{v}</dd>
     </div>
   );
 }

@@ -34,7 +34,7 @@ export function EditarAnunciante({ a }: { a: Anunciante }) {
   }
 
   return (
-    <form action={action} className="w-full border border-accent bg-surface px-4 py-4">
+    <form action={action} className="fd-card w-full max-w-[920px]">
       <input type="hidden" name="id" value={a.id} />
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

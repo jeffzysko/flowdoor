@@ -29,7 +29,7 @@ export function Coordenadas({
   const faltam = parciais + semLocal;
 
   return (
-    <section className="mt-6 fd-card">
+    <section className="fd-card mt-6">
       <h2 className="fd-h4">Localização dos pontos</h2>
 
       <div className="mt-3 flex flex-wrap gap-4">
