@@ -57,7 +57,7 @@ export default async function PontoPage({
     .from("faces")
     .select(
       "id, code, kind, medium, orientation, width_m, height_m, base_price, " +
-        "loop_seconds, spot_seconds, slots_total, status"
+        "sale_unit, loop_seconds, spot_seconds, slots_total, status"
     )
     .eq("site_id", id)
     .order("code");

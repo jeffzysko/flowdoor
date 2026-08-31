@@ -316,6 +316,25 @@ base nova, schema novo.
    com timeout curto, e nunca impede o cadastro manual. O que ela traz entra
    só em campo vazio — o que o vendedor digitou vale mais que a Receita.
    Situação cadastral diferente de ATIVA aparece como aviso, não como bloqueio.
+87. **A unidade de venda é da FACE, não do sistema.** A decisão nº 28 dizia
+   que tudo se vende por 14 dias. Está errada para front light e top sight,
+   que se vendem por mês no Brasil — uma campanha de um mês em front light
+   era cobrada como três períodos de 14 dias, errado para mais, e errado de um
+   jeito que só aparece na conferência da fatura. `faces.sale_unit` diz o que
+   `base_price` significa, e `valor_de_tabela()` escolhe a conta.
+88. **A unidade fica gravada, nunca deduzida na hora do cálculo.** Se ela
+   viesse do formato em tempo de consulta, corrigir o formato de uma face
+   mudaria o preço de todas as vendas futuras dela em silêncio. O formato só
+   propõe o padrão: no formulário, na importação sem coluna, e mais nada.
+89. **"Bi-semana" é marca registrada de terceiro e saiu do produto e do
+   banco.** Passa a ser "ciclo de 14 dias", ou só "ciclo". A função
+   `bi_semanas()` virou `ciclos()` e a antiga foi derrubada — nome com marca
+   alheia guardado "por compatibilidade" volta para a tela no primeiro
+   descuido.
+90. **O portal do parceiro escolhe ciclo E duração.** Antes o pedido durava
+   exatamente um ciclo, e nenhuma face mensal cabia nisso. Agora o ciclo diz
+   quando começa e a duração diz quanto dura; face mensal em campanha curta
+   avisa que a tabela cobra o mês inteiro.
 85. **Número de configuração sem consequência escrita é número que ninguém
    mexe.** As vinte e uma regras de campo existiam desde o início e só se
    mudavam por SQL — o raio de 150 m valia igual para o outdoor no meio do
@@ -507,7 +526,9 @@ base nova, schema novo.
    para autorizar (o RLS já faz), mas para a tela responder com uma frase em
    vez de um erro cru do banco. E-mail não se edita por aí: trocar e-mail é
    fluxo de autenticação, com confirmação no endereço novo.
-28. **A unidade de venda é a bi-semana.** `faces.base_price` é o valor de
+28. ~~**A unidade de venda é a bi-semana.**~~ *(corrigida pelas decisões 87 a
+   89: a unidade é da face, e o nome é "ciclo de 14 dias".)* Texto original:
+   **A unidade de venda é a bi-semana.** `faces.base_price` é o valor de
    **14 dias**, não do mês nem do período do pedido — é como mídia exterior se
    vende no Brasil, e a tabela `periods` já modela isso (104 períodos de 14
    dias). Sobra de dias conta como bi-semana inteira. `bi_semanas()` no banco e

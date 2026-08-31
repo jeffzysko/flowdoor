@@ -67,7 +67,7 @@ export default async function PainelPage() {
         .lte("starts_on", hoje).gte("ends_on", hoje).maybeSingle(),
     ]);
 
-  // Ocupação da bi-semana corrente: o número que um dono de outdoor olha
+  // Ocupação do ciclo corrente: o número que um dono de outdoor olha
   // antes de qualquer outro, e que não aparecia em lugar nenhum do painel.
   const periodo = periodoAtual.data as
     | { id: string; seq: number; starts_on: string; ends_on: string }
@@ -126,7 +126,7 @@ export default async function PainelPage() {
           }
         : lista.length === 0
           ? {
-              titulo: "Venda a primeira bi-semana.",
+              titulo: "Venda o primeiro ciclo.",
               texto:
                 "O pedido reserva a face, calcula o valor e gera a agenda do aplicador.",
               href: "/operacao/novo" as Route,
@@ -232,14 +232,14 @@ export default async function PainelPage() {
           hint={
             periodo
               ? `${facesOcupadas} de ${totalFaces} faces vendidas`
-              : "sem bi-semana corrente"
+              : "sem ciclo corrente"
           }
           href="/disponibilidade"
         />
         <Stat
           label="Na rua agora"
           value={reaisCurto(valorNaRua)}
-          hint={`${reais(valorNaRua)} reservados nesta bi-semana`}
+          hint={`${reais(valorNaRua)} reservados neste ciclo`}
           href="/operacao"
         />
         <Stat label="Anunciantes" value={advertisers.count ?? 0} hint="Clientes finais" href="/clientes" />

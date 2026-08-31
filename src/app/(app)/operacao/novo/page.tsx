@@ -28,7 +28,7 @@ export default async function NovoPedidoPage() {
         .order("name"),
       supabase
         .from("faces")
-        .select("id, code, kind, medium, orientation, base_price, sites(code, address, district, city, state)")
+        .select("id, code, kind, medium, orientation, base_price, sale_unit, sites(code, address, district, city, state)")
         .eq("org_id", org)
         .eq("status", "ativa")
         .order("code"),
@@ -47,6 +47,7 @@ export default async function NovoPedidoPage() {
     medium: string;
     orientation: string | null;
     base_price: number | null;
+    sale_unit: "ciclo" | "mes";
     sites: {
       code: string;
       address: string;

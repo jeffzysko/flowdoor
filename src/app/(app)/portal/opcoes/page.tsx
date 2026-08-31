@@ -87,7 +87,7 @@ export default async function MinhasOpcoesPage() {
           </Empty>
         </div>
       ) : (
-        <Table head={["Opção", "Exibidora", "Bi-semana", "Faces", "Validade", ""]}>
+        <Table head={["Opção", "Exibidora", "Período", "Faces", "Validade", ""]}>
           {abertas.map((o) => (
             <tr key={o.id}>
               <td>
@@ -118,7 +118,7 @@ export default async function MinhasOpcoesPage() {
       {fechadas.length > 0 && (
         <>
           <h2 className="fd-h4 mt-10">Encerradas</h2>
-          <Table head={["Opção", "Exibidora", "Bi-semana", "Desfecho"]}>
+          <Table head={["Opção", "Exibidora", "Período", "Desfecho"]}>
             {fechadas.map((o) => (
               <tr key={o.id}>
                 <td className="tabular-nums">{o.code}</td>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { reais } from "@/lib/domain/dinheiro";
+import { reais, UNIDADE_CURTA, type UnidadeDeVenda } from "@/lib/domain/dinheiro";
 
 export type FaceEscolhivel = {
   id: string;
@@ -9,6 +9,8 @@ export type FaceEscolhivel = {
   medium: string;
   orientation: string | null;
   base_price: number | null;
+  /** O que base_price significa: valor do ciclo de 14 dias, ou do mês. */
+  sale_unit: UnidadeDeVenda;
   /** Já montado: rua · bairro · cidade. */
   endereco: string;
 };
@@ -86,7 +88,9 @@ export function EscolhaDeFaces({
                   </span>
                 </span>
                 <span className="text-xs text-ink-3 tabular-nums">
-                  {f.base_price !== null ? reais(f.base_price) : "sem tabela"}
+                  {f.base_price !== null
+                    ? `${reais(f.base_price)}/${UNIDADE_CURTA[f.sale_unit]}`
+                    : "sem tabela"}
                 </span>
               </button>
             );
@@ -94,7 +98,8 @@ export function EscolhaDeFaces({
         )}
       </div>
       <p className="fd-hint">
-        O valor ao lado é a tabela por bi-semana, antes do período.
+        O valor ao lado é a tabela do período de venda da face — ciclo de 14
+        dias, ou mês. O total sai do período da campanha.
       </p>
     </div>
   );

@@ -1,34 +1,75 @@
 /**
  * Dinheiro na tela e no cálculo.
  *
- * Mídia exterior se vende por BI-SEMANA — 14 dias — e não por dia nem por
- * mês. A tabela `periods` já modela isso (104 períodos de 14 dias). Sobra de
- * dias conta como bi-semana inteira, que é como se cobra.
+ * Mídia exterior não se vende por dia. A maior parte do inventário se vende
+ * por CICLO DE 14 DIAS — a tabela `periods` modela 104 ciclos por ano — mas
+ * front light e top sight se vendem por MÊS, e a conta muda com isso. Sobra
+ * de dias conta como período inteiro, que é como se cobra.
  *
- * Estas funções repetem, em TypeScript, o que `bi_semanas()` e
- * `valor_de_tabela()` fazem no banco. A tela precisa mostrar o total antes de
- * salvar; o banco precisa garantir que o total salvo é o certo, venha de onde
- * vier. As duas contas têm que dar o mesmo número — se um dia divergirem, a
- * do banco é a que vale.
+ * Estas funções repetem, em TypeScript, o que `ciclos()`,
+ * `meses_de_veiculacao()` e `valor_de_tabela()` fazem no banco. A tela
+ * precisa mostrar o total antes de salvar; o banco precisa garantir que o
+ * total salvo é o certo, venha de onde vier. As duas contas têm que dar o
+ * mesmo número — se um dia divergirem, a do banco é a que vale.
  */
 
-export function biSemanas(inicio: string, fim: string): number {
+export type UnidadeDeVenda = "ciclo" | "mes";
+
+export const UNIDADE_LABEL: Record<UnidadeDeVenda, string> = {
+  ciclo: "ciclo de 14 dias",
+  mes: "mês",
+};
+
+/** Curto, para caber em tabela e ao lado de preço. */
+export const UNIDADE_CURTA: Record<UnidadeDeVenda, string> = {
+  ciclo: "ciclo",
+  mes: "mês",
+};
+
+/** Front light e top sight se vendem por mês; o resto, por ciclo. */
+export function unidadePadraoDoFormato(kind: string | null | undefined): UnidadeDeVenda {
+  return kind === "frontlight" || kind === "top_sight" ? "mes" : "ciclo";
+}
+
+export function ciclos(inicio: string, fim: string): number {
+  return periodosDe(inicio, fim, 14);
+}
+
+/**
+ * Trinta dias, não mês de calendário: campanha de 15/09 a 14/10 é um mês de
+ * exposição, ainda que atravesse dois meses no calendário.
+ */
+export function meses(inicio: string, fim: string): number {
+  return periodosDe(inicio, fim, 30);
+}
+
+function periodosDe(inicio: string, fim: string, tamanho: number): number {
   if (!inicio || !fim) return 0;
   const d1 = new Date(inicio + "T12:00:00");
   const d2 = new Date(fim + "T12:00:00");
   const dias = Math.round((d2.getTime() - d1.getTime()) / 86_400_000) + 1;
   if (dias <= 0) return 0;
-  return Math.max(1, Math.ceil(dias / 14));
+  return Math.max(1, Math.ceil(dias / tamanho));
+}
+
+/** Quantos períodos o intervalo ocupa, na unidade da face. */
+export function periodosDaVenda(
+  inicio: string,
+  fim: string,
+  unidade: UnidadeDeVenda = "ciclo"
+): number {
+  return unidade === "mes" ? meses(inicio, fim) : ciclos(inicio, fim);
 }
 
 export function valorDeTabela(
-  precoPorBiSemana: number | null | undefined,
+  precoDoPeriodo: number | null | undefined,
   inicio: string,
-  fim: string
+  fim: string,
+  unidade: UnidadeDeVenda = "ciclo"
 ): number | null {
-  if (precoPorBiSemana == null) return null;
-  const n = biSemanas(inicio, fim);
-  return n === 0 ? null : precoPorBiSemana * n;
+  if (precoDoPeriodo == null) return null;
+  const n = periodosDaVenda(inicio, fim, unidade);
+  return n === 0 ? null : precoDoPeriodo * n;
 }
 
 const BRL = new Intl.NumberFormat("pt-BR", {

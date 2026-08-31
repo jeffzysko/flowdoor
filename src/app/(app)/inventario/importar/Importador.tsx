@@ -317,7 +317,7 @@ export function Importador({
                       <th>Face</th>
                       <th>Endereço</th>
                       <th>Formato</th>
-                      <th>Bi-semana</th>
+                      <th>Valor</th>
                       <th>O que faz</th>
                     </tr>
                   </thead>

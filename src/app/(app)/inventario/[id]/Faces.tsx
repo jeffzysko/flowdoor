@@ -5,11 +5,21 @@ import { atualizarFace, criarFace, excluirFace, type FormState } from "../action
 import { Chip } from "@/components/ui";
 import { FACE_KIND, FACE_KIND_LABEL , rotuloDoFormato } from "@/lib/domain/formatos";
 import { rotulo, opcoes } from "@/lib/domain/rotulos";
-import { reais } from "@/lib/domain/dinheiro";
+import {
+  reais,
+  UNIDADE_CURTA,
+  unidadePadraoDoFormato,
+  type UnidadeDeVenda,
+} from "@/lib/domain/dinheiro";
 
 const inicial: FormState = { ok: false };
 
 const TIPOS: [string, string][] = FACE_KIND.map((k) => [k, FACE_KIND_LABEL[k]]);
+
+const UNIDADES: [string, string][] = [
+  ["ciclo", "Ciclo de 14 dias"],
+  ["mes", "Mês"],
+];
 
 export interface Face {
   id: string;
@@ -20,6 +30,7 @@ export interface Face {
   width_m: number | null;
   height_m: number | null;
   base_price: number | null;
+  sale_unit: UnidadeDeVenda;
   loop_seconds: number | null;
   spot_seconds: number | null;
   slots_total: number | null;
@@ -94,7 +105,9 @@ function LinhaFace({ face, siteId }: { face: Face; siteId: string }) {
           <span className="tabular-nums text-xs text-ink-3">
             {face.width_m && face.height_m ? `${face.width_m}×${face.height_m} m` : "sem medida"}
             {face.orientation ? ` · ${face.orientation}` : ""}
-            {face.base_price ? ` · ${reais(face.base_price)}/bi-semana` : ""}
+            {face.base_price
+              ? ` · ${reais(face.base_price)}/${UNIDADE_CURTA[face.sale_unit ?? "ciclo"]}`
+              : ""}
           </span>
           {!face.usada && (
             <span className="fd-label">
@@ -153,8 +166,20 @@ function FormFace({
           <F name="orientation" label="Sentido do fluxo" defaultValue={face.orientation ?? ""} placeholder="bairro-centro" />
           <F name="widthM" label="Largura (m)" defaultValue={face.width_m ?? ""} placeholder="9" />
           <F name="heightM" label="Altura (m)" defaultValue={face.height_m ?? ""} placeholder="3" />
-          <F name="basePrice" label="Preço por bi-semana" defaultValue={face.base_price ?? ""} placeholder="1100" />
+          <F name="basePrice" label="Preço do período" defaultValue={face.base_price ?? ""} placeholder="1100" />
+          <S
+            name="saleUnit"
+            label="Vendida por"
+            defaultValue={face.sale_unit ?? "ciclo"}
+            opcoes={UNIDADES}
+          />
         </div>
+
+        <p className="fd-hint fd-prose">
+          Front light e top sight se vendem por mês no Brasil; o resto do
+          inventário, por ciclo de 14 dias. É esta escolha que decide o que o
+          preço acima significa.
+        </p>
 
         {medium === "digital" && (
           <div className="mt-4 grid gap-4 border-t border-line pt-4 sm:grid-cols-3">
@@ -236,6 +261,8 @@ function NovaFace({
 }) {
   const [state, action, pendente] = useActionState(criarFace, inicial);
   const [medium, setMedium] = useState("estatico");
+  // A unidade acompanha o formato enquanto ninguém mexer nela à mão.
+  const [kind, setKind] = useState("outdoor");
 
   if (state.ok) {
     return (
@@ -259,14 +286,26 @@ function NovaFace({
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <F name="code" label="Código" defaultValue={sugerido} required />
-        <S name="kind" label="Tipo" defaultValue="outdoor" opcoes={TIPOS} />
+        <S name="kind" label="Tipo" defaultValue="outdoor" opcoes={TIPOS} onChange={setKind} />
         <S name="medium" label="Meio" defaultValue="estatico"
            opcoes={opcoes("face_medium")} onChange={setMedium} />
         <F name="orientation" label="Sentido do fluxo" placeholder="bairro-centro" />
         <F name="widthM" label="Largura (m)" placeholder="9" />
         <F name="heightM" label="Altura (m)" placeholder="3" />
-        <F name="basePrice" label="Preço por bi-semana" placeholder="1100" />
+        <F name="basePrice" label="Preço do período" placeholder="1100" />
+        <S
+          key={unidadePadraoDoFormato(kind)}
+          name="saleUnit"
+          label="Vendida por"
+          defaultValue={unidadePadraoDoFormato(kind)}
+          opcoes={UNIDADES}
+        />
       </div>
+
+      <p className="fd-hint fd-prose">
+        Front light e top sight se vendem por mês; o resto, por ciclo de 14
+        dias. É esta escolha que decide o que o preço acima significa.
+      </p>
 
       {medium === "digital" && (
         <div className="mt-4 grid gap-4 border-t border-line pt-4 sm:grid-cols-3">

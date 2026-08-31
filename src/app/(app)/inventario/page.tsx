@@ -18,7 +18,7 @@ export default async function InventarioPage() {
   const supabase = await createClient();
   const { data } = await supabase
     .from("faces")
-    .select("id, code, kind, medium, orientation, width_m, height_m, base_price, status, sites(id, code, address, district, city, state, latitude, geo_precision)")
+    .select("id, code, kind, medium, orientation, width_m, height_m, base_price, sale_unit, status, sites(id, code, address, district, city, state, latitude, geo_precision)")
     .eq("org_id", ctx.current.org_id)
     .order("code");
 

@@ -83,6 +83,7 @@ export default async function PortalPage({
   const lista = ((faces ?? []) as unknown as {
     id: string; code: string; kind: string; medium: string;
     orientation: string | null; base_price: number | null;
+    sale_unit: "ciclo" | "mes";
     site_code: string; address: string; district: string | null;
     city: string; state: string;
   }[]).map<FacePortal>((f2) => ({
@@ -92,6 +93,7 @@ export default async function PortalPage({
     medium: f2.medium,
     orientation: f2.orientation,
     base_price: f2.base_price,
+    sale_unit: f2.sale_unit,
     cidade: f2.city,
     endereco: [f2.address, f2.district].filter(Boolean).join(" · "),
   }));

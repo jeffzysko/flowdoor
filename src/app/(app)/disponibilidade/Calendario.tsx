@@ -37,14 +37,14 @@ const dia = (v: string) =>
   });
 
 /**
- * Calendário de bi-semanas.
+ * Calendário de ciclos de 14 dias.
  *
  * Verde é livre e cinza é ocupado — e a legenda diz isso na tela, porque uma
  * frase no topo da página não fica ao lado da cor quando a pessoa está lendo a
  * grade. Laranja aqui seria erro de gramática do design system: laranja é
  * marca, não estado.
  *
- * Mostarda é o terceiro estado: alguém guardou a bi-semana como opção. Ainda
+ * Mostarda é o terceiro estado: alguém guardou o ciclo como opção. Ainda
  * dá para vender — opção não bloqueia — mas quem vender precisa saber que tem
  * outro cliente decidindo. Vender no escuro é como se descobre, tarde demais,
  * que duas pessoas fecharam a mesma placa.
@@ -94,7 +94,7 @@ export function Calendario({
     return faces.filter((f) => {
       if (cidade && f.cidade !== cidade) return false;
       if (tipo && f.kind !== tipo) return false;
-      // "Só com bi-semana livre" olha o que está na tela: filtrar pelo ano
+      // "Só com ciclo livre" olha o que está na tela: filtrar pelo ano
       // inteiro esconderia face livre justamente no mês que a pessoa abriu.
       if (soLivres) {
         const livreNaJanela = janela.some(
@@ -181,7 +181,7 @@ export function Calendario({
               onChange={(e) => setSoLivres(e.target.checked)}
               className="size-4 accent-accent"
             />
-            Só com bi-semana livre
+            Só com ciclo livre
           </label>
         </div>
 
@@ -199,7 +199,7 @@ export function Calendario({
             Reservado — não aceita segunda reserva
           </span>
           <span className="ml-auto tabular-nums">
-            {visiveis.length} de {faces.length} faces · {livresNaJanela} bi-semanas
+            {visiveis.length} de {faces.length} faces · {livresNaJanela} ciclos
             livres nestas {janela.length} colunas
           </span>
         </div>
@@ -257,7 +257,7 @@ export function Calendario({
                       return (
                         <td key={p.id} className="px-1 py-2 text-center">
                           <span
-                            title={`${f.code} · bi-semana ${p.seq} (${dia(
+                            title={`${f.code} · ciclo ${p.seq} (${dia(
                               p.inicio
                             )} a ${dia(p.fim)}) · ${estado}`}
                             className={`block h-5 w-full min-w-8 rounded-sm ${

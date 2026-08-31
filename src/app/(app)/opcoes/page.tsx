@@ -69,7 +69,7 @@ export default async function OpcoesPage() {
     .limit(200),
     supabase
       .from("faces")
-      .select("id, code, medium, orientation, base_price, sites(address, district, city)")
+      .select("id, code, medium, orientation, base_price, sale_unit, sites(address, district, city)")
       .eq("org_id", ctx.current.org_id)
       .eq("status", "ativa")
       .order("code")
@@ -79,7 +79,7 @@ export default async function OpcoesPage() {
   const catalogo: FaceEscolhivel[] = (
     (facesBrutas ?? []) as unknown as {
       id: string; code: string; medium: string; orientation: string | null;
-      base_price: number | null;
+      base_price: number | null; sale_unit: "ciclo" | "mes";
       sites: { address: string; district: string | null; city: string } | null;
     }[]
   ).map((f) => ({
@@ -88,6 +88,7 @@ export default async function OpcoesPage() {
     medium: f.medium,
     orientation: f.orientation,
     base_price: f.base_price,
+    sale_unit: f.sale_unit,
     endereco: [f.sites?.address, f.sites?.district, f.sites?.city]
       .filter(Boolean)
       .join(" · "),

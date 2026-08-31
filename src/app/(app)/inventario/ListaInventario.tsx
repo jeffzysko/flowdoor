@@ -11,7 +11,7 @@ import {
   LOCAL_EXPLICACAO,
 } from "@/lib/domain/localizacao";
 import { rotulo } from "@/lib/domain/rotulos";
-import { reais } from "@/lib/domain/dinheiro";
+import { reais, UNIDADE_CURTA, type UnidadeDeVenda } from "@/lib/domain/dinheiro";
 
 export type FaceInv = {
   id: string;
@@ -19,6 +19,7 @@ export type FaceInv = {
   kind: string;
   medium: string;
   base_price: number | null;
+  sale_unit: UnidadeDeVenda;
   orientation: string | null;
   width_m: number | null;
   height_m: number | null;
@@ -176,7 +177,7 @@ export function ListaInventario({ faces }: { faces: FaceInv[] }) {
         </div>
       ) : (
         <Table
-          head={["Face", "Ponto", "Endereço", "Local", "Tipo", "Medida", "Bi-semana", "Status"]}
+          head={["Face", "Ponto", "Endereço", "Local", "Tipo", "Medida", "Tabela", "Status"]}
         >
           {visiveis.map((f) => (
             <tr key={f.id}>
@@ -218,7 +219,14 @@ export function ListaInventario({ faces }: { faces: FaceInv[] }) {
               <td className="tabular-nums">
                 {f.width_m && f.height_m ? `${f.width_m}×${f.height_m}m` : "—"}
               </td>
-              <td className="text-right tabular-nums">{reais(f.base_price)}</td>
+              <td className="text-right tabular-nums">
+                {reais(f.base_price)}
+                {f.base_price !== null && (
+                  <span className="block text-xs text-ink-3">
+                    por {UNIDADE_CURTA[f.sale_unit ?? "ciclo"]}
+                  </span>
+                )}
+              </td>
               <td>
                 <Chip tone={f.status === "ativa" ? "bom" : "aviso"}>
                   {rotulo("face_status", f.status)}

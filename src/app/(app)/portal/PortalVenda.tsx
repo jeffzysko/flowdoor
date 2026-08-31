@@ -4,7 +4,12 @@ import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Empty } from "@/components/ui";
-import { reais } from "@/lib/domain/dinheiro";
+import {
+  reais,
+  valorDeTabela,
+  UNIDADE_CURTA,
+  type UnidadeDeVenda,
+} from "@/lib/domain/dinheiro";
 import { rotuloDoFormato } from "@/lib/domain/formatos";
 import { PRAZOS, dataHoraBR, validadeDaOpcao, type Prazo } from "@/lib/domain/opcoes";
 import { pedirOpcao } from "./actions";
@@ -16,6 +21,7 @@ export type FacePortal = {
   medium: string;
   orientation: string | null;
   base_price: number | null;
+  sale_unit: UnidadeDeVenda;
   cidade: string;
   endereco: string;
 };
@@ -36,7 +42,7 @@ const dia = (v: string) =>
  * O portal do parceiro.
  *
  * A ordem das perguntas é a da venda de mídia exterior, não a do banco:
- * primeiro QUANDO (a bi-semana), porque é o período que decide o que está
+ * primeiro QUANDO (o ciclo), porque é o período que decide o que está
  * livre; depois ONDE (as faces livres naquele período); e só então PARA QUEM.
  * Um calendário de doze colunas seria bonito e inútil aqui — a agência não
  * administra o inventário, ela compra um período.
@@ -58,6 +64,7 @@ export function PortalVenda({
 }) {
   const router = useRouter();
   const [periodoId, setPeriodoId] = useState(periodos[0]?.id ?? "");
+  const [duracao, setDuracao] = useState(14);
   const [busca, setBusca] = useState("");
   const [cidade, setCidade] = useState("");
   const [tipo, setTipo] = useState("");
@@ -74,13 +81,26 @@ export function PortalVenda({
 
   const periodo = periodos.find((p) => p.id === periodoId) ?? periodos[0];
 
+  /**
+   * O período da campanha começa no ciclo escolhido e dura o que a agência
+   * pedir. Sem isto, uma face vendida por mês só podia ser pedida por 14
+   * dias — metade do que ela se vende.
+   */
+  const inicio = periodo?.starts_on ?? "";
+  const fim = useMemo(() => {
+    if (!inicio) return "";
+    const d = new Date(inicio + "T12:00:00");
+    d.setDate(d.getDate() + duracao - 1);
+    return d.toISOString().slice(0, 10);
+  }, [inicio, duracao]);
+
   /** Situação de cada face NO PERÍODO ESCOLHIDO. */
   const situacao = useMemo(() => {
     const mapa = new Map<string, "livre" | "opcao" | "reserva">();
-    if (!periodo) return mapa;
+    if (!periodo || !fim) return mapa;
     for (const f of faces) mapa.set(f.id, "livre");
     for (const o of ocupacao) {
-      if (o.starts_on > periodo.ends_on || o.ends_on < periodo.starts_on) continue;
+      if (o.starts_on > fim || o.ends_on < inicio) continue;
       const atualEstado = mapa.get(o.face_id);
       if (atualEstado === undefined) continue;
       // Reserva firme manda: opção não bloqueia, reserva bloqueia.
@@ -88,7 +108,7 @@ export function PortalVenda({
       else if (atualEstado === "livre") mapa.set(o.face_id, "opcao");
     }
     return mapa;
-  }, [faces, ocupacao, periodo]);
+  }, [faces, ocupacao, periodo, inicio, fim]);
 
   const cidades = useMemo(
     () => [...new Set(faces.map((f) => f.cidade).filter(Boolean))].sort((a, b) => a.localeCompare(b, "pt-BR")),
@@ -115,15 +135,19 @@ export function PortalVenda({
     });
   }, [faces, busca, cidade, tipo, soLivres, situacao]);
 
-  const validade = periodo ? validadeDaOpcao(
-    PRAZOS.find((p) => p.valor === prazo)!.horas,
-    periodo.starts_on
-  ) : null;
+  const validade = inicio
+    ? validadeDaOpcao(PRAZOS.find((p) => p.valor === prazo)!.horas, inicio)
+    : null;
 
-  const total = escolhidas.reduce(
-    (s, id) => s + (faces.find((f) => f.id === id)?.base_price ?? 0),
-    0
-  );
+  const total = escolhidas.reduce((s, id) => {
+    const f = faces.find((x) => x.id === id);
+    return s + (valorDeTabela(f?.base_price, inicio, fim, f?.sale_unit ?? "ciclo") ?? 0);
+  }, 0);
+
+  /** Face mensal em campanha de menos de 30 dias: a conta cobra o mês inteiro. */
+  const mensaisCurtas = escolhidas.filter(
+    (id) => faces.find((f) => f.id === id)?.sale_unit === "mes" && duracao < 30
+  ).length;
 
   function alternar(id: string) {
     if (situacao.get(id) === "reserva") return;
@@ -131,7 +155,7 @@ export function PortalVenda({
   }
 
   function enviarPedido() {
-    if (!periodo || !validade) return;
+    if (!periodo || !validade || !fim) return;
     setErro(null);
     enviar(async () => {
       const r = await pedirOpcao({
@@ -139,8 +163,8 @@ export function PortalVenda({
         agencyId,
         advertiserName: anunciante,
         title: titulo,
-        startsOn: periodo.starts_on,
-        endsOn: periodo.ends_on,
+        startsOn: inicio,
+        endsOn: fim,
         expiresAt: validade,
         notes: observacoes,
         faces: escolhidas,
@@ -161,7 +185,7 @@ export function PortalVenda({
   if (periodos.length === 0) {
     return (
       <div className="mt-6">
-        <Empty titulo="Sem bi-semanas cadastradas.">
+        <Empty titulo="Sem ciclos cadastrados.">
           O calendário comercial ainda não foi gerado para este ano.
         </Empty>
       </div>
@@ -211,7 +235,7 @@ export function PortalVenda({
         )}
 
         <label className="block">
-          <span className="fd-label">Bi-semana</span>
+          <span className="fd-label">Ciclo de 14 dias</span>
           <select
             value={periodoId}
             onChange={(e) => setPeriodoId(e.target.value)}
@@ -224,8 +248,29 @@ export function PortalVenda({
             ))}
           </select>
           <span className="fd-hint">
-            O período decide o que está livre. Tudo abaixo é o retrato desta
-            bi-semana.
+            O período decide o que está livre.
+          </span>
+        </label>
+
+        <label className="mt-4 block">
+          <span className="fd-label">Duração da campanha</span>
+          <select
+            value={duracao}
+            onChange={(e) => setDuracao(Number(e.target.value))}
+            className="fd-input max-w-[360px]"
+          >
+            <option value={14}>1 ciclo — 14 dias</option>
+            <option value={28}>2 ciclos — 28 dias</option>
+            <option value={30}>1 mês — 30 dias</option>
+            <option value={60}>2 meses — 60 dias</option>
+            <option value={90}>3 meses — 90 dias</option>
+          </select>
+          <span className="fd-hint">
+            {fim
+              ? `De ${dia(inicio)} a ${dia(fim)}.`
+              : ""}{" "}
+            Front light e top sight se vendem por mês: pedir 14 dias neles
+            cobra o mês inteiro.
           </span>
         </label>
 
@@ -273,7 +318,7 @@ export function PortalVenda({
       <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(320px,380px)] xl:items-start">
         <div>
           <p className="fd-hint">
-            {visiveis.length} de {faces.length} faces nesta bi-semana
+            {visiveis.length} de {faces.length} faces neste ciclo
             {escolhidas.length > 0 ? ` · ${escolhidas.length} escolhida(s)` : ""}
           </p>
           <div className="fd-escolha mt-2 max-h-[520px]">
@@ -308,7 +353,9 @@ export function PortalVenda({
                     </span>
                     <span className="text-right text-xs tabular-nums">
                       {atual.vePrecos && f.base_price !== null && (
-                        <span className="block text-ink-2">{reais(f.base_price)}</span>
+                        <span className="block text-ink-2">
+                          {reais(f.base_price)}/{UNIDADE_CURTA[f.sale_unit]}
+                        </span>
                       )}
                       <span
                         className={
@@ -350,12 +397,20 @@ export function PortalVenda({
 
           <p className="mt-2 text-sm text-ink-2 fd-prose">
             {periodo
-              ? `Bi-semana ${periodo.seq}, de ${dia(periodo.starts_on)} a ${dia(periodo.ends_on)}.`
+              ? `Ciclo ${periodo.seq} · ${dia(inicio)} a ${dia(fim)}.`
               : ""}{" "}
             {escolhidas.length === 0
               ? "Escolha as faces ao lado."
               : `${escolhidas.length} face(s).`}
           </p>
+
+          {mensaisCurtas > 0 && (
+            <p className="fd-alert fd-alert-warn mt-3">
+              {mensaisCurtas} face(s) da lista se vendem por mês. Com{" "}
+              {duracao} dias, a tabela cobra um mês inteiro — se a ideia era o
+              mês, escolha 30 dias na duração.
+            </p>
+          )}
 
           {escolhidas.length > 0 && (
             <ul className="mt-3 space-y-1 text-sm">
@@ -381,7 +436,7 @@ export function PortalVenda({
 
           {atual.vePrecos && total > 0 && (
             <p className="mt-3 text-sm text-ink-2">
-              Tabela desta bi-semana:{" "}
+              Tabela deste período:{" "}
               <b className="tabular-nums text-ink">{reais(total)}</b>. O valor
               final é o que {atual.nome} fechar com você.
             </p>
@@ -427,7 +482,7 @@ export function PortalVenda({
                 <span className="fd-hint">
                   {validade
                     ? `Vence em ${dataHoraBR(validade)}.`
-                    : "Esta bi-semana começa cedo demais para uma opção."}
+                    : "Este ciclo começa cedo demais para uma opção."}
                 </span>
               </label>
 

@@ -253,6 +253,7 @@ const faceBase = {
   widthM: numero(),
   heightM: numero(),
   basePrice: numero(),
+  saleUnit: z.enum(["ciclo", "mes"]),
   loopSeconds: inteiro(),
   spotSeconds: inteiro(),
   slotsTotal: inteiro(),
@@ -308,6 +309,7 @@ export async function criarFace(
     width_m: v.widthM ?? null,
     height_m: v.heightM ?? null,
     base_price: v.basePrice ?? null,
+    sale_unit: v.saleUnit,
     ...camposDeMidia(v),
   });
 
@@ -339,6 +341,7 @@ export async function atualizarFace(
       width_m: v.widthM ?? null,
       height_m: v.heightM ?? null,
       base_price: v.basePrice ?? null,
+      sale_unit: v.saleUnit,
       status: v.status,
       ...camposDeMidia(v),
     })

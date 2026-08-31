@@ -13,7 +13,14 @@ import {
   validadeDaOpcao,
   type Prazo,
 } from "@/lib/domain/opcoes";
-import { biSemanas, valorDeTabela, reais, paraNumero } from "@/lib/domain/dinheiro";
+import {
+  periodosDaVenda,
+  valorDeTabela,
+  reais,
+  paraNumero,
+  UNIDADE_CURTA,
+  type UnidadeDeVenda,
+} from "@/lib/domain/dinheiro";
 
 type Face = {
   id: string;
@@ -22,6 +29,7 @@ type Face = {
   medium: string;
   orientation: string | null;
   base_price: number | null;
+  sale_unit: UnidadeDeVenda;
   sites: {
     code: string;
     address: string;
@@ -92,8 +100,10 @@ export function NovoPedido({
   );
 
   const porId = useMemo(() => new Map(faces.map((f) => [f.id, f])), [faces]);
-  const periodos = biSemanas(inicio, fim);
+  const periodos = periodosDaVenda(inicio, fim);
   const opcao = modo === "opcao";
+  /** Há face vendida por mês na lista? O rodapé precisa dizer as duas contas. */
+  const temMensal = linhas.some((l) => porId.get(l.face_id)?.sale_unit === "mes");
   /** Até quando a opção vale. null = a campanha começa cedo demais para opção. */
   const validade = opcao ? validadeDaOpcao(HORAS_DO_PRAZO[prazo], inicio) : null;
 
@@ -101,7 +111,10 @@ export function NovoPedido({
   const valorDaLinha = (l: Linha): number | null => {
     const manual = paraNumero(l.preco);
     if (manual !== null) return manual;
-    return valorDeTabela(porId.get(l.face_id)?.base_price, inicio, fim);
+    const f = porId.get(l.face_id);
+    // A unidade é da face, não do pedido: front light e top sight se vendem
+    // por mês enquanto o outdoor ao lado se vende por ciclo de 14 dias.
+    return valorDeTabela(f?.base_price, inicio, fim, f?.sale_unit ?? "ciclo");
   };
 
   const total = linhas.reduce((soma, l) => soma + (l.face_id ? valorDaLinha(l) ?? 0 : 0), 0);
@@ -117,6 +130,7 @@ export function NovoPedido({
         medium: f.medium,
         orientation: f.orientation,
         base_price: f.base_price,
+        sale_unit: f.sale_unit,
         endereco: enderecoDa(f),
       })),
     [faces]
@@ -533,7 +547,8 @@ export function NovoPedido({
 
                 {linhas.map((l) => {
                   const face = porId.get(l.face_id);
-                  const tabela = valorDeTabela(face?.base_price, inicio, fim);
+                  const unidade = face?.sale_unit ?? "ciclo";
+                  const tabela = valorDeTabela(face?.base_price, inicio, fim, unidade);
                   const negociado = paraNumero(l.preco);
                   return (
                     <div key={l.key} className="fd-linha">
@@ -655,7 +670,9 @@ export function NovoPedido({
         <div className="mt-6 flex flex-wrap items-end justify-between gap-4 border-t border-line pt-5">
           <p className="text-sm text-ink-2">
             {periodos > 0
-              ? `${escolhidas.size} face(s) · ${periodos} bi-semana(s)`
+              ? `${escolhidas.size} face(s) · ${periodos} ciclo(s) de 14 dias${
+                  temMensal ? `, ou ${periodosDaVenda(inicio, fim, "mes")} mês(es) nas faces mensais` : ""
+                }`
               : "Informe o período da campanha para calcular o valor."}
           </p>
           <div className="text-right">

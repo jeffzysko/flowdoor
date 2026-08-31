@@ -115,14 +115,14 @@ export default async function DisponibilidadePage() {
       <PageHead
         eyebrow="Comercial"
         title="Disponibilidade"
-        lead="Uma coluna por bi-semana. Cada face aceita uma reserva por período — opção aberta aparece em mostarda e continua vendável."
+        lead="Uma coluna por ciclo de 14 dias. Cada face aceita uma reserva por período — opção aberta aparece em mostarda e continua vendável."
       />
 
       {paraCalendario.length === 0 || periodos.length === 0 ? (
         <div className="mt-6">
           <Empty titulo="Nada para mostrar no calendário.">
             O calendário é montado a partir das faces: cadastre o inventário e as
-            bi-semanas aparecem aqui.
+            colunas aparecem aqui.
           </Empty>
         </div>
       ) : (

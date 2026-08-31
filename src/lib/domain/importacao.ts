@@ -63,8 +63,12 @@ export const CAMPOS: Campo[] = [
     apelidos: ["largura", "largura m", "base"] },
   { chave: "height_m", rotulo: "Altura (m)", grupo: "face",
     apelidos: ["altura", "altura m"] },
-  { chave: "base_price", rotulo: "Valor da bi-semana", grupo: "face",
-    apelidos: ["valor", "preco", "valor bi-semana", "tabela", "preco tabela", "valor quinzena"] },
+  { chave: "base_price", rotulo: "Valor do período", grupo: "face",
+    ajuda: "Do ciclo de 14 dias, ou do mês — conforme a coluna ao lado.",
+    apelidos: ["valor", "preco", "valor do ciclo", "valor bi-semana", "tabela", "preco tabela", "valor quinzena", "valor mensal"] },
+  { chave: "sale_unit", rotulo: "Vendida por", grupo: "face",
+    ajuda: "ciclo ou mês. Em branco, front light e top sight viram mês.",
+    apelidos: ["vendida por", "unidade", "periodo de venda", "unidade de venda", "cobranca"] },
   { chave: "slots_total", rotulo: "Spots no loop", grupo: "face",
     apelidos: ["spots", "insercoes", "slots"] },
   { chave: "status", rotulo: "Situação", grupo: "face",
@@ -199,6 +203,16 @@ export function meioDe(v: string | undefined, formato: FaceKind | null): "estati
   return null;
 }
 
+/** "mensal", "mês", "30 dias" viram mes; "ciclo", "quinzenal", "14 dias" viram ciclo. */
+export function unidadeDe(v: string | undefined): "ciclo" | "mes" | null {
+  const t = normalizar(v ?? "");
+  if (!t) return null;
+  if (["mes", "mensal", "mensalidade", "30 dias", "por mes", "m"].includes(t)) return "mes";
+  if (["ciclo", "ciclo de 14 dias", "14 dias", "quinzena", "quinzenal", "bi semana", "bissemana", "c"].includes(t))
+    return "ciclo";
+  return null;
+}
+
 export function situacaoDe(v: string | undefined): "ativa" | "inativa" | "manutencao" | null {
   const t = normalizar(v ?? "");
   if (!t) return null;
@@ -245,6 +259,7 @@ export function paraLinha(
     width_m: numeroBR(bruto("width_m")),
     height_m: numeroBR(bruto("height_m")),
     base_price: numeroBR(bruto("base_price")),
+    sale_unit: unidadeDe(bruto("sale_unit")),
     slots_total: numeroBR(bruto("slots_total")),
     status: situacaoDe(bruto("status")),
   };
@@ -264,13 +279,13 @@ export function planilhaModelo(): string {
     "P-001", "Trevo da BR", "Av. das Torres, 1500", "Centro", "Curitiba", "PR",
     "80000-000", "-25,4284", "-49,2733", "João da Silva", "(41) 99999-0000",
     "31/12/2027", "1.200,00", "ALV-2026-341", "30/06/2027",
-    "P-001-A", "Outdoor", "Estático", "sentido bairro", "9", "3", "1.800,00", "", "Ativa",
+    "P-001-A", "Outdoor", "Estático", "sentido bairro", "9", "3", "1.800,00", "Ciclo", "", "Ativa",
   ];
   const exemplo2 = [
     "P-001", "Trevo da BR", "Av. das Torres, 1500", "Centro", "Curitiba", "PR",
     "80000-000", "-25,4284", "-49,2733", "João da Silva", "(41) 99999-0000",
     "31/12/2027", "1.200,00", "ALV-2026-341", "30/06/2027",
-    "P-001-B", "Outdoor", "Estático", "sentido centro", "9", "3", "1.800,00", "", "Ativa",
+    "P-001-B", "Front Light", "Estático", "sentido centro", "9", "3", "6.000,00", "Mês", "", "Ativa",
   ];
 
   const linha = (vs: string[]) =>
