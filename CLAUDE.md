@@ -316,6 +316,16 @@ base nova, schema novo.
    com timeout curto, e nunca impede o cadastro manual. O que ela traz entra
    só em campo vazio — o que o vendedor digitou vale mais que a Receita.
    Situação cadastral diferente de ATIVA aparece como aviso, não como bloqueio.
+85. **Número de configuração sem consequência escrita é número que ninguém
+   mexe.** As vinte e uma regras de campo existiam desde o início e só se
+   mudavam por SQL — o raio de 150 m valia igual para o outdoor no meio do
+   nada e para o mupi na esquina. Cada campo da tela diz o que acontece com
+   quem está na rua quando o número sobe ou desce, porque é isso que dá
+   coragem de ajustar.
+86. **A tela de regras diz, em voz alta, que ali há monitoramento de
+   trabalhador.** A pontuação do aplicador nasce de coordenada, foto e
+   horário: no Brasil isso encosta na LGPD, e o lugar de avisar é onde a
+   pessoa liga a régua, não num rodapé de contrato.
 81. **A importação só cria e atualiza. Nunca apaga.** Planilha que chega sem
    uma linha quase sempre significa "não incluí dessa vez", não "removi da
    operação" — e a diferença entre as duas leituras é um inventário inteiro.
@@ -688,6 +698,8 @@ são as que a auditoria encontrou, e nenhuma delas é óbvia olhando as telas:
   vale para sempre. E `proof_views` grava a visita do anunciante com zero
   referências de leitura: o dado existe e ninguém vê.
 - **`category_exclusivity_rules` está vazia e não é consultada por nada.**
+- ~~`field_validation_settings` sem tela.~~ **Fechado.** `/empresa/campo`,
+  em quatro blocos, com a consequência de cada número escrita ao lado.
 - **Disponibilidade fala bi-semana, pedido fala data solta.**
   `/disponibilidade` lê `periods`; `NovoPedido` não menciona período.
 - ~~Nenhuma edição.~~ **Fechado.** Ponto e face em `/inventario/[id]`, pedido e

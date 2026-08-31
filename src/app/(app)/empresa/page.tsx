@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionContext } from "@/lib/domain/session";
@@ -54,6 +55,15 @@ export default async function EmpresaPage() {
         title={o.name}
         lead="O que identifica a empresa no sistema, no contrato e no comprovante que o anunciante recebe."
       />
+
+      <p className="mt-4 text-sm text-ink-2 fd-prose">
+        As regras que o campo precisa cumprir — raio de chegada, tolerância de
+        horário e os sinais de fraude — ficam em{" "}
+        <Link href={"/empresa/campo" as never} className="fd-link fd-link-sm">
+          regras de campo
+        </Link>
+        .
+      </p>
 
       <section className="fd-cards mt-6">
         <div className="fd-card">

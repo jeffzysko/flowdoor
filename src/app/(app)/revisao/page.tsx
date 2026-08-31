@@ -1,8 +1,10 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessionContext } from "@/lib/domain/session";
 import { canReview } from "@/lib/domain/permissions";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { Chip, Empty, PageHead, Stat } from "@/components/ui";
+import { canManageTeam } from "@/lib/domain/permissions";
 import { RevisarFoto } from "./RevisarFoto";
 import { CorrigirPonto } from "./CorrigirPonto";
 import { rotulo } from "@/lib/domain/rotulos";
@@ -154,6 +156,18 @@ export default async function RevisaoPage() {
         title="Revisão de fotos"
         lead="O que a conferência automática não resolveu sozinha. Enquanto uma foto está aqui, a parada dela já foi concluída — a fila do campo não para."
       />
+
+      {canManageTeam(ctx.current.role) && (
+        <p className="mt-4 text-sm text-ink-2 fd-prose">
+          Fila grande demais ou pequena demais é sintoma de regra mal
+          calibrada — raio, tolerância de horário e sinais de fraude se ajustam
+          em{" "}
+          <Link href={"/empresa/campo" as never} className="fd-link fd-link-sm">
+            regras de campo
+          </Link>
+          .
+        </p>
+      )}
 
       <div className="fd-cards mt-6">
         <Stat label="Em revisão" value={emRevisao} hint="a conferência ficou em dúvida" />
