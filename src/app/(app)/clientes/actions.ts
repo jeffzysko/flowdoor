@@ -135,3 +135,46 @@ export async function atualizarAnunciante(
 export async function buscarCnpj(cnpj: string): Promise<RespostaCnpj> {
   return consultarCnpj(cnpj);
 }
+
+// ================================================= arquivar e excluir
+/**
+ * Excluir anunciante só vale para o cadastro que nunca foi usado — o gatilho
+ * `advertisers_no_delete_if_used` recusa o resto, e faz bem: apagar um
+ * anunciante com pedido levaria junto o dono da campanha. Para esse caso
+ * existe arquivar, que tira dos seletores de venda e deixa o histórico de pé.
+ */
+export async function excluirAnunciante(id: string): Promise<ClienteState> {
+  const supabase = await createClient();
+  const { error } = await supabase.from("advertisers").delete().eq("id", id);
+
+  if (error) {
+    const m = error.message.toLowerCase();
+    return {
+      ok: false,
+      message: m.includes("historico")
+        ? "Este anunciante já tem pedido ou opção. Arquive em vez de excluir — o histórico continua de pé."
+        : "Não foi possível excluir o anunciante.",
+    };
+  }
+
+  revalidatePath("/clientes");
+  revalidatePath("/operacao/novo");
+  return { ok: true, message: "Anunciante excluído." };
+}
+
+export async function arquivarAnunciante(
+  id: string,
+  arquivar: boolean
+): Promise<ClienteState> {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("advertisers")
+    .update({ archived_at: arquivar ? new Date().toISOString() : null })
+    .eq("id", id);
+
+  if (error) return { ok: false, message: "Não foi possível arquivar o anunciante." };
+
+  revalidatePath("/clientes");
+  revalidatePath("/operacao/novo");
+  return { ok: true, message: arquivar ? "Anunciante arquivado." : "Anunciante reativado." };
+}

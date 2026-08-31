@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { criarPedido, type PedidoState } from "../actions";
 import { criarOpcao } from "@/app/(app)/opcoes/actions";
+import { EscolhaDeFaces, type FaceEscolhivel } from "@/components/EscolhaDeFaces";
 import {
   HORAS_DO_PRAZO,
   PRAZOS,
@@ -74,7 +75,6 @@ export function NovoPedido({
   const [fim, setFim] = useState("");
   const [instrucoes, setInstrucoes] = useState("");
   const [arte, setArte] = useState<File | null>(null);
-  const [busca, setBusca] = useState("");
   const [linhas, setLinhas] = useState<Linha[]>([]);
   const [padrao, setPadrao] = useState({ assignee_id: "", data: "", hora: "09:00" });
   const [modo, setModo] = useState<"pedido" | "opcao">("pedido");
@@ -109,15 +109,18 @@ export function NovoPedido({
     (l) => l.face_id && valorDaLinha(l) === null
   );
 
-  const filtradas = useMemo(() => {
-    const q = busca.trim().toLowerCase();
-    if (!q) return faces;
-    return faces.filter((f) =>
-      [f.code, f.orientation, f.sites?.address, f.sites?.city, f.sites?.district]
-        .filter(Boolean)
-        .some((v) => String(v).toLowerCase().includes(q))
-    );
-  }, [busca, faces]);
+  const paraEscolha: FaceEscolhivel[] = useMemo(
+    () =>
+      faces.map((f) => ({
+        id: f.id,
+        code: f.code,
+        medium: f.medium,
+        orientation: f.orientation,
+        base_price: f.base_price,
+        endereco: enderecoDa(f),
+      })),
+    [faces]
+  );
 
   /** Clicar na face inclui; clicar de novo tira. O agendamento vai junto. */
   function alternar(faceId: string) {
@@ -461,63 +464,11 @@ export function NovoPedido({
 
         <div className="mt-5 grid gap-6 xl:grid-cols-[minmax(320px,400px)_minmax(0,1fr)] xl:items-start">
           {/* ------------------------------------------- catálogo de faces */}
-          <div>
-            <label className="block">
-              <Rotulo>Buscar face</Rotulo>
-              <input
-                value={busca}
-                onChange={(e) => setBusca(e.target.value)}
-                placeholder="Código, rua, bairro, cidade ou sentido"
-                className="fd-input"
-              />
-            </label>
-
-            <p className="fd-hint">
-              {filtradas.length} de {faces.length} faces
-              {escolhidas.size > 0 ? ` · ${escolhidas.size} no pedido` : ""}
-            </p>
-
-            <div className="fd-escolha mt-3">
-              {filtradas.length === 0 ? (
-                <p className="p-4 text-sm text-ink-3">
-                  Nenhuma face bate com essa busca.
-                </p>
-              ) : (
-                filtradas.map((f) => {
-                  const dentro = escolhidas.has(f.id);
-                  return (
-                    <button
-                      key={f.id}
-                      type="button"
-                      className="fd-opcao"
-                      aria-pressed={dentro}
-                      onClick={() => alternar(f.id)}
-                    >
-                      <span className="fd-marca" aria-hidden="true">
-                        ✓
-                      </span>
-                      <span className="fd-opcao-txt">
-                        <b className="tabular-nums">{f.code}</b>
-                        {f.medium === "digital" && (
-                          <span className="fd-tag fd-tag-brand ml-2">LED</span>
-                        )}
-                        <span className="fd-opcao-sub">
-                          {enderecoDa(f)}
-                          {f.orientation ? ` · ${f.orientation}` : ""}
-                        </span>
-                      </span>
-                      <span className="text-xs text-ink-3 tabular-nums">
-                        {f.base_price !== null ? reais(f.base_price) : "sem tabela"}
-                      </span>
-                    </button>
-                  );
-                })
-              )}
-            </div>
-            <p className="fd-hint">
-              O valor ao lado é a tabela por bi-semana, antes do período.
-            </p>
-          </div>
+          <EscolhaDeFaces
+            faces={paraEscolha}
+            escolhidas={escolhidas}
+            onAlternar={alternar}
+          />
 
           {/* -------------------------------------------- agendamento */}
           <div>

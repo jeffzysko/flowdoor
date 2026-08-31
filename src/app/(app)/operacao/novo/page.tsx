@@ -23,6 +23,8 @@ export default async function NovoPedidoPage() {
         .from("advertisers")
         .select("id, name, tax_id")
         .eq("org_id", org)
+        // Arquivado não aparece na venda: é para isso que serve arquivar.
+        .is("archived_at", null)
         .order("name"),
       supabase
         .from("faces")

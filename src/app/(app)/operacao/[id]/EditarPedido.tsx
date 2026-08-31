@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { atualizarPedido, cancelarPedido } from "../actions";
+import { atualizarPedido, cancelarPedido, excluirPedido } from "../actions";
 
 export interface LinhaAtual {
   face_id: string;
@@ -345,6 +345,32 @@ function CancelarPedido({ orderId, codigo }: { orderId: string; codigo: string }
           className="fd-btn fd-btn-danger fd-btn-sm"
         >
           {indo ? "Cancelando…" : "Sim, cancelar"}
+        </button>
+      </div>
+
+      <div className="mt-5 border-t border-line pt-4">
+        <p className="fd-prose text-sm text-ink-2">
+          Se este pedido foi engano — nasceu errado e nada aconteceu nele —
+          excluir some com ele de vez, em vez de deixar um cancelado no
+          relatório de conversão. Só funciona sem aplicação concluída, sem
+          comprovante publicado e sem origem em opção.
+        </p>
+        <button
+          disabled={indo}
+          onClick={() =>
+            iniciar(async () => {
+              const r = await excluirPedido(orderId);
+              if (!r.ok) {
+                setErro(r.message ?? "Não foi possível excluir.");
+                return;
+              }
+              router.push("/operacao");
+              router.refresh();
+            })
+          }
+          className="fd-link fd-link-sm fd-link-danger mt-3"
+        >
+          Excluir o pedido em vez de cancelar
         </button>
       </div>
     </div>

@@ -234,3 +234,41 @@ export async function cancelarPedido(
         : "."),
   };
 }
+
+/**
+ * Excluir pedido é a borracha do engano, não um evento comercial.
+ *
+ * Cancelar e excluir respondem coisas diferentes: pedido cancelado é um fato
+ * que o histórico de conversão precisa guardar; pedido criado por engano às
+ * 9h e apagado às 9h02 não é fato nenhum, e deixá-lo como "cancelado" suja o
+ * relatório para sempre. Quem decide qual dos dois cabe é o banco — aplicação
+ * concluída, comprovante publicado ou origem em opção travam a exclusão.
+ */
+export async function excluirPedido(
+  orderId: string
+): Promise<{ ok: boolean; message?: string }> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("delete_order", { p_order: orderId });
+
+  if (error) {
+    const m = error.message.toLowerCase();
+    return {
+      ok: false,
+      message: m.includes("aplicacao")
+        ? "Este pedido já tem aplicação concluída. Cancele em vez de excluir — o que foi feito em campo continua no histórico."
+        : m.includes("comprovante")
+          ? "Este pedido já teve comprovante publicado. Comprovante entregue ao anunciante não se apaga: cancele o pedido."
+          : m.includes("opcao")
+            ? "Este pedido nasceu de uma opção confirmada. Cancele, para a opção continuar contando como fechada."
+            : m.includes("sem permissao")
+              ? "Você não tem permissão comercial nesta empresa."
+              : "Não foi possível excluir o pedido.",
+    };
+  }
+
+  const r = data as { code: string };
+  revalidatePath("/operacao");
+  revalidatePath("/disponibilidade");
+  revalidatePath("/painel");
+  return { ok: true, message: `Pedido ${r.code} excluído.` };
+}

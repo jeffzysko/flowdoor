@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionContext } from "@/lib/domain/session";
 import { PageHead, Empty, Table, Chip, Stat } from "@/components/ui";
+import { canManageInventory } from "@/lib/domain/permissions";
+import { AcoesAtivo } from "./AcoesAtivo";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Contratos e licenças" };
@@ -33,6 +35,8 @@ export default async function AtivosPage() {
 
   const tone = (v: string | null) =>
     !v ? "neutro" : v <= hoje ? "risco" : v <= em60 ? "aviso" : "bom";
+
+  const pode = canManageInventory(ctx.current.role);
 
   const custoMes = rows.reduce((s, r) => s + (r.lease_monthly_cost ?? 0), 0);
   const vencendo = rows.filter(
@@ -68,7 +72,7 @@ export default async function AtivosPage() {
       {rows.length === 0 ? (
         <div className="mt-6"><Empty titulo="Nenhum ponto cadastrado.">Aluguel de terreno e licença de veiculação vivem no cadastro do ponto — é de lá que sai o custo mensal.</Empty></div>
       ) : (
-        <Table head={["Ponto", "Endereço", "Proprietário", "Aluguel", "Contrato até", "Licença", "Licença até"]}>
+        <Table head={["Ponto", "Endereço", "Proprietário", "Aluguel", "Contrato até", "Licença", "Licença até", ""]}>
           {rows.map((s) => (
             <tr key={s.id}>
               <td className="tabular-nums">{s.code}</td>
@@ -81,6 +85,16 @@ export default async function AtivosPage() {
               <td className="tabular-nums">{s.license_number ?? "—"}</td>
               <td>
                 <Chip tone={tone(s.license_expires_on)}>{d(s.license_expires_on)}</Chip>
+              </td>
+              <td>
+                {pode && (
+                  <AcoesAtivo
+                    siteId={s.id}
+                    code={s.code}
+                    temContrato={Boolean(s.owner_name || s.lease_ends_on || s.lease_monthly_cost)}
+                    temLicenca={Boolean(s.license_number || s.license_expires_on)}
+                  />
+                )}
               </td>
             </tr>
           ))}

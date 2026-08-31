@@ -42,6 +42,7 @@ function recado(bruto: string): string {
     return "Você não tem permissão comercial nesta empresa.";
   if (m.includes("venceu")) return bruto.replace(/^.*venceu/i, "Esta opção venceu");
   if (m.includes("ja foi")) return "Esta opção já foi fechada por alguém.";
+  if (m.includes("ao menos uma face")) return "A opção precisa de ao menos uma face.";
   if (m.includes("validade nao pode passar"))
     return "A validade não pode passar do início da campanha.";
   if (m.includes("validade ja passou") || m.includes("nova validade"))
@@ -135,4 +136,33 @@ export async function cancelarOpcao(
   revalidatePath("/disponibilidade");
   revalidatePath("/painel");
   return { ok: true, message: "Opção cancelada." };
+}
+
+/**
+ * Trocar as faces de uma opção aberta, sem trocar o número dela.
+ *
+ * Antes o único caminho era cancelar e refazer — o cliente tem OPC-2026-0007
+ * no e-mail e receberia um OPC-2026-0011 sem explicação no meio da
+ * negociação. As reservas que saem viram 'cancelada' em vez de sumir, para o
+ * histórico mostrar o que estava lá antes.
+ */
+export async function atualizarFacesOpcao(
+  holdId: string,
+  linhas: { face_id: string; price?: number }[]
+): Promise<OpcaoState> {
+  if (linhas.length === 0) {
+    return { ok: false, message: "A opção precisa de ao menos uma face." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("update_hold_lines", {
+    p_hold: holdId,
+    p_lines: linhas.map((l) => ({ face_id: l.face_id, price: l.price ?? null })),
+  });
+
+  if (error) return { ok: false, message: recado(error.message) };
+
+  revalidatePath("/opcoes");
+  revalidatePath("/disponibilidade");
+  return { ok: true, message: "Faces da opção atualizadas." };
 }

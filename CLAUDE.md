@@ -316,6 +316,36 @@ base nova, schema novo.
    com timeout curto, e nunca impede o cadastro manual. O que ela traz entra
    só em campo vazio — o que o vendedor digitou vale mais que a Receita.
    Situação cadastral diferente de ATIVA aparece como aviso, não como bloqueio.
+57. **Exclui-se o que nunca aconteceu; o resto se cancela ou se arquiva.** A
+   regra que já valia para inventário passa a valer para pedido, anunciante e
+   equipe. Cancelar e excluir respondem perguntas diferentes: pedido cancelado
+   é um fato comercial que o histórico de conversão precisa guardar; pedido
+   criado por engano às 9h e apagado às 9h02 não é fato nenhum, e deixá-lo como
+   "cancelado" suja o relatório para sempre. Quem decide qual dos dois cabe é o
+   banco — `delete_order` trava com aplicação concluída, comprovante publicado
+   ou origem em opção, e o gatilho de anunciante trava com pedido ou opção.
+58. **Desligar membro é desativar, nunca apagar, e a empresa nunca fica sem
+   titular ativo.** O membro assina aplicação, foto e comprovante: apagar a
+   linha deixaria `field_events.assignee_id` no vazio e um comprovante sem quem
+   executou. E `update_member` recusa desligar ou rebaixar o último titular
+   ativo — sem owner, ninguém convida, ninguém muda papel, ninguém edita a
+   empresa, e o suporte vira o único caminho de volta. Ninguém muda o próprio
+   papel.
+59. **Contrato e licença são campos do ponto, não tabelas.** "Excluir contrato"
+   é limpar os campos: o ponto continua no inventário porque a estrutura
+   continua de pé na rua. O aviso correspondente se resolve sozinho na próxima
+   rodada — a condição sumiu, o alerta some junto.
+60. **O catálogo de faces é um componente só (`EscolhaDeFaces`).** Ele nasceu
+   em novo pedido e a edição de opção precisava do mesmo. Duas cópias de um
+   seletor viram duas regras de busca diferentes em três meses.
+61. **Trocar as faces de uma opção mantém o número dela.** Cancelar e refazer
+   trocaria OPC-2026-0007 por OPC-2026-0011 no meio da negociação, com o
+   cliente olhando o código antigo no e-mail. As reservas que saem viram
+   `cancelada` em vez de sumir, para o histórico mostrar o que estava lá.
+62. **O filtro de tipo mostra só os formatos que a empresa tem.** Um seletor
+   com onze opções das quais nove não existem no inventário é ruído, não
+   filtro. E o formato entra na busca por texto: quem digita "led" quer o
+   painel de LED sem precisar saber que existe um seletor à direita.
 52. **Opção não bloqueia a face, e isso é a decisão inteira.** O índice de
    exclusão já ignorava `kind = 'opcao'` desde o início — agora tem tela para
    isso. Duas opções podem existir sobre a mesma placa no mesmo período, e o
@@ -537,8 +567,7 @@ são as que a auditoria encontrou, e nenhuma delas é óbvia olhando as telas:
   single-tenant.
 - ~~Reserva com validade nunca foi ligada.~~ **Fechado.** `holds` + `/opcoes`,
   com confirmação, prorrogação, cancelamento com motivo, expiração de hora em
-  hora e aviso no sino. Falta editar as faces de uma opção aberta: hoje o
-  caminho é cancelar e refazer.
+  hora, aviso no sino e troca de faces sem trocar o número.
 - ~~Nada roda sozinho.~~ **Fechado.** `pg_cron` instalado, dois jobs ativos.
 - **`artwork_approved_at` / `artwork_approved_by` nunca são escritos.** O
   anunciante não aprova a arte em lugar nenhum.

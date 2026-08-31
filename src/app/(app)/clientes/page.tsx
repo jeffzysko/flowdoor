@@ -19,12 +19,14 @@ export default async function ClientesPage() {
   const { data } = await supabase
     .from("advertisers")
     .select(
-      "id, person_type, name, legal_name, tax_id, email, phone, contact_name, category, notes"
+      "id, person_type, name, legal_name, tax_id, email, phone, contact_name, category, notes, archived_at"
     )
     .eq("org_id", ctx.current.org_id)
     .order("name");
 
   const rows = (data ?? []) as Anunciante[];
+  const ativos = rows.filter((a) => a.archived_at === null);
+  const arquivados = rows.filter((a) => a.archived_at !== null);
   const pode = canSell(ctx.current.role);
 
   return (
@@ -32,18 +34,33 @@ export default async function ClientesPage() {
       <PageHead eyebrow="Comercial" title="Anunciantes" lead="Quem paga pela campanha." />
 
       {pode && <NovoAnunciante orgId={ctx.current.org_id} />}
-      {rows.length === 0 ? (
+      {ativos.length === 0 ? (
         <div className="mt-6">
-          <Empty titulo="Nenhum anunciante cadastrado ainda.">
+          <Empty titulo="Nenhum anunciante ativo.">
             O anunciante é quem paga a campanha — sem ele o pedido não tem dono.
           </Empty>
         </div>
       ) : (
         <Table head={COLUNAS}>
-          {rows.map((a) => (
+          {ativos.map((a) => (
             <LinhaAnunciante key={a.id} a={a} pode={pode} colunas={COLUNAS.length} />
           ))}
         </Table>
+      )}
+
+      {arquivados.length > 0 && (
+        <>
+          <h2 className="fd-h4 mt-10">Arquivados</h2>
+          <p className="mt-1 text-sm text-ink-2 fd-prose">
+            Fora dos seletores de venda, dentro do histórico. Os pedidos antigos
+            continuam apontando para eles.
+          </p>
+          <Table head={COLUNAS}>
+            {arquivados.map((a) => (
+              <LinhaAnunciante key={a.id} a={a} pode={pode} colunas={COLUNAS.length} />
+            ))}
+          </Table>
+        </>
       )}
     </>
   );

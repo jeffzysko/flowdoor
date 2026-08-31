@@ -7,12 +7,13 @@ import { canSell } from "@/lib/domain/permissions";
 import { PageHead, Empty, Table, Chip } from "@/components/ui";
 import { reais } from "@/lib/domain/dinheiro";
 import { dataHoraBR, quantoFalta, urgente } from "@/lib/domain/opcoes";
+import type { FaceEscolhivel } from "@/components/EscolhaDeFaces";
 import { AcoesOpcao } from "./AcoesOpcao";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Opções" };
 
-type Reserva = { price: number | string | null; status: string };
+type Reserva = { face_id: string; price: number | string | null; status: string };
 
 type Opcao = {
   id: string;
@@ -56,14 +57,40 @@ export default async function OpcoesPage() {
   if (!ctx?.current) redirect("/entrar");
 
   const supabase = await createClient();
-  const { data } = await supabase
+  const [{ data }, { data: facesBrutas }] = await Promise.all([
+    supabase
     .from("holds")
     .select(
-      "id, code, title, starts_on, ends_on, expires_at, status, order_id, closed_reason, advertisers(name), bookings(price, status)"
+      "id, code, title, starts_on, ends_on, expires_at, status, order_id, closed_reason, advertisers(name), bookings(face_id, price, status)"
     )
     .eq("org_id", ctx.current.org_id)
     .order("expires_at", { ascending: true })
-    .limit(200);
+    .limit(200),
+    supabase
+      .from("faces")
+      .select("id, code, medium, orientation, base_price, sites(address, district, city)")
+      .eq("org_id", ctx.current.org_id)
+      .eq("status", "ativa")
+      .order("code")
+      .limit(500),
+  ]);
+
+  const catalogo: FaceEscolhivel[] = (
+    (facesBrutas ?? []) as unknown as {
+      id: string; code: string; medium: string; orientation: string | null;
+      base_price: number | null;
+      sites: { address: string; district: string | null; city: string } | null;
+    }[]
+  ).map((f) => ({
+    id: f.id,
+    code: f.code,
+    medium: f.medium,
+    orientation: f.orientation,
+    base_price: f.base_price,
+    endereco: [f.sites?.address, f.sites?.district, f.sites?.city]
+      .filter(Boolean)
+      .join(" · "),
+  }));
 
   const todas = (data ?? []) as unknown as Opcao[];
   const abertas = todas.filter((o) => o.status === "aberta");
@@ -121,7 +148,17 @@ export default async function OpcoesPage() {
                 </td>
                 <td>
                   {pode ? (
-                    <AcoesOpcao holdId={o.id} inicioCampanha={o.starts_on} />
+                    <AcoesOpcao
+                      holdId={o.id}
+                      inicioCampanha={o.starts_on}
+                      faces={catalogo}
+                      linhasAtuais={(o.bookings ?? [])
+                        .filter((b) => b.status === "ativa")
+                        .map((b) => ({
+                          face_id: b.face_id,
+                          price: b.price === null ? null : Number(b.price),
+                        }))}
+                    />
                   ) : (
                     <span className="text-xs text-ink-3">sem permissão comercial</span>
                   )}

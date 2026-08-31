@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionContext } from "@/lib/domain/session";
 import { PageHead, Empty } from "@/components/ui";
+import { rotuloDoFormato } from "@/lib/domain/formatos";
 import { Calendario, type FaceCal, type PeriodoCal } from "./Calendario";
 
 export const dynamic = "force-dynamic";
@@ -10,6 +11,7 @@ export const metadata = { title: "Disponibilidade" };
 type Face = {
   id: string;
   code: string;
+  kind: string;
   medium: string;
   sites: { address: string; city: string } | null;
 };
@@ -31,7 +33,7 @@ export default async function DisponibilidadePage() {
   const [{ data: faces }, { data: periods }, { data: bookings }] = await Promise.all([
     supabase
       .from("faces")
-      .select("id, code, medium, sites(address, city)")
+      .select("id, code, kind, medium, sites(address, city)")
       .eq("org_id", ctx.current.org_id)
       .eq("status", "ativa")
       .order("code")
@@ -85,6 +87,7 @@ export default async function DisponibilidadePage() {
     code: f.code,
     endereco: f.sites?.address ?? "",
     cidade: f.sites?.city ?? "",
+    kind: f.kind,
     medium: f.medium,
     ocupadas: indicesQueBatem(firmes, f.id),
     comOpcao: indicesQueBatem(opcoes, f.id),
@@ -92,6 +95,12 @@ export default async function DisponibilidadePage() {
 
   const cidades = [...new Set(paraCalendario.map((f) => f.cidade).filter(Boolean))].sort(
     (a, b) => a.localeCompare(b, "pt-BR")
+  );
+
+  // Só os formatos que a empresa realmente tem: um seletor com onze opções
+  // das quais nove não existem no inventário é ruído, não filtro.
+  const tipos = [...new Set(paraCalendario.map((f) => f.kind))].sort((a, b) =>
+    rotuloDoFormato(a).localeCompare(rotuloDoFormato(b), "pt-BR")
   );
 
   return (
@@ -110,7 +119,12 @@ export default async function DisponibilidadePage() {
           </Empty>
         </div>
       ) : (
-        <Calendario faces={paraCalendario} periodos={periodos} cidades={cidades} />
+        <Calendario
+          faces={paraCalendario}
+          periodos={periodos}
+          cidades={cidades}
+          tipos={tipos}
+        />
       )}
     </>
   );

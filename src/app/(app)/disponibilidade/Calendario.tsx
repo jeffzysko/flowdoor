@@ -2,12 +2,14 @@
 
 import { useMemo, useState } from "react";
 import { Empty } from "@/components/ui";
+import { rotuloDoFormato } from "@/lib/domain/formatos";
 
 export type FaceCal = {
   id: string;
   code: string;
   endereco: string;
   cidade: string;
+  kind: string;
   medium: string;
   /** Índices dos períodos ocupados, na ordem em que vêm em `periodos`. */
   ocupadas: number[];
@@ -40,24 +42,32 @@ export function Calendario({
   faces,
   periodos,
   cidades,
+  tipos,
 }: {
   faces: FaceCal[];
   periodos: PeriodoCal[];
   cidades: string[];
+  tipos: string[];
 }) {
   const [busca, setBusca] = useState("");
   const [cidade, setCidade] = useState("");
+  const [tipo, setTipo] = useState("");
   const [soLivres, setSoLivres] = useState(false);
 
   const visiveis = useMemo(() => {
     const t = busca.trim().toLowerCase();
     return faces.filter((f) => {
       if (cidade && f.cidade !== cidade) return false;
+      if (tipo && f.kind !== tipo) return false;
       if (soLivres && f.ocupadas.length === periodos.length) return false;
       if (!t) return true;
-      return `${f.code} ${f.endereco} ${f.cidade}`.toLowerCase().includes(t);
+      // O formato entra na busca por texto também: quem digita "led" quer o
+      // painel de LED, não precisa saber que existe um seletor à direita.
+      return `${f.code} ${f.endereco} ${f.cidade} ${rotuloDoFormato(f.kind)}`
+        .toLowerCase()
+        .includes(t);
     });
-  }, [faces, busca, cidade, soLivres, periodos.length]);
+  }, [faces, busca, cidade, tipo, soLivres, periodos.length]);
 
   const livresNoTotal = faces.reduce(
     (s, f) => s + (periodos.length - f.ocupadas.length),
@@ -67,7 +77,7 @@ export function Calendario({
   return (
     <>
       <div className="fd-card mt-6">
-        <div className="grid gap-4 sm:grid-cols-[1fr_auto_auto] sm:items-end">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_auto_auto_auto] xl:items-end">
           <label className="block">
             <span className="fd-label">Buscar face</span>
             <input
@@ -88,6 +98,21 @@ export function Calendario({
               {cidades.map((c) => (
                 <option key={c} value={c}>
                   {c}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="block">
+            <span className="fd-label">Tipo</span>
+            <select
+              value={tipo}
+              onChange={(e) => setTipo(e.target.value)}
+              className="fd-input"
+            >
+              <option value="">Todos</option>
+              {tipos.map((t) => (
+                <option key={t} value={t}>
+                  {rotuloDoFormato(t)}
                 </option>
               ))}
             </select>
@@ -159,7 +184,9 @@ export function Calendario({
                       <span className="block text-sm font-bold tabular-nums">
                         {f.code}
                       </span>
-                      <span className="block text-xs text-ink-3">{f.cidade}</span>
+                      <span className="block text-xs text-ink-3">
+                        {rotuloDoFormato(f.kind)} · {f.cidade}
+                      </span>
                     </td>
                     {periodos.map((p, i) => {
                       const taken = ocupadas.has(i);
