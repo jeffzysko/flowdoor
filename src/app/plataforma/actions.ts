@@ -208,3 +208,37 @@ export async function cancelarConvite(
   revalidatePath("/equipe");
   return { ok: true };
 }
+
+/**
+ * Muda a situação da empresa.
+ *
+ * Suspensa e encerrada cortam a escrita no banco, por `has_org_role`. A
+ * leitura continua: cobrança não pode virar sequestro de dado.
+ */
+export async function mudarStatusDaEmpresa(
+  orgId: string,
+  status: string
+): Promise<{ ok: boolean; message?: string }> {
+  const validos = ["implantacao", "ativa", "suspensa", "encerrada"];
+  if (!validos.includes(status)) {
+    return { ok: false, message: "Situação inválida." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("organizations")
+    .update({ status })
+    .eq("id", orgId);
+
+  if (error) {
+    return {
+      ok: false,
+      message: error.message.toLowerCase().includes("row-level")
+        ? "Só a plataforma muda a situação de uma empresa."
+        : "Não foi possível mudar a situação.",
+    };
+  }
+
+  revalidatePath("/plataforma");
+  return { ok: true };
+}

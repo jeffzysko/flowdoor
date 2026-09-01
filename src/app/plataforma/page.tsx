@@ -4,6 +4,8 @@ import { getSessionContext } from "@/lib/domain/session";
 import { PageHead, Empty, Table, Chip } from "@/components/ui";
 import Link from "next/link";
 import { Bootstrap } from "./Bootstrap";
+import { StatusDaEmpresa } from "./StatusDaEmpresa";
+import { ErrosRecentes, type ErroLinha } from "./ErrosRecentes";
 import { CascaApp } from "@/components/CascaApp";
 import { rotulo } from "@/lib/domain/rotulos";
 
@@ -58,6 +60,12 @@ export default async function PlataformaPage() {
 
   const orgs = (data ?? []) as Org[];
 
+  const { data: erros } = await supabase
+    .from("app_errors")
+    .select("id, ocorrido_em, origem, rota, mensagem, digest")
+    .order("ocorrido_em", { ascending: false })
+    .limit(50);
+
   return (
     <CascaApp ctx={ctx} contexto="plataforma">
       <PageHead
@@ -77,23 +85,30 @@ export default async function PlataformaPage() {
       {orgs.length === 0 ? (
         <div className="mt-6"><Empty titulo="Nenhuma organização criada ainda.">Cada exibidora é uma organização. Ela tem inventário, equipe e pedidos próprios.</Empty></div>
       ) : (
-        <Table head={["Nome", "Tipo", "Praça", "Plano", "Status", "Criada em"]}>
+        <Table head={["Nome", "Tipo", "Praça", "Plano", "Criada em", "Situação"]}>
           {orgs.map((o) => (
             <tr key={o.id}>
               <td className="font-medium">{o.name}</td>
               <td><Chip>{rotulo("org_kind", o.kind)}</Chip></td>
               <td>{o.city ? `${o.city}/${o.state}` : "-"}</td>
               <td className="tabular-nums">{o.plan}</td>
-              <td>
-                <Chip tone={o.status === "ativa" ? "bom" : "aviso"}>{rotulo("org_status", o.status)}</Chip>
-              </td>
               <td className="tabular-nums">
                 {new Date(o.created_at).toLocaleDateString("pt-BR")}
+              </td>
+              <td>
+                <StatusDaEmpresa orgId={o.id} nome={o.name} status={o.status} />
               </td>
             </tr>
           ))}
         </Table>
       )}
+
+      <p className="fd-hint fd-prose">
+        Empresa suspensa ou encerrada fica só leitura. A equipe continua vendo
+        tudo e para de criar e editar. A cobrança não tira o dado de ninguém.
+      </p>
+
+      <ErrosRecentes erros={(erros ?? []) as ErroLinha[]} />
     </CascaApp>
   );
 }

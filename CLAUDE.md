@@ -317,6 +317,23 @@ base nova, schema novo.
    com timeout curto, e nunca impede o cadastro manual. O que ela traz entra
    só em campo vazio: o que o vendedor digitou vale mais que a Receita.
    Situação cadastral diferente de ATIVA aparece como aviso, não como bloqueio.
+92. **Empresa suspensa fica só leitura, e a trava mora em `has_org_role`.**
+   `organizations.status` era enfeite: empresa suspensa usava o sistema
+   inteiro. Toda policy de escrita e toda RPC passam por `has_org_role`, então
+   é lá que a trava rende mais. A leitura continua liberada de propósito.
+   Cobrança não pode virar sequestro de dado, e quem está suspenso precisa ver
+   os próprios números para decidir voltar.
+93. **O calendário de ciclos se renova sozinho.** A carga inicial ia até 2029.
+   Em 2030 a disponibilidade quebraria em silêncio, para todos os clientes ao
+   mesmo tempo. `garantir_ciclos()` roda todo dia 1 e mantém três anos à
+   frente, com a mesma regra da carga inicial para os ciclos já vendidos
+   continuarem batendo.
+94. **Erro fica registrado em `app_errors`, não só no log da Vercel.** Hoje
+   quem descobria o erro era o cliente ligando. `onRequestError` pega o
+   servidor, `global-error` pega o navegador, e `/plataforma` mostra agrupado
+   por mensagem. Não substitui monitoramento com alerta, mas tira o cliente do
+   papel de sensor. Escrita só por service role, leitura só pela plataforma,
+   e faxina semanal do que passa de 90 dias.
 91. **O texto do produto segue `docs/ESTILO-DE-TEXTO.md`, e a primeira regra
    é: nada de travessão.** Frase curta, voz ativa, sem frase de efeito. Vale
    para tela, e-mail, mensagem de erro e comentário de código.
