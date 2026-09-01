@@ -38,7 +38,7 @@ export default async function EquipePage() {
 
   const equipe = (members ?? []) as unknown as M[];
   const pendentes = (invites ?? []) as I[];
-  const podeGerir = canManageTeam(ctx.current.role);
+  const podeGerir = canManageTeam(ctx.current.role, ctx.somenteLeitura);
 
   return (
     <>

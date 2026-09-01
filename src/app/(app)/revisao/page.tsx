@@ -155,7 +155,7 @@ export default async function RevisaoPage() {
         lead="O que a conferência automática não resolveu sozinha. Enquanto uma foto está aqui, a parada dela já foi concluída. A fila do campo não para."
       />
 
-      {canManageTeam(ctx.current.role) && (
+      {canManageTeam(ctx.current.role, ctx.somenteLeitura) && (
         <p className="mt-4 text-sm text-ink-2 fd-prose">
           Fila grande ou pequena demais é sinal de regra mal calibrada. Raio,
           tolerância de horário e sinais de fraude se ajustam em{" "}
@@ -328,10 +328,12 @@ export default async function RevisaoPage() {
                       {i.notes && <Linha k="Observação de campo" v={i.notes} />}
                     </dl>
 
-                    <RevisarFoto
-                      photoId={i.photo_id}
-                      precisaConferencia={i.verdict === "pendente"}
-                    />
+                    {!ctx.somenteLeitura && (
+                      <RevisarFoto
+                        photoId={i.photo_id}
+                        precisaConferencia={i.verdict === "pendente"}
+                      />
+                    )}
                   </div>
                 </div>
               </li>

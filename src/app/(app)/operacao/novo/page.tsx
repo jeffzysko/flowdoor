@@ -12,7 +12,7 @@ export const metadata = { title: "Novo pedido" };
 export default async function NovoPedidoPage() {
   const ctx = await getSessionContext();
   if (!ctx?.current) redirect("/entrar");
-  if (!canSell(ctx.current.role)) redirect("/operacao");
+  if (!canSell(ctx.current.role, ctx.somenteLeitura)) redirect("/operacao");
 
   const org = ctx.current.org_id;
   const supabase = await createClient();

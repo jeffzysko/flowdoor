@@ -38,9 +38,12 @@ export type Regras = {
 export function RegrasDeCampo({
   orgId,
   inicial,
+  bloqueado = false,
 }: {
   orgId: string;
   inicial: Regras;
+  /** Conta suspensa: o formulário abre para consulta e não salva. */
+  bloqueado?: boolean;
 }) {
   const [v, setV] = useState<Regras>(inicial);
   const [state, setState] = useState<RegrasState>({ ok: false });
@@ -277,7 +280,11 @@ export function RegrasDeCampo({
       )}
 
       <div className="mt-6 flex flex-wrap items-center gap-4">
-        <button onClick={enviar} disabled={salvando || !mudou} className="fd-btn">
+        <button
+          onClick={enviar}
+          disabled={salvando || !mudou || bloqueado}
+          className="fd-btn"
+        >
           {salvando ? "Salvando…" : "Salvar as regras"}
         </button>
         {mudou && (

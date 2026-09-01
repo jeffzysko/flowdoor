@@ -27,7 +27,7 @@ export default async function ClientesPage() {
   const rows = (data ?? []) as Anunciante[];
   const ativos = rows.filter((a) => a.archived_at === null);
   const arquivados = rows.filter((a) => a.archived_at !== null);
-  const pode = canSell(ctx.current.role);
+  const pode = canSell(ctx.current.role, ctx.somenteLeitura);
 
   return (
     <>

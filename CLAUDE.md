@@ -323,6 +323,14 @@ base nova, schema novo.
    é lá que a trava rende mais. A leitura continua liberada de propósito.
    Cobrança não pode virar sequestro de dado, e quem está suspenso precisa ver
    os próprios números para decidir voltar.
+95. **A tela para de oferecer o que o banco vai recusar.** A trava de conta
+   suspensa vive no banco, mas botão que continua clicável e falha com "sem
+   permissao" é interface mentindo. `ctx.somenteLeitura` entra nos mesmos
+   gates de papel que já escondiam ação por permissão, então o caminho é um
+   só. Páginas que existem só para escrever (novo pedido, importar planilha)
+   redirecionam. Páginas de consulta continuam abrindo, sem a ação. O
+   responsável pela plataforma não entra nessa trava, senão não teria como
+   resolver a situação do cliente.
 93. **O calendário de ciclos se renova sozinho.** A carga inicial ia até 2029.
    Em 2030 a disponibilidade quebraria em silêncio, para todos os clientes ao
    mesmo tempo. `garantir_ciclos()` roda todo dia 1 e mantém três anos à

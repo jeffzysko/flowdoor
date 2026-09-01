@@ -23,7 +23,7 @@ export default async function InventarioPage() {
     .order("code");
 
   const faces = (data ?? []) as unknown as FaceInv[];
-  const pode = canManageInventory(ctx.current.role);
+  const pode = canManageInventory(ctx.current.role, ctx.somenteLeitura);
 
   const [{ count: semLocal }, { count: parciais }, { count: conferem }] =
     await Promise.all([

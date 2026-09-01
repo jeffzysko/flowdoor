@@ -100,7 +100,7 @@ export default async function OpcoesPage() {
     .filter((o) => o.status !== "aberta")
     .sort((a, b) => b.expires_at.localeCompare(a.expires_at))
     .slice(0, 25);
-  const pode = canSell(ctx.current.role);
+  const pode = canSell(ctx.current.role, ctx.somenteLeitura);
 
   return (
     <>

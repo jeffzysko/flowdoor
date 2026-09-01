@@ -75,6 +75,12 @@ export interface SessionContext {
   /** URL assinada da foto, quando existe. O bucket é privado. */
   avatarUrl: string | null;
   isPlatformAdmin: boolean;
+  /**
+   * Empresa suspensa ou encerrada. O banco já recusa a escrita, e isto faz a
+   * tela parar de oferecer o que vai falhar. Não vale para o responsável pela
+   * plataforma, que precisa continuar agindo para resolver.
+   */
+  somenteLeitura: boolean;
   memberships: Membership[];
   current: Membership | null;
 }

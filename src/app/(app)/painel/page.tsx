@@ -97,7 +97,9 @@ export default async function PainelPage() {
   const lista_avisos = (avisos.data ?? []) as unknown as Aviso[];
   const lista = (pedidos.data ?? []) as unknown as Pedido[];
   const urgentes = lista_avisos.filter((a) => a.level === "urgente").length;
-  const podeDispensar = canSell(ctx.current.role) || canReview(ctx.current.role);
+  const podeDispensar =
+    canSell(ctx.current.role, ctx.somenteLeitura) ||
+    canReview(ctx.current.role, ctx.somenteLeitura);
 
   // A visão geral sempre diz o que fazer em seguida. O texto muda com o
   // estado: sem base, "cadastre"; com base e sem pedido, "venda"; com pedido

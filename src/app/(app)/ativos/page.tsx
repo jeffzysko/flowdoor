@@ -36,7 +36,7 @@ export default async function AtivosPage() {
   const tone = (v: string | null) =>
     !v ? "neutro" : v <= hoje ? "risco" : v <= em60 ? "aviso" : "bom";
 
-  const pode = canManageInventory(ctx.current.role);
+  const pode = canManageInventory(ctx.current.role, ctx.somenteLeitura);
 
   const custoMes = rows.reduce((s, r) => s + (r.lease_monthly_cost ?? 0), 0);
   const vencendo = rows.filter(

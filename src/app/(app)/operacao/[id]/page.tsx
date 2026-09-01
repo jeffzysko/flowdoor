@@ -104,7 +104,7 @@ export default async function PedidoPage({
     longitude: e.faces?.sites?.longitude ?? null,
   }));
   const concluidas = lista.filter((e) => e.status === "concluido").length;
-  const podeVender = canSell(ctx.current.role);
+  const podeVender = canSell(ctx.current.role, ctx.somenteLeitura);
 
   // O formulário de edição precisa do inventário e de quem pode ir a campo.
   // Só busca para quem tem permissão de mexer no pedido.

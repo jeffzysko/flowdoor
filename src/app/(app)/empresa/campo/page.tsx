@@ -29,7 +29,11 @@ export default async function RegrasPage() {
         title="Regras de campo"
         lead="O que o aplicador precisa cumprir para a aplicação valer, e o que manda a foto para conferência."
       />
-      <RegrasDeCampo orgId={ctx.current.org_id} inicial={data as Regras} />
+      <RegrasDeCampo
+        orgId={ctx.current.org_id}
+        inicial={data as Regras}
+        bloqueado={ctx.somenteLeitura}
+      />
     </>
   );
 }

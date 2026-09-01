@@ -17,7 +17,7 @@ export default async function EmpresaPage() {
   if (!ctx) redirect("/entrar");
   if (!ctx.current) redirect("/plataforma");
 
-  const pode = canManageTeam(ctx.current.role) || ctx.isPlatformAdmin;
+  const pode = canManageTeam(ctx.current.role, ctx.somenteLeitura) || ctx.isPlatformAdmin;
 
   const logoUrl = await logoDaEmpresa(ctx.current.org_id);
 

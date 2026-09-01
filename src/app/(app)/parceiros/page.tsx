@@ -136,6 +136,7 @@ export default async function ParceirosPage() {
                 <Chip tone={TOM_SITUACAO[p.status]}>{p.status}</Chip>
               </td>
               <td>
+                {!ctx.somenteLeitura && (
                 <AcoesParceria
                   relId={p.id}
                   nome={p.consumidora?.name ?? "este parceiro"}
@@ -144,13 +145,14 @@ export default async function ParceirosPage() {
                   canSeePrices={p.can_see_prices}
                   priceFactor={Number(p.price_factor ?? 1)}
                 />
+                )}
               </td>
             </tr>
           ))}
         </Table>
       )}
 
-      <ConvidarParceiro orgId={org} pontos={pontos} />
+      {!ctx.somenteLeitura && <ConvidarParceiro orgId={org} pontos={pontos} />}
 
       {pendentes.length > 0 && (
         <section className="mt-10">
@@ -175,7 +177,9 @@ export default async function ParceirosPage() {
                   {new Date(c.expires_at).toLocaleDateString("pt-BR")}
                 </td>
                 <td>
-                  <CancelarConviteParceiro id={c.id} email={c.email} />
+                  {!ctx.somenteLeitura && (
+                    <CancelarConviteParceiro id={c.id} email={c.email} />
+                  )}
                 </td>
               </tr>
             ))}

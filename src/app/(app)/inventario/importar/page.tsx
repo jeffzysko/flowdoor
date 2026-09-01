@@ -11,7 +11,7 @@ export const metadata = { title: "Importar inventário" };
 export default async function ImportarPage() {
   const ctx = await getSessionContext();
   if (!ctx?.current) redirect("/entrar");
-  if (!canManageInventory(ctx.current.role)) redirect("/inventario");
+  if (!canManageInventory(ctx.current.role, ctx.somenteLeitura)) redirect("/inventario");
 
   const supabase = await createClient();
   // Os códigos que já existem: é com eles que a prévia sabe dizer o que vai

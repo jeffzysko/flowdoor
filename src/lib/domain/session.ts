@@ -83,12 +83,20 @@ export async function getSessionContext(
   const current =
     list.find((m) => m.org_id === escolhida) ?? list[0] ?? null;
 
+  const somenteLeitura = Boolean(
+    current &&
+      !isAdmin &&
+      (current.organizations.status === "suspensa" ||
+        current.organizations.status === "encerrada")
+  );
+
   return {
     userId: user.id,
     fullName: profile?.full_name ?? user.email ?? "",
     email: user.email ?? "",
     avatarUrl,
     isPlatformAdmin: Boolean(isAdmin),
+    somenteLeitura,
     memberships: list,
     current,
   };

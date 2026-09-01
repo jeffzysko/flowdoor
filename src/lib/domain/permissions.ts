@@ -154,12 +154,13 @@ export const ROLE_LABEL: Record<MemberRole, string> = {
   leitura: "Leitura",
 };
 
-export const canSell = (r: MemberRole) =>
-  r === "owner" || r === "admin" || r === "comercial";
-export const canManageInventory = (r: MemberRole) =>
-  r === "owner" || r === "admin" || r === "operacao";
-export const canManageTeam = (r: MemberRole) => r === "owner" || r === "admin";
-export const canReview = (r: MemberRole) =>
-  r === "owner" || r === "admin" || r === "operacao";
+export const canSell = (r: MemberRole, bloqueado = false) =>
+  !bloqueado && (r === "owner" || r === "admin" || r === "comercial");
+export const canManageInventory = (r: MemberRole, bloqueado = false) =>
+  !bloqueado && (r === "owner" || r === "admin" || r === "operacao");
+export const canManageTeam = (r: MemberRole, bloqueado = false) =>
+  !bloqueado && (r === "owner" || r === "admin");
+export const canReview = (r: MemberRole, bloqueado = false) =>
+  !bloqueado && (r === "owner" || r === "admin" || r === "operacao");
 export const isField = (r: MemberRole) =>
   r === "aplicador" || r === "fotografo";

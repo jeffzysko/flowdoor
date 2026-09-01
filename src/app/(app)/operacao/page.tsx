@@ -39,7 +39,7 @@ export default async function OperacaoPage() {
         title="Pedidos"
         lead="Cada face reservada vira uma aplicação com coordenada, horário e foto conferida."
         action={
-          canSell(ctx.current.role) ? (
+          canSell(ctx.current.role, ctx.somenteLeitura) ? (
             <Link
               href={"/operacao/novo" as never}
               className="fd-btn"

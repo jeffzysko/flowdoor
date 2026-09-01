@@ -91,7 +91,7 @@ export default async function PontoPage({
 
   const faces: Face[] = brutas.map((f) => ({ ...f, usada: usadas.has(f.id) }));
   const podeExcluirPonto = faces.length > 0 && faces.every((f) => !f.usada);
-  const pode = canManageInventory(ctx.current.role);
+  const pode = canManageInventory(ctx.current.role, ctx.somenteLeitura);
 
   const eventos = (historico ?? []) as unknown as {
     id: string;
